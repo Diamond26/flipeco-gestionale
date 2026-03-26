@@ -61,18 +61,8 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
         )}
         aria-label="Navigazione principale"
       >
-        {/* Header: Logo + Brand name */}
+        {/* Header: Brand name */}
         <div className="flex items-center gap-3 px-4 py-5 border-b border-white/10">
-          <div className="relative h-18 w-18 shrink-0">
-            <Image
-              src="/logo.png"
-              alt="Flip&Co logo"
-              fill
-              sizes="48px"
-              className="object-contain"
-              priority
-            />
-          </div>
           <span className="text-white font-bold text-2xl tracking-wide">
             Flip<span className="text-brand-light">&amp;</span>Co
           </span>
