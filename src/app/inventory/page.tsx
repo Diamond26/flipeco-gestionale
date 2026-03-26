@@ -38,6 +38,7 @@ interface ProductRegistry {
   size: string
   color: string
   sku?: string
+  brand?: string | null
 }
 
 interface InventoryItem {
@@ -529,6 +530,7 @@ export default function InventoryPage() {
       headers: [
         'Barcode',
         'Nome',
+        'Brand',
         'Taglia',
         'Colore',
         'Quantità',
@@ -539,6 +541,7 @@ export default function InventoryPage() {
       rows: filteredInventory.map((item) => [
         item.product_registry.barcode ?? '',
         item.product_registry.name ?? '',
+        item.product_registry.brand ?? '',
         item.product_registry.size ?? '',
         item.product_registry.color ?? '',
         item.quantity,
@@ -589,6 +592,15 @@ export default function InventoryPage() {
       ) as unknown as string,
       render: (row: InventoryItem) => (
         <span className="font-medium">{row.product_registry.name}</span>
+      ),
+    },
+    {
+      key: 'brand',
+      header: 'Brand',
+      render: (row: InventoryItem) => (
+        <span className="text-sm font-medium text-foreground/80">
+          {row.product_registry.brand || '—'}
+        </span>
       ),
     },
     {

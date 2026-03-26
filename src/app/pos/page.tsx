@@ -55,8 +55,7 @@ interface CartItem {
   qty: number
   maxQty: number
 }
-
-type PaymentMethod = 'cash' | 'card'
+type PaymentMethod = 'cash' | 'pos'
 
 interface SaleItem {
   id: string
@@ -780,7 +779,7 @@ export default function POSPage() {
               </button>
 
               <button
-                onClick={() => cart.length > 0 && setPaymentMethod('card')}
+                onClick={() => cart.length > 0 && setPaymentMethod('pos')}
                 disabled={cart.length === 0}
                 className={cn(
                   'flex flex-col items-center justify-center gap-2 rounded-2xl py-7 px-4',
@@ -1040,7 +1039,7 @@ export default function POSPage() {
                 onClick={handleConfirmSale}
                 className={cn(
                   'flex-1 text-xl py-5',
-                  paymentMethod === 'card' && 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-300'
+                  paymentMethod === 'pos' && 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-300'
                 )}
               >
                 <CheckCircle2 className="w-6 h-6 mr-2" />
