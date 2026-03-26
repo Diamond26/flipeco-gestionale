@@ -50,7 +50,7 @@ interface ProductRegistry {
 
 interface PurchaseOrderItem {
   id: string
-  order_id: string
+  purchase_order_id: string
   product_id: string
   quantity: number
   unit_price: number
@@ -328,7 +328,7 @@ export default function PurchaseOrdersPage() {
 
     // Insert purchase_order_items rows
     const itemsPayload = draftItems.map((item) => ({
-      order_id: orderId,
+      purchase_order_id: orderId,
       product_id: item.product.id,
       quantity: item.quantity,
       unit_price: item.unit_price,
