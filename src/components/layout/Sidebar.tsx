@@ -62,15 +62,15 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
         aria-label="Navigazione principale"
       >
         {/* Header: Brand name */}
-        <div className="flex items-center gap-3 px-4 py-5 border-b border-white/10">
-          <span className="text-white font-bold text-2xl tracking-wide">
+        <div className="flex items-center justify-center px-4 py-5 border-b border-white/10 relative">
+          <span className="text-white font-bold text-3xl tracking-wide">
             Flip<span className="text-brand-light">&amp;</span>Co
           </span>
 
           {/* Mobile close button */}
           <button
             onClick={onMobileClose}
-            className="ml-auto text-white/60 hover:text-white md:hidden"
+            className="absolute right-4 text-white/60 hover:text-white md:hidden"
             aria-label="Chiudi menu"
           >
             <X size={20} />
