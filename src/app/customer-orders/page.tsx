@@ -227,7 +227,7 @@ export default function CustomerOrdersPage() {
       .from('inventory')
       .select('*, product_registry(*)')
       .gt('quantity', 0)
-      .order('created_at', { ascending: false })
+      .order('updated_at', { ascending: false })
 
     if (!error && data) {
       setInventoryOptions(data as InventoryItem[])
