@@ -63,17 +63,17 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
       >
         {/* Header: Logo + Brand name */}
         <div className="flex items-center gap-3 px-4 py-5 border-b border-white/10">
-          <div className="relative h-8 w-8 shrink-0">
+          <div className="relative h-18 w-18 shrink-0">
             <Image
               src="/logo.png"
               alt="Flip&Co logo"
               fill
-              sizes="32px"
+              sizes="48px"
               className="object-contain"
               priority
             />
           </div>
-          <span className="text-white font-bold text-2xl tracking-wide flex items-center h-8">
+          <span className="text-white font-bold text-2xl tracking-wide">
             Flip<span className="text-brand-light">&amp;</span>Co
           </span>
 
