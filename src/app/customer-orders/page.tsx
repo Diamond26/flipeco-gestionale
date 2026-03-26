@@ -54,7 +54,6 @@ interface InventoryItem {
 interface OrderItem {
   id: string
   order_id: string
-  inventory_id: string
   product_id: string
   quantity: number
   unit_price: number
@@ -383,7 +382,6 @@ export default function CustomerOrdersPage() {
     // Insert order items
     const itemsPayload = newOrderItems.map((item) => ({
       order_id: orderData.id,
-      inventory_id: item.inventoryId,
       product_id: item.productId,
       quantity: item.quantity,
       unit_price: item.unitPrice,
