@@ -180,10 +180,11 @@ export default function POSPage() {
       .from('inventory')
       .select('*, product_registry(*)')
       .gt('quantity', 0)
-      .order('created_at', { ascending: false })
+      .order('updated_at', { ascending: false })
 
     if (error) {
-      showToast('Errore nel caricamento prodotti', 'error')
+      console.error('Supabase POS error:', error)
+      showToast(`Errore caricamento: ${error.message}`, 'error')
     } else {
       setProducts((data as InventoryProduct[]) ?? [])
     }

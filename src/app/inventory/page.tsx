@@ -24,6 +24,7 @@ import {
   ChevronsUpDown,
   Search,
   X,
+  Plus,
 } from 'lucide-react'
 
 // ---------------------------------------------------------------------------
@@ -46,7 +47,6 @@ interface InventoryItem {
   sell_price: number
   quantity: number
   location: string | null
-  created_at: string
   updated_at: string
   product_registry: ProductRegistry
 }
@@ -126,6 +126,23 @@ export default function InventoryPage() {
   const [deleteItem, setDeleteItem] = useState<InventoryItem | null>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
 
+  // --- Manual add modal state ---
+  const [manualAddOpen, setManualAddOpen] = useState(false)
+  const [manualForm, setManualForm] = useState({
+    barcode: '',
+    name: '',
+    sku: '',
+    size: '',
+    color: '',
+    brand: '',
+    category: '',
+    purchase_price: '',
+    sell_price: '',
+    quantity: '1',
+    location: '',
+  })
+  const [manualAddLoading, setManualAddLoading] = useState(false)
+
   // --- Toasts ---
   const [toasts, setToasts] = useState<Toast[]>([])
   const toastCounter = useRef(0)
@@ -164,10 +181,11 @@ export default function InventoryPage() {
     const { data, error } = await supabase
       .from('inventory')
       .select('*, product_registry(*)')
-      .order('created_at', { ascending: false })
+      .order('updated_at', { ascending: false })
 
     if (error) {
-      showToast('Errore nel caricamento del magazzino', 'error')
+      console.error('Supabase inventory error:', error)
+      showToast(`Errore magazzino: ${error.message}`, 'error')
     } else {
       setInventory((data as InventoryItem[]) ?? [])
     }
@@ -266,7 +284,6 @@ export default function InventoryPage() {
           purchase_price: isNaN(purchasePrice) ? 0 : purchasePrice,
           sell_price: isNaN(sellPrice) ? 0 : sellPrice,
           location: addForm.location.trim() || null,
-          created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         })
         opError = error
@@ -355,6 +372,78 @@ export default function InventoryPage() {
     setDeleteItem(null)
     fetchInventory()
   }, [deleteItem, supabase, showToast, fetchInventory])
+
+  // ---------------------------------------------------------------------------
+  // Manual add product handler
+  // ---------------------------------------------------------------------------
+
+  const handleManualAdd = useCallback(async () => {
+    const name = manualForm.name.trim()
+    if (!name) {
+      showToast('Il nome del prodotto è obbligatorio', 'error')
+      return
+    }
+
+    const qty = parseInt(manualForm.quantity, 10)
+    if (!qty || qty <= 0) {
+      showToast('Inserisci una quantità valida', 'error')
+      return
+    }
+
+    setManualAddLoading(true)
+
+    // 1. Create product_registry entry
+    const { data: product, error: productError } = await supabase
+      .from('product_registry')
+      .insert({
+        barcode: manualForm.barcode.trim() || null,
+        name,
+        sku: manualForm.sku.trim() || null,
+        size: manualForm.size.trim() || null,
+        color: manualForm.color.trim() || null,
+        brand: manualForm.brand.trim() || null,
+        category: manualForm.category.trim() || null,
+      })
+      .select('id')
+      .single()
+
+    if (productError || !product) {
+      console.error('Error creating product:', productError)
+      setManualAddLoading(false)
+      showToast(`Errore creazione prodotto: ${productError?.message ?? 'sconosciuto'}`, 'error')
+      return
+    }
+
+    // 2. Create inventory entry
+    const purchasePrice = parseFloat(manualForm.purchase_price)
+    const sellPrice = parseFloat(manualForm.sell_price)
+
+    const { error: invError } = await supabase.from('inventory').insert({
+      product_id: product.id,
+      quantity: qty,
+      purchase_price: isNaN(purchasePrice) ? 0 : purchasePrice,
+      sell_price: isNaN(sellPrice) ? 0 : sellPrice,
+      location: manualForm.location.trim() || null,
+      updated_at: new Date().toISOString(),
+    })
+
+    setManualAddLoading(false)
+
+    if (invError) {
+      console.error('Error creating inventory:', invError)
+      showToast(`Errore aggiunta a magazzino: ${invError.message}`, 'error')
+      return
+    }
+
+    showToast(`"${name}" aggiunto al magazzino`, 'success')
+    setManualAddOpen(false)
+    setManualForm({
+      barcode: '', name: '', sku: '', size: '', color: '',
+      brand: '', category: '', purchase_price: '', sell_price: '',
+      quantity: '1', location: '',
+    })
+    fetchInventory()
+  }, [manualForm, supabase, showToast, fetchInventory])
 
   // ---------------------------------------------------------------------------
   // Sort handler
@@ -691,6 +780,16 @@ export default function InventoryPage() {
               >
                 <Scan className="w-4 h-4 mr-2" />
                 Cerca
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                size="md"
+                onClick={() => setManualAddOpen(true)}
+                className="whitespace-nowrap shrink-0"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Aggiungi Manualmente
               </Button>
             </div>
           </form>
@@ -1106,6 +1205,140 @@ export default function InventoryPage() {
             </div>
           </div>
         )}
+      </Modal>
+
+      {/* ------------------------------------------------------------------ */}
+      {/* Manual add product modal                                             */}
+      {/* ------------------------------------------------------------------ */}
+      <Modal
+        open={manualAddOpen}
+        onClose={() => setManualAddOpen(false)}
+        title="Aggiungi Prodotto Manualmente"
+        size="lg"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-foreground/60">
+            Inserisci i dati del prodotto. Verrà creato sia in anagrafica che in magazzino.
+          </p>
+
+          {/* Product details */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <Input
+              label="Nome *"
+              type="text"
+              placeholder="es. T-Shirt Basic"
+              value={manualForm.name}
+              onChange={(e) => setManualForm((f) => ({ ...f, name: e.target.value }))}
+              required
+            />
+            <Input
+              label="Barcode"
+              type="text"
+              placeholder="es. 8001234567890"
+              value={manualForm.barcode}
+              onChange={(e) => setManualForm((f) => ({ ...f, barcode: e.target.value }))}
+            />
+            <Input
+              label="SKU"
+              type="text"
+              placeholder="es. TSH-BAS-M-BLU"
+              value={manualForm.sku}
+              onChange={(e) => setManualForm((f) => ({ ...f, sku: e.target.value }))}
+            />
+            <Input
+              label="Taglia"
+              type="text"
+              placeholder="es. M, L, 42"
+              value={manualForm.size}
+              onChange={(e) => setManualForm((f) => ({ ...f, size: e.target.value }))}
+            />
+            <Input
+              label="Colore"
+              type="text"
+              placeholder="es. Blu"
+              value={manualForm.color}
+              onChange={(e) => setManualForm((f) => ({ ...f, color: e.target.value }))}
+            />
+            <Input
+              label="Brand"
+              type="text"
+              placeholder="es. Nike"
+              value={manualForm.brand}
+              onChange={(e) => setManualForm((f) => ({ ...f, brand: e.target.value }))}
+            />
+            <Input
+              label="Categoria"
+              type="text"
+              placeholder="es. Magliette"
+              value={manualForm.category}
+              onChange={(e) => setManualForm((f) => ({ ...f, category: e.target.value }))}
+            />
+          </div>
+
+          {/* Inventory details */}
+          <div className="pt-2 border-t border-surface/50">
+            <p className="text-xs font-semibold text-foreground/50 uppercase tracking-wide mb-3">
+              Dettagli Magazzino
+            </p>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <Input
+                label="Prezzo Acquisto (€)"
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="0.00"
+                value={manualForm.purchase_price}
+                onChange={(e) => setManualForm((f) => ({ ...f, purchase_price: e.target.value }))}
+              />
+              <Input
+                label="Prezzo Vendita (€)"
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="0.00"
+                value={manualForm.sell_price}
+                onChange={(e) => setManualForm((f) => ({ ...f, sell_price: e.target.value }))}
+              />
+              <Input
+                label="Quantità *"
+                type="number"
+                min="1"
+                step="1"
+                value={manualForm.quantity}
+                onChange={(e) => setManualForm((f) => ({ ...f, quantity: e.target.value }))}
+                required
+              />
+              <Input
+                label="Ubicazione"
+                type="text"
+                placeholder="es. Scaffale A2"
+                value={manualForm.location}
+                onChange={(e) => setManualForm((f) => ({ ...f, location: e.target.value }))}
+              />
+            </div>
+          </div>
+
+          <div className="flex gap-3 pt-2">
+            <Button
+              variant="primary"
+              size="md"
+              loading={manualAddLoading}
+              onClick={handleManualAdd}
+              className="flex-1"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Aggiungi Prodotto
+            </Button>
+            <Button
+              variant="secondary"
+              size="md"
+              onClick={() => setManualAddOpen(false)}
+              disabled={manualAddLoading}
+            >
+              Annulla
+            </Button>
+          </div>
+        </div>
       </Modal>
     </AppShell>
   )
