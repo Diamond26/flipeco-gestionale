@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --no-turbopack --use-npm)",
+      "Bash(npx create-next-app@latest flip-temp --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --no-turbopack --use-npm)",
+      "Bash(printf 'N\\\\nN\\\\n')"
+    ]
+  }
+}
