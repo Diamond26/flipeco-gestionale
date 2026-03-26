@@ -12,6 +12,8 @@ const geistMono = Geist_Mono({
   subsets: ['latin'],
 })
 
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: 'Flip&Co Gestionale',
   description: 'Piattaforma di gestione interna per Flip&Co',
