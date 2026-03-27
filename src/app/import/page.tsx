@@ -677,7 +677,8 @@ export default function ImportPage() {
             >
               <p className="text-sm text-foreground/60 mb-4">
                 Modifica direttamente le celle per correggere eventuali errori prima di salvare.
-                Le righe evidenziate in giallo hanno il campo &quot;Nome&quot; mancante.
+                Le righe che presentano problemi critici sul Nome sono evidenziate.
+                <strong> I campi evidenziati in #CCD0D5 indicano dati incerti o non riconosciuti.</strong>
               </p>
 
               <div className="overflow-x-auto rounded-xl border border-surface-light">
@@ -711,10 +712,12 @@ export default function ImportPage() {
                               onChange={(e) => updateCell(row.id, field, e.target.value)}
                               aria-label={`${field} riga ${idx + 1}`}
                               className={[
-                                'w-full px-2 py-1.5 rounded-lg border text-sm bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-brand transition-colors',
-                                field === 'name' && row.hasError
-                                  ? 'border-yellow-400 ring-1 ring-yellow-300'
-                                  : 'border-surface-light focus:border-brand',
+                                'w-full px-2 py-1.5 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-brand transition-colors',
+                                !row[field].trim()
+                                  ? 'bg-[#CCD0D5] text-black border-[#A0AAB5] placeholder-black/60 shadow-inner' // Campi incerti
+                                  : field === 'name' && row.hasError
+                                    ? 'bg-background border-yellow-400 ring-1 ring-yellow-300 text-foreground'
+                                    : 'bg-background text-foreground border-surface-light focus:border-brand',
                               ].join(' ')}
                             />
                           </td>

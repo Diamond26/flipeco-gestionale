@@ -2,86 +2,110 @@ export interface ParsedRow {
   [key: string]: string
 }
 
-// Regex patterns per riconoscere i campi dai PDF dei fornitori
+// Regex patterns per riconoscere i campi dai PDF
 const BARCODE_PATTERN = /\b(\d{8,13})\b/
-const SKU_PATTERN = /\b([A-Z]{2,4}[-_]?\d{3,10})\b/i
+const SKU_PATTERN = /\b([A-Z0-9]{2,6}[-_]?\d{3,10})\b/i
 
-const SIZE_KEYWORDS = ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL', '2XL', '3XL',
+const SIZE_KEYWORDS = [
+  'XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL', '2XL', '3XL',
   '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '48', '50', '52', '54', '56',
-  'UNICA', 'TU', 'OS']
+  'UNICA', 'TU', 'OS'
+]
 
 const COLOR_KEYWORDS = [
   'NERO', 'BIANCO', 'ROSSO', 'BLU', 'VERDE', 'GIALLO', 'ARANCIONE', 'VIOLA', 'ROSA',
   'GRIGIO', 'MARRONE', 'BEIGE', 'AZZURRO', 'CELESTE', 'BORDEAUX', 'PANNA', 'CREMA',
   'NAVY', 'MILITARE', 'FUCSIA', 'CORALLO', 'TURCHESE', 'INDACO', 'LILLA', 'SENAPE',
   'BLACK', 'WHITE', 'RED', 'BLUE', 'GREEN', 'YELLOW', 'ORANGE', 'PURPLE', 'PINK',
-  'GREY', 'GRAY', 'BROWN', 'CREAM', 'IVORY', 'KHAKI', 'OLIVE', 'CAMEL', 'TAUPE',
+  'GREY', 'GRAY', 'BROWN', 'CREAM', 'IVORY', 'KHAKI', 'OLIVE', 'CAMEL', 'TAUPE'
 ]
 
-function extractFieldsFromLine(line: string): ParsedRow | null {
+function extractFieldsWithScore(line: string): ParsedRow | null {
   const trimmed = line.trim()
   if (!trimmed || trimmed.length < 5) return null
 
-  // Skip lines that look like headers, footers, page numbers, or noise
+  // Filtri rumore
   if (/^(page|pagina|pag\.?)\s*\d/i.test(trimmed)) return null
-  if (/^(totale|subtotale|iva|imposta|sconto|spedizione)/i.test(trimmed)) return null
+  if (/^(totale|subtotale|iva|imposta|sconto|spedizione|importo)/i.test(trimmed)) return null
   if (/^\d+\s*[/\-]\s*\d+\s*[/\-]\s*\d+$/.test(trimmed)) return null
   if (/^[\s\-_=*#.]+$/.test(trimmed)) return null
   const lowerTrimmed = trimmed.toLowerCase()
   if (lowerTrimmed.startsWith('tel') || lowerTrimmed.startsWith('fax') || lowerTrimmed.startsWith('email')) return null
   if (/^(p\.?\s*iva|c\.?\s*f\.?|cod\.?\s*fisc)/i.test(trimmed)) return null
 
-  const row: ParsedRow = {
-    barcode: '',
-    sku: '',
-    name: '',
-    size: '',
-    color: '',
-  }
+  const row: ParsedRow = { barcode: '', sku: '', name: '', size: '', color: '' }
+  let score = 0
 
-  // Estrai barcode
-  const barcodeMatch = trimmed.match(BARCODE_PATTERN)
-  if (barcodeMatch) {
-    row.barcode = barcodeMatch[1]
-  }
+  // 1. Tabular Awareness: prova a splittare per multipli spazi o tab
+  const columns = trimmed.split(/\s{2,}|\t/).filter(c => c.trim().length > 0)
 
-  // Estrai SKU
-  const skuMatch = trimmed.match(SKU_PATTERN)
-  if (skuMatch && skuMatch[1] !== row.barcode) {
-    row.sku = skuMatch[1]
-  }
-
-  // Estrai taglia
-  const upperLine = trimmed.toUpperCase()
-  for (const size of SIZE_KEYWORDS) {
-    const sizeRegex = new RegExp(`\\b${size}\\b`, 'i')
-    if (sizeRegex.test(upperLine)) {
-      row.size = size
-      break
+  if (columns.length >= 3) {
+    // Probabile struttura a tabella
+    score += 2
+    for (const col of columns) {
+      if (!row.barcode && BARCODE_PATTERN.test(col)) {
+        row.barcode = col.match(BARCODE_PATTERN)?.[1] || ''
+        score += 2
+      } else if (!row.sku && SKU_PATTERN.test(col)) {
+        row.sku = col.match(SKU_PATTERN)?.[1] || ''
+      } else if (!row.size && SIZE_KEYWORDS.some(k => new RegExp(`\\b${k}\\b`, 'i').test(col))) {
+        row.size = col.trim()
+        score += 1
+      } else if (!row.color && COLOR_KEYWORDS.some(k => new RegExp(`\\b${k}\\b`, 'i').test(col))) {
+        row.color = col.trim()
+        score += 1
+      } else if (!row.name && col.length > 3 && !/^\d+[.,]?\d*$/.test(col)) {
+        row.name = col.trim()
+      }
     }
-  }
-
-  // Estrai colore
-  for (const color of COLOR_KEYWORDS) {
-    const colorRegex = new RegExp(`\\b${color}\\b`, 'i')
-    if (colorRegex.test(upperLine)) {
-      row.color = color
-      break
+  } else {
+    // 2. Pattern Matching testuale fallback
+    const barcodeMatch = trimmed.match(BARCODE_PATTERN)
+    if (barcodeMatch) {
+      row.barcode = barcodeMatch[1]
+      score += 2
     }
+
+    const skuMatch = trimmed.match(SKU_PATTERN)
+    if (skuMatch && skuMatch[1] !== row.barcode) {
+      row.sku = skuMatch[1]
+    }
+
+    const upperLine = trimmed.toUpperCase()
+    for (const size of SIZE_KEYWORDS) {
+      if (new RegExp(`\\b${size}\\b`, 'i').test(upperLine)) {
+        row.size = size
+        score += 1
+        break
+      }
+    }
+
+    for (const color of COLOR_KEYWORDS) {
+      if (new RegExp(`\\b${color}\\b`, 'i').test(upperLine)) {
+        row.color = color
+        score += 1
+        break
+      }
+    }
+
+    // Ricava il nome dal rimanente
+    let tempName = trimmed
+    if (row.barcode) tempName = tempName.replace(row.barcode, '')
+    if (row.sku) tempName = tempName.replace(row.sku, '')
+    if (row.size) tempName = tempName.replace(new RegExp(`\\b${row.size}\\b`, 'i'), '')
+    if (row.color) tempName = tempName.replace(new RegExp(`\\b${row.color}\\b`, 'i'), '')
+    
+    // Pulisci i prezzi rimasti
+    tempName = tempName.replace(/€?\s*\d+[.,]\d{2}\b/g, '')
+    row.name = tempName.replace(/\s+/g, ' ').replace(/^[\s,;:\-–—]+|[\s,;:\-–—]+$/g, '').trim()
   }
 
-  // Il resto diventa il nome (rimuovi barcode/sku/taglia/colore trovati)
-  let name = trimmed
-  if (row.barcode) name = name.replace(row.barcode, '')
-  if (row.sku) name = name.replace(new RegExp(row.sku.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'), '')
-  if (row.size) name = name.replace(new RegExp(`\\b${row.size}\\b`, 'i'), '')
-  if (row.color) name = name.replace(new RegExp(`\\b${row.color}\\b`, 'i'), '')
-  // Remove leftover prices (e.g. €12.50, 12,50)
-  name = name.replace(/€?\s*\d+[.,]\d{2}\b/g, '')
-  row.name = name.replace(/\s+/g, ' ').replace(/^[\s,;:\-–—]+|[\s,;:\-–—]+$/g, '').trim()
+  // Bonus puntaggio se c'è un nome molto descrittivo
+  if (row.name.length > 5) score += 1
 
-  // Solo se abbiamo almeno un campo significativo
-  if (!row.barcode && !row.sku && !row.name) return null
+  // Filtriamo: deve avere almeno un punteggio di affidabilità decente
+  // es: ha un barcode (score=2), oppure nome lungo + colore (score >= 2), ecc.
+  if (score < 2) return null
 
   return row
 }
@@ -139,7 +163,7 @@ export async function parsePDF(file: File): Promise<{ headers: string[]; rows: P
   const rows: ParsedRow[] = []
 
   for (const line of lines) {
-    const parsed = extractFieldsFromLine(line)
+    const parsed = extractFieldsWithScore(line)
     if (parsed) {
       rows.push(parsed)
     }

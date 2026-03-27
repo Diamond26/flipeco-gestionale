@@ -16,6 +16,13 @@ export async function POST(request: NextRequest) {
     const parser = new PDFParse({ data })
     const result = await parser.getText()
 
+    if (!result.text || result.text.trim().length < 100) {
+      return NextResponse.json(
+        { error: 'Il PDF sembra essere una scansione (testo insufficiente). Convertilo in formato testuale.' },
+        { status: 400 }
+      )
+    }
+
     return NextResponse.json({ text: result.text })
   } catch (error) {
     console.error('Errore parsing PDF:', error)

@@ -95,6 +95,7 @@ export default function InventoryPage() {
   const [scanLoading, setScanLoading] = useState(false)
   const [scanError, setScanError] = useState<string | null>(null)
   const [scannedProduct, setScannedProduct] = useState<ScannedProduct | null>(null)
+  const [isReceivingScan, setIsReceivingScan] = useState(false)
 
   // --- Add-to-inventory form state ---
   const [addForm, setAddForm] = useState({
@@ -185,6 +186,7 @@ export default function InventoryPage() {
         const code = scanBufferRef.current
         scanBufferRef.current = ''
         if (scanTimerRef.current) clearTimeout(scanTimerRef.current)
+        setIsReceivingScan(false)
         setBarcodeValue(code)
         setTimeout(() => {
           barcodeInputRef.current?.form?.requestSubmit()
@@ -194,10 +196,14 @@ export default function InventoryPage() {
 
       if (e.key.length === 1) {
         e.preventDefault()
+        if (scanBufferRef.current.length === 0) {
+          setIsReceivingScan(true)
+        }
         scanBufferRef.current += e.key
         if (scanTimerRef.current) clearTimeout(scanTimerRef.current)
         scanTimerRef.current = setTimeout(() => {
           scanBufferRef.current = ''
+          setIsReceivingScan(false)
         }, 100)
       }
     }
@@ -795,6 +801,16 @@ export default function InventoryPage() {
       </div>
 
       <div className="space-y-6 max-w-7xl mx-auto">
+        {/* ------------------------------------------------------------------ */}
+        {/* Indicator Scanner                                                  */}
+        {/* ------------------------------------------------------------------ */}
+        {isReceivingScan && (
+          <div className="fixed bottom-6 right-6 z-[100] flex items-center gap-3 bg-brand text-white px-5 py-3 rounded-full shadow-2xl animate-pulse">
+            <Scan className="w-6 h-6" />
+            <span className="font-bold">Scanner in ascolto...</span>
+          </div>
+        )}
+
         {/* ---------------------------------------------------------------- */}
         {/* Barcode scanner section                                           */}
         {/* ---------------------------------------------------------------- */}

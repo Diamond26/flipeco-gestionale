@@ -116,6 +116,7 @@ export default function POSPage() {
   // --- Barcode ---
   const [barcodeValue, setBarcodeValue] = useState('')
   const [scanLoading, setScanLoading] = useState(false)
+  const [isReceivingScan, setIsReceivingScan] = useState(false)
 
   // --- Products grid ---
   const [products, setProducts] = useState<InventoryProduct[]>([])
@@ -142,6 +143,7 @@ export default function POSPage() {
   const [todaySales, setTodaySales] = useState<Sale[]>([])
   const [historyLoading, setHistoryLoading] = useState(false)
   const [historyOpen, setHistoryOpen] = useState(false)
+  const [stornoLoading, setStornoLoading] = useState<string | null>(null)
 
   // --- Return (reso) modal state ---
   const [returnOpen, setReturnOpen] = useState(false)
@@ -193,6 +195,7 @@ export default function POSPage() {
         const code = scanBufferRef.current
         scanBufferRef.current = ''
         if (scanTimerRef.current) clearTimeout(scanTimerRef.current)
+        setIsReceivingScan(false)
         // Trigger barcode lookup
         setBarcodeValue(code)
         setTimeout(() => {
@@ -203,11 +206,15 @@ export default function POSPage() {
 
       if (e.key.length === 1) {
         e.preventDefault()
+        if (scanBufferRef.current.length === 0) {
+          setIsReceivingScan(true)
+        }
         scanBufferRef.current += e.key
         // Reset buffer after 100ms of inactivity (scanner sends chars rapidly)
         if (scanTimerRef.current) clearTimeout(scanTimerRef.current)
         scanTimerRef.current = setTimeout(() => {
           scanBufferRef.current = ''
+          setIsReceivingScan(false)
         }, 100)
       }
     }
@@ -558,6 +565,51 @@ export default function POSPage() {
   )
 
   // ---------------------------------------------------------------------------
+  // Storno Sale
+  // ---------------------------------------------------------------------------
+  const handleStornoSale = useCallback(async (sale: Sale) => {
+    if (!window.confirm(`Sei sicuro di voler stornare questa vendita da ${formatCurrency(sale.total)}?\nI prodotti verranno rimessi in giacenza.`)) {
+      return
+    }
+
+    setStornoLoading(sale.id)
+
+    // 1. Ripristina quantità giacenze (nessun trigger AFTER DELETE presente)
+    for (const item of sale.sale_items) {
+      if (!item.product_id) continue
+
+      const { data: invData } = await supabase
+        .from('inventory')
+        .select('quantity')
+        .eq('product_id', item.product_id)
+        .maybeSingle()
+
+      if (invData) {
+        await supabase
+          .from('inventory')
+          .update({ quantity: invData.quantity + item.quantity })
+          .eq('product_id', item.product_id)
+      }
+    }
+
+    // 2. Elimina record vendita (cascade eliminerà sale_items)
+    const { error } = await supabase
+      .from('sales')
+      .delete()
+      .eq('id', sale.id)
+
+    setStornoLoading(null)
+
+    if (error) {
+      showToast(`Errore durante lo storno: ${error.message}`, 'error')
+    } else {
+      showToast('Vendita stornata con successo', 'success')
+      fetchTodaySales()
+      fetchProducts()
+    }
+  }, [supabase, showToast, fetchTodaySales, fetchProducts])
+
+  // ---------------------------------------------------------------------------
   // Filtered products grid
   // ---------------------------------------------------------------------------
 
@@ -612,6 +664,16 @@ export default function POSPage() {
       </div>
 
       <div className="max-w-[1600px] mx-auto space-y-4">
+        {/* ------------------------------------------------------------------ */}
+        {/* Indicator Scanner                                                  */}
+        {/* ------------------------------------------------------------------ */}
+        {isReceivingScan && (
+          <div className="fixed bottom-6 right-6 z-[100] flex items-center gap-3 bg-brand text-white px-5 py-3 rounded-full shadow-2xl animate-pulse">
+            <Scan className="w-6 h-6" />
+            <span className="font-bold">Scanner in ascolto...</span>
+          </div>
+        )}
+
         {/* ---------------------------------------------------------------- */}
         {/* Main two-column POS layout                                        */}
         {/* ---------------------------------------------------------------- */}
@@ -1046,6 +1108,9 @@ export default function POSPage() {
                           <th className="text-right px-5 py-3 text-xs font-semibold text-foreground/50 uppercase tracking-wide">
                             Totale
                           </th>
+                          <th className="text-right px-5 py-3 text-xs font-semibold text-foreground/50 uppercase tracking-wide">
+                            Azioni
+                          </th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-surface/20">
@@ -1102,6 +1167,26 @@ export default function POSPage() {
                               </td>
                               <td className="px-5 py-3 text-right font-bold text-foreground">
                                 {formatCurrency(sale.total)}
+                              </td>
+                              <td className="px-5 py-3 text-right">
+                                <button
+                                  onClick={() => handleStornoSale(sale)}
+                                  disabled={stornoLoading === sale.id}
+                                  className={cn(
+                                    "text-xs flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg transition-colors ml-auto font-medium",
+                                    stornoLoading === sale.id 
+                                      ? "text-danger/50 bg-danger/5 cursor-not-allowed" 
+                                      : "text-danger hover:bg-danger/10 cursor-pointer"
+                                  )}
+                                  title="Storna Pagamento"
+                                >
+                                  {stornoLoading === sale.id ? (
+                                    <div className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                                  ) : (
+                                    <RotateCcw className="w-3.5 h-3.5" />
+                                  )}
+                                  Storna
+                                </button>
                               </td>
                             </tr>
                           )
