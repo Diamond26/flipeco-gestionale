@@ -152,9 +152,18 @@ export default function InventoryPage() {
   const lookupTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // --- Autocomplete suggestions state ---
-  const [suggestions, setSuggestions] = useState<{field: string; items: string[]}>({
-    field: '', items: []
-  })
+  interface ProductSuggestion {
+    id: string
+    barcode: string | null
+    name: string
+    sku: string | null
+    size: string | null
+    color: string | null
+    color_code: string | null
+    brand: string | null
+  }
+  const [productSuggestions, setProductSuggestions] = useState<ProductSuggestion[]>([])
+  const [suggestField, setSuggestField] = useState('')
   const suggestTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // --- Toasts ---
@@ -527,32 +536,57 @@ export default function InventoryPage() {
     if (suggestTimerRef.current) clearTimeout(suggestTimerRef.current)
     const trimmed = value.trim()
     if (trimmed.length < 2) {
-      setSuggestions({ field: '', items: [] })
+      setProductSuggestions([])
+      setSuggestField('')
       return
     }
 
     suggestTimerRef.current = setTimeout(async () => {
       const { data } = await supabase
         .from('product_registry')
-        .select(dbColumn)
+        .select('id, barcode, name, sku, size, color, color_code, brand')
         .ilike(dbColumn, `%${trimmed}%`)
-        .limit(50)
+        .limit(20)
 
       if (data && data.length > 0) {
-        // Deduplica e filtra nulls
-        const unique = [...new Set(
-          data.map((r: any) => r[dbColumn]).filter((v: any) => v && typeof v === 'string')
-        )] as string[]
-        setSuggestions({ field, items: unique.slice(0, 8) })
+        // Deduplica per combinazione name+size+color per evitare doppioni identici
+        const seen = new Set<string>()
+        const unique: ProductSuggestion[] = []
+        for (const r of data) {
+          const key = `${r.name}|${r.size}|${r.color}|${r.brand}`
+          if (!seen.has(key)) {
+            seen.add(key)
+            unique.push(r as ProductSuggestion)
+          }
+        }
+        setProductSuggestions(unique.slice(0, 8))
+        setSuggestField(field)
       } else {
-        setSuggestions({ field: '', items: [] })
+        setProductSuggestions([])
+        setSuggestField('')
       }
     }, 300)
   }, [supabase])
 
+  const pickSuggestion = useCallback((product: ProductSuggestion) => {
+    setManualForm((f) => ({
+      ...f,
+      barcode: product.barcode || f.barcode,
+      name: product.name || f.name,
+      sku: product.sku || f.sku,
+      size: product.size || f.size,
+      color: product.color || f.color,
+      color_code: product.color_code || f.color_code,
+      brand: product.brand || f.brand,
+    }))
+    setProductSuggestions([])
+    setSuggestField('')
+    // Focus prezzo acquisto
+    setTimeout(() => purchasePriceRef.current?.focus(), 100)
+  }, [])
+
   const closeSuggestions = useCallback(() => {
-    // Delay so click on suggestion fires first
-    setTimeout(() => setSuggestions({ field: '', items: [] }), 150)
+    setTimeout(() => { setProductSuggestions([]); setSuggestField('') }, 150)
   }, [])
 
   // ---------------------------------------------------------------------------
@@ -1477,7 +1511,7 @@ export default function InventoryPage() {
 
           {/* Product details */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {/* Nome con suggerimenti */}
+            {/* Nome con suggerimenti prodotto */}
             <div className="relative">
               <Input
                 label="Nome *"
@@ -1491,20 +1525,22 @@ export default function InventoryPage() {
                 onBlur={closeSuggestions}
                 required
               />
-              {suggestions.field === 'name' && suggestions.items.length > 0 && (
-                <div className="absolute z-50 left-0 right-0 top-full mt-1 bg-white border border-[#CCD0D5] rounded-xl shadow-xl max-h-48 overflow-y-auto">
-                  {suggestions.items.map((s, i) => (
+              {suggestField === 'name' && productSuggestions.length > 0 && (
+                <div className="absolute z-50 left-0 right-0 top-full mt-1 bg-white border border-[#CCD0D5] rounded-xl shadow-xl max-h-56 overflow-y-auto">
+                  {productSuggestions.map((p) => (
                     <button
-                      key={i}
+                      key={p.id}
                       type="button"
-                      className="w-full text-left px-3 py-2 text-sm hover:bg-[#7BB35F]/10 transition-colors first:rounded-t-xl last:rounded-b-xl"
-                      onMouseDown={(e) => {
-                        e.preventDefault()
-                        setManualForm((f) => ({ ...f, name: s }))
-                        setSuggestions({ field: '', items: [] })
-                      }}
+                      className="w-full text-left px-3 py-2.5 hover:bg-[#7BB35F]/10 transition-colors first:rounded-t-xl last:rounded-b-xl border-b border-surface-light last:border-0"
+                      onMouseDown={(e) => { e.preventDefault(); pickSuggestion(p) }}
                     >
-                      {s}
+                      <span className="text-sm font-semibold text-foreground">{p.name}</span>
+                      <span className="flex gap-2 mt-0.5 text-xs text-foreground/50">
+                        {p.size && <span>Tg: {p.size}</span>}
+                        {p.color && <span>Col: {p.color}</span>}
+                        {p.brand && <span>Brand: {p.brand}</span>}
+                        {p.sku && <span>SKU: {p.sku}</span>}
+                      </span>
                     </button>
                   ))}
                 </div>
@@ -1517,7 +1553,7 @@ export default function InventoryPage() {
               value={manualForm.sku}
               onChange={(e) => setManualForm((f) => ({ ...f, sku: e.target.value }))}
             />
-            {/* Taglia con suggerimenti */}
+            {/* Taglia con suggerimenti prodotto */}
             <div className="relative">
               <Input
                 label="Taglia"
@@ -1530,26 +1566,27 @@ export default function InventoryPage() {
                 }}
                 onBlur={closeSuggestions}
               />
-              {suggestions.field === 'size' && suggestions.items.length > 0 && (
-                <div className="absolute z-50 left-0 right-0 top-full mt-1 bg-white border border-[#CCD0D5] rounded-xl shadow-xl max-h-48 overflow-y-auto">
-                  {suggestions.items.map((s, i) => (
+              {suggestField === 'size' && productSuggestions.length > 0 && (
+                <div className="absolute z-50 left-0 right-0 top-full mt-1 bg-white border border-[#CCD0D5] rounded-xl shadow-xl max-h-56 overflow-y-auto">
+                  {productSuggestions.map((p) => (
                     <button
-                      key={i}
+                      key={p.id}
                       type="button"
-                      className="w-full text-left px-3 py-2 text-sm hover:bg-[#7BB35F]/10 transition-colors first:rounded-t-xl last:rounded-b-xl"
-                      onMouseDown={(e) => {
-                        e.preventDefault()
-                        setManualForm((f) => ({ ...f, size: s }))
-                        setSuggestions({ field: '', items: [] })
-                      }}
+                      className="w-full text-left px-3 py-2.5 hover:bg-[#7BB35F]/10 transition-colors first:rounded-t-xl last:rounded-b-xl border-b border-surface-light last:border-0"
+                      onMouseDown={(e) => { e.preventDefault(); pickSuggestion(p) }}
                     >
-                      {s}
+                      <span className="text-sm font-semibold text-foreground">{p.name}</span>
+                      <span className="flex gap-2 mt-0.5 text-xs text-foreground/50">
+                        {p.size && <span className="text-brand font-bold">Tg: {p.size}</span>}
+                        {p.color && <span>Col: {p.color}</span>}
+                        {p.brand && <span>Brand: {p.brand}</span>}
+                      </span>
                     </button>
                   ))}
                 </div>
               )}
             </div>
-            {/* Colore con suggerimenti */}
+            {/* Colore con suggerimenti prodotto */}
             <div className="relative">
               <Input
                 label="Colore"
@@ -1562,20 +1599,22 @@ export default function InventoryPage() {
                 }}
                 onBlur={closeSuggestions}
               />
-              {suggestions.field === 'color' && suggestions.items.length > 0 && (
-                <div className="absolute z-50 left-0 right-0 top-full mt-1 bg-white border border-[#CCD0D5] rounded-xl shadow-xl max-h-48 overflow-y-auto">
-                  {suggestions.items.map((s, i) => (
+              {suggestField === 'color' && productSuggestions.length > 0 && (
+                <div className="absolute z-50 left-0 right-0 top-full mt-1 bg-white border border-[#CCD0D5] rounded-xl shadow-xl max-h-56 overflow-y-auto">
+                  {productSuggestions.map((p) => (
                     <button
-                      key={i}
+                      key={p.id}
                       type="button"
-                      className="w-full text-left px-3 py-2 text-sm hover:bg-[#7BB35F]/10 transition-colors first:rounded-t-xl last:rounded-b-xl"
-                      onMouseDown={(e) => {
-                        e.preventDefault()
-                        setManualForm((f) => ({ ...f, color: s }))
-                        setSuggestions({ field: '', items: [] })
-                      }}
+                      className="w-full text-left px-3 py-2.5 hover:bg-[#7BB35F]/10 transition-colors first:rounded-t-xl last:rounded-b-xl border-b border-surface-light last:border-0"
+                      onMouseDown={(e) => { e.preventDefault(); pickSuggestion(p) }}
                     >
-                      {s}
+                      <span className="text-sm font-semibold text-foreground">{p.name}</span>
+                      <span className="flex gap-2 mt-0.5 text-xs text-foreground/50">
+                        {p.size && <span>Tg: {p.size}</span>}
+                        {p.color && <span className="text-brand font-bold">Col: {p.color}</span>}
+                        {p.color_code && <span>Cod: {p.color_code}</span>}
+                        {p.brand && <span>Brand: {p.brand}</span>}
+                      </span>
                     </button>
                   ))}
                 </div>
@@ -1588,7 +1627,7 @@ export default function InventoryPage() {
               value={manualForm.color_code}
               onChange={(e) => setManualForm((f) => ({ ...f, color_code: e.target.value }))}
             />
-            {/* Brand con suggerimenti */}
+            {/* Brand con suggerimenti prodotto */}
             <div className="relative">
               <Input
                 label="Brand"
@@ -1601,20 +1640,21 @@ export default function InventoryPage() {
                 }}
                 onBlur={closeSuggestions}
               />
-              {suggestions.field === 'brand' && suggestions.items.length > 0 && (
-                <div className="absolute z-50 left-0 right-0 top-full mt-1 bg-white border border-[#CCD0D5] rounded-xl shadow-xl max-h-48 overflow-y-auto">
-                  {suggestions.items.map((s, i) => (
+              {suggestField === 'brand' && productSuggestions.length > 0 && (
+                <div className="absolute z-50 left-0 right-0 top-full mt-1 bg-white border border-[#CCD0D5] rounded-xl shadow-xl max-h-56 overflow-y-auto">
+                  {productSuggestions.map((p) => (
                     <button
-                      key={i}
+                      key={p.id}
                       type="button"
-                      className="w-full text-left px-3 py-2 text-sm hover:bg-[#7BB35F]/10 transition-colors first:rounded-t-xl last:rounded-b-xl"
-                      onMouseDown={(e) => {
-                        e.preventDefault()
-                        setManualForm((f) => ({ ...f, brand: s }))
-                        setSuggestions({ field: '', items: [] })
-                      }}
+                      className="w-full text-left px-3 py-2.5 hover:bg-[#7BB35F]/10 transition-colors first:rounded-t-xl last:rounded-b-xl border-b border-surface-light last:border-0"
+                      onMouseDown={(e) => { e.preventDefault(); pickSuggestion(p) }}
                     >
-                      {s}
+                      <span className="text-sm font-semibold text-foreground">{p.name}</span>
+                      <span className="flex gap-2 mt-0.5 text-xs text-foreground/50">
+                        {p.size && <span>Tg: {p.size}</span>}
+                        {p.color && <span>Col: {p.color}</span>}
+                        {p.brand && <span className="text-brand font-bold">Brand: {p.brand}</span>}
+                      </span>
                     </button>
                   ))}
                 </div>
