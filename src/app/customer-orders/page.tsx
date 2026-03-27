@@ -68,7 +68,6 @@ interface CustomerOrder {
   status: OrderStatus
   total: number
   created_at: string
-  updated_at: string
   customer_order_items: OrderItem[]
 }
 
@@ -367,8 +366,6 @@ export default function CustomerOrdersPage() {
         notes: newOrderForm.notes.trim() || null,
         status: 'pending' as OrderStatus,
         total: orderTotal,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
       })
       .select()
       .single()
@@ -414,7 +411,7 @@ export default function CustomerOrdersPage() {
 
     const { error } = await supabase
       .from('customer_orders')
-      .update({ status: newStatus, updated_at: new Date().toISOString() })
+      .update({ status: newStatus })
       .eq('id', orderId)
 
     setStatusLoading(false)
