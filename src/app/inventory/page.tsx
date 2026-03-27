@@ -146,9 +146,16 @@ export default function InventoryPage() {
   })
   const [manualAddLoading, setManualAddLoading] = useState(false)
   const [lookupLoading, setLookupLoading] = useState(false)
-  const [lookupMatch, setLookupMatch] = useState<boolean | null>(null) // null=not yet, true=found, false=not found
+  const [lookupMatch, setLookupMatch] = useState<boolean | null>(null)
   const [lookupImportName, setLookupImportName] = useState<string | null>(null)
   const purchasePriceRef = useRef<HTMLInputElement>(null)
+  const lookupTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // --- Autocomplete suggestions state ---
+  const [suggestions, setSuggestions] = useState<{field: string; items: string[]}>({
+    field: '', items: []
+  })
+  const suggestTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // --- Toasts ---
   const [toasts, setToasts] = useState<Toast[]>([])
@@ -487,6 +494,66 @@ export default function InventoryPage() {
     // Auto-focus purchase price
     setTimeout(() => purchasePriceRef.current?.focus(), 100)
   }, [supabase])
+
+  // Debounced barcode change handler
+  const handleBarcodeChange = useCallback((value: string) => {
+    setManualForm((f) => ({ ...f, barcode: value }))
+    setLookupMatch(null)
+    setLookupImportName(null)
+
+    if (lookupTimerRef.current) clearTimeout(lookupTimerRef.current)
+    const trimmed = value.trim()
+    if (trimmed.length >= 8) {
+      lookupTimerRef.current = setTimeout(() => {
+        lookupProductByBarcode(value)
+      }, 400)
+    }
+  }, [lookupProductByBarcode])
+
+  // Barcode Enter key handler (for scanner)
+  const handleBarcodeKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      if (lookupTimerRef.current) clearTimeout(lookupTimerRef.current)
+      lookupProductByBarcode(manualForm.barcode)
+    }
+  }, [lookupProductByBarcode, manualForm.barcode])
+
+  // ---------------------------------------------------------------------------
+  // Autocomplete suggestions for text fields
+  // ---------------------------------------------------------------------------
+
+  const fetchSuggestions = useCallback(async (field: string, dbColumn: string, value: string) => {
+    if (suggestTimerRef.current) clearTimeout(suggestTimerRef.current)
+    const trimmed = value.trim()
+    if (trimmed.length < 2) {
+      setSuggestions({ field: '', items: [] })
+      return
+    }
+
+    suggestTimerRef.current = setTimeout(async () => {
+      const { data } = await supabase
+        .from('product_registry')
+        .select(dbColumn)
+        .ilike(dbColumn, `%${trimmed}%`)
+        .limit(50)
+
+      if (data && data.length > 0) {
+        // Deduplica e filtra nulls
+        const unique = [...new Set(
+          data.map((r: any) => r[dbColumn]).filter((v: any) => v && typeof v === 'string')
+        )] as string[]
+        setSuggestions({ field, items: unique.slice(0, 8) })
+      } else {
+        setSuggestions({ field: '', items: [] })
+      }
+    }, 300)
+  }, [supabase])
+
+  const closeSuggestions = useCallback(() => {
+    // Delay so click on suggestion fires first
+    setTimeout(() => setSuggestions({ field: '', items: [] }), 150)
+  }, [])
 
   // ---------------------------------------------------------------------------
   // Manual add product handler
@@ -1371,12 +1438,8 @@ export default function InventoryPage() {
               type="text"
               placeholder="Spara o digita il barcode..."
               value={manualForm.barcode}
-              onChange={(e) => {
-                setManualForm((f) => ({ ...f, barcode: e.target.value }))
-                setLookupMatch(null)
-                setLookupImportName(null)
-              }}
-              onBlur={() => lookupProductByBarcode(manualForm.barcode)}
+              onChange={(e) => handleBarcodeChange(e.target.value)}
+              onKeyDown={handleBarcodeKeyDown}
               autoFocus
             />
             {/* Feedback icon */}
@@ -1414,14 +1477,39 @@ export default function InventoryPage() {
 
           {/* Product details */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <Input
-              label="Nome *"
-              type="text"
-              placeholder="es. T-Shirt Basic"
-              value={manualForm.name}
-              onChange={(e) => setManualForm((f) => ({ ...f, name: e.target.value }))}
-              required
-            />
+            {/* Nome con suggerimenti */}
+            <div className="relative">
+              <Input
+                label="Nome *"
+                type="text"
+                placeholder="es. T-Shirt Basic"
+                value={manualForm.name}
+                onChange={(e) => {
+                  setManualForm((f) => ({ ...f, name: e.target.value }))
+                  fetchSuggestions('name', 'name', e.target.value)
+                }}
+                onBlur={closeSuggestions}
+                required
+              />
+              {suggestions.field === 'name' && suggestions.items.length > 0 && (
+                <div className="absolute z-50 left-0 right-0 top-full mt-1 bg-white border border-[#CCD0D5] rounded-xl shadow-xl max-h-48 overflow-y-auto">
+                  {suggestions.items.map((s, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      className="w-full text-left px-3 py-2 text-sm hover:bg-[#7BB35F]/10 transition-colors first:rounded-t-xl last:rounded-b-xl"
+                      onMouseDown={(e) => {
+                        e.preventDefault()
+                        setManualForm((f) => ({ ...f, name: s }))
+                        setSuggestions({ field: '', items: [] })
+                      }}
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
             <Input
               label="SKU"
               type="text"
@@ -1429,20 +1517,70 @@ export default function InventoryPage() {
               value={manualForm.sku}
               onChange={(e) => setManualForm((f) => ({ ...f, sku: e.target.value }))}
             />
-            <Input
-              label="Taglia"
-              type="text"
-              placeholder="es. M, L, 42"
-              value={manualForm.size}
-              onChange={(e) => setManualForm((f) => ({ ...f, size: e.target.value }))}
-            />
-            <Input
-              label="Colore"
-              type="text"
-              placeholder="es. Blu"
-              value={manualForm.color}
-              onChange={(e) => setManualForm((f) => ({ ...f, color: e.target.value }))}
-            />
+            {/* Taglia con suggerimenti */}
+            <div className="relative">
+              <Input
+                label="Taglia"
+                type="text"
+                placeholder="es. M, L, 42"
+                value={manualForm.size}
+                onChange={(e) => {
+                  setManualForm((f) => ({ ...f, size: e.target.value }))
+                  fetchSuggestions('size', 'size', e.target.value)
+                }}
+                onBlur={closeSuggestions}
+              />
+              {suggestions.field === 'size' && suggestions.items.length > 0 && (
+                <div className="absolute z-50 left-0 right-0 top-full mt-1 bg-white border border-[#CCD0D5] rounded-xl shadow-xl max-h-48 overflow-y-auto">
+                  {suggestions.items.map((s, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      className="w-full text-left px-3 py-2 text-sm hover:bg-[#7BB35F]/10 transition-colors first:rounded-t-xl last:rounded-b-xl"
+                      onMouseDown={(e) => {
+                        e.preventDefault()
+                        setManualForm((f) => ({ ...f, size: s }))
+                        setSuggestions({ field: '', items: [] })
+                      }}
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            {/* Colore con suggerimenti */}
+            <div className="relative">
+              <Input
+                label="Colore"
+                type="text"
+                placeholder="es. Blu"
+                value={manualForm.color}
+                onChange={(e) => {
+                  setManualForm((f) => ({ ...f, color: e.target.value }))
+                  fetchSuggestions('color', 'color', e.target.value)
+                }}
+                onBlur={closeSuggestions}
+              />
+              {suggestions.field === 'color' && suggestions.items.length > 0 && (
+                <div className="absolute z-50 left-0 right-0 top-full mt-1 bg-white border border-[#CCD0D5] rounded-xl shadow-xl max-h-48 overflow-y-auto">
+                  {suggestions.items.map((s, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      className="w-full text-left px-3 py-2 text-sm hover:bg-[#7BB35F]/10 transition-colors first:rounded-t-xl last:rounded-b-xl"
+                      onMouseDown={(e) => {
+                        e.preventDefault()
+                        setManualForm((f) => ({ ...f, color: s }))
+                        setSuggestions({ field: '', items: [] })
+                      }}
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
             <Input
               label="Codice Colore"
               type="text"
@@ -1450,13 +1588,38 @@ export default function InventoryPage() {
               value={manualForm.color_code}
               onChange={(e) => setManualForm((f) => ({ ...f, color_code: e.target.value }))}
             />
-            <Input
-              label="Brand"
-              type="text"
-              placeholder="es. Nike"
-              value={manualForm.brand}
-              onChange={(e) => setManualForm((f) => ({ ...f, brand: e.target.value }))}
-            />
+            {/* Brand con suggerimenti */}
+            <div className="relative">
+              <Input
+                label="Brand"
+                type="text"
+                placeholder="es. Nike"
+                value={manualForm.brand}
+                onChange={(e) => {
+                  setManualForm((f) => ({ ...f, brand: e.target.value }))
+                  fetchSuggestions('brand', 'brand', e.target.value)
+                }}
+                onBlur={closeSuggestions}
+              />
+              {suggestions.field === 'brand' && suggestions.items.length > 0 && (
+                <div className="absolute z-50 left-0 right-0 top-full mt-1 bg-white border border-[#CCD0D5] rounded-xl shadow-xl max-h-48 overflow-y-auto">
+                  {suggestions.items.map((s, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      className="w-full text-left px-3 py-2 text-sm hover:bg-[#7BB35F]/10 transition-colors first:rounded-t-xl last:rounded-b-xl"
+                      onMouseDown={(e) => {
+                        e.preventDefault()
+                        setManualForm((f) => ({ ...f, brand: s }))
+                        setSuggestions({ field: '', items: [] })
+                      }}
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
             <Input
               label="Categoria"
               type="text"
