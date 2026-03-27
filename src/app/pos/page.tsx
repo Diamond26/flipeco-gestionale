@@ -589,6 +589,18 @@ export default function POSPage() {
           .from('inventory')
           .update({ quantity: invData.quantity + item.quantity })
           .eq('product_id', item.product_id)
+      } else {
+        // Nel caso in cui l'utente abbia cancellato la riga dal magazzino
+        // Ricreiamo il record in giacenza
+        await supabase
+          .from('inventory')
+          .insert({
+            product_id: item.product_id,
+            quantity: item.quantity,
+            sell_price: item.unit_price,
+            purchase_price: 0,
+            updated_at: new Date().toISOString()
+          })
       }
     }
 
