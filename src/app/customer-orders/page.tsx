@@ -409,17 +409,45 @@ export default function CustomerOrdersPage() {
   async function handleStatusChange(orderId: string, newStatus: OrderStatus) {
     setStatusLoading(true)
 
+    // Find the current order to know its current status and items
+    const currentOrder = orders.find((o) => o.id === orderId)
+    if (!currentOrder) {
+      showToast('Ordine non trovato', 'error')
+      setStatusLoading(false)
+      return
+    }
+
+    const prevStatus = currentOrder.status
+
+    // Update order status
     const { error } = await supabase
       .from('customer_orders')
       .update({ status: newStatus })
       .eq('id', orderId)
 
-    setStatusLoading(false)
-
     if (error) {
       showToast('Errore durante l\'aggiornamento dello stato', 'error')
+      setStatusLoading(false)
       return
     }
+
+    // Decrement inventory when confirming (pending → confirmed)
+    if (newStatus === 'confirmed' && prevStatus === 'pending') {
+      const stockError = await updateInventoryStock(currentOrder.customer_order_items, 'decrement')
+      if (stockError) {
+        showToast('Stato aggiornato, ma errore nello scalare il magazzino', 'warning')
+      }
+    }
+
+    // Restore inventory when cancelling a confirmed order
+    if (newStatus === 'cancelled' && prevStatus === 'confirmed') {
+      const stockError = await updateInventoryStock(currentOrder.customer_order_items, 'increment')
+      if (stockError) {
+        showToast('Stato aggiornato, ma errore nel ripristinare il magazzino', 'warning')
+      }
+    }
+
+    setStatusLoading(false)
 
     const statusLabels: Record<OrderStatus, string> = {
       pending: 'In attesa',
@@ -436,6 +464,49 @@ export default function CustomerOrdersPage() {
     setDetailOrder((prev) =>
       prev && prev.id === orderId ? { ...prev, status: newStatus } : prev
     )
+  }
+
+  /**
+   * Update inventory stock for order items.
+   * 'decrement' subtracts quantities, 'increment' restores them.
+   */
+  async function updateInventoryStock(
+    items: OrderItem[],
+    direction: 'decrement' | 'increment'
+  ): Promise<boolean> {
+    let hasError = false
+
+    for (const item of items) {
+      // Find the inventory row for this product
+      const { data: invRows, error: fetchErr } = await supabase
+        .from('inventory')
+        .select('id, quantity')
+        .eq('product_id', item.product_id)
+        .order('quantity', { ascending: false })
+        .limit(1)
+
+      if (fetchErr || !invRows || invRows.length === 0) {
+        hasError = true
+        continue
+      }
+
+      const inv = invRows[0]
+      const newQty =
+        direction === 'decrement'
+          ? Math.max(0, inv.quantity - item.quantity)
+          : inv.quantity + item.quantity
+
+      const { error: updateErr } = await supabase
+        .from('inventory')
+        .update({ quantity: newQty })
+        .eq('id', inv.id)
+
+      if (updateErr) {
+        hasError = true
+      }
+    }
+
+    return hasError
   }
 
   // ---------------------------------------------------------------------------
