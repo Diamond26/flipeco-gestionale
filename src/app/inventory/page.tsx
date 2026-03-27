@@ -136,6 +136,7 @@ export default function InventoryPage() {
     sku: '',
     size: '',
     color: '',
+    color_code: '',
     brand: '',
     category: '',
     purchase_price: '',
@@ -144,6 +145,10 @@ export default function InventoryPage() {
     location: '',
   })
   const [manualAddLoading, setManualAddLoading] = useState(false)
+  const [lookupLoading, setLookupLoading] = useState(false)
+  const [lookupMatch, setLookupMatch] = useState<boolean | null>(null) // null=not yet, true=found, false=not found
+  const [lookupImportName, setLookupImportName] = useState<string | null>(null)
+  const purchasePriceRef = useRef<HTMLInputElement>(null)
 
   // --- Toasts ---
   const [toasts, setToasts] = useState<Toast[]>([])
@@ -426,6 +431,64 @@ export default function InventoryPage() {
   }, [deleteItem, supabase, showToast, fetchInventory])
 
   // ---------------------------------------------------------------------------
+  // Barcode lookup for manual add modal
+  // ---------------------------------------------------------------------------
+
+  const lookupProductByBarcode = useCallback(async (barcode: string) => {
+    const trimmed = barcode.trim()
+    if (trimmed.length < 8) {
+      setLookupMatch(null)
+      setLookupImportName(null)
+      return
+    }
+
+    setLookupLoading(true)
+    setLookupMatch(null)
+    setLookupImportName(null)
+
+    const { data, error } = await supabase
+      .from('product_registry')
+      .select('name, sku, size, color, color_code, brand, import_id')
+      .eq('barcode', trimmed)
+      .maybeSingle()
+
+    setLookupLoading(false)
+
+    if (error || !data) {
+      setLookupMatch(false)
+      return
+    }
+
+    // Auto-fill the form
+    setManualForm((f) => ({
+      ...f,
+      name: data.name || f.name,
+      sku: data.sku || f.sku,
+      size: data.size || f.size,
+      color: data.color || f.color,
+      color_code: data.color_code || f.color_code,
+      brand: data.brand || f.brand,
+    }))
+    setLookupMatch(true)
+
+    // Check if it came from an import
+    if (data.import_id) {
+      const { data: logData } = await supabase
+        .from('import_logs')
+        .select('filename')
+        .eq('id', data.import_id)
+        .maybeSingle()
+
+      if (logData?.filename) {
+        setLookupImportName(logData.filename)
+      }
+    }
+
+    // Auto-focus purchase price
+    setTimeout(() => purchasePriceRef.current?.focus(), 100)
+  }, [supabase])
+
+  // ---------------------------------------------------------------------------
   // Manual add product handler
   // ---------------------------------------------------------------------------
 
@@ -453,6 +516,7 @@ export default function InventoryPage() {
         sku: manualForm.sku.trim() || null,
         size: manualForm.size.trim() || null,
         color: manualForm.color.trim() || null,
+        color_code: manualForm.color_code.trim() || null,
         brand: manualForm.brand.trim() || null,
         category: manualForm.category.trim() || null,
       })
@@ -490,10 +554,12 @@ export default function InventoryPage() {
     showToast(`"${name}" aggiunto al magazzino`, 'success')
     setManualAddOpen(false)
     setManualForm({
-      barcode: '', name: '', sku: '', size: '', color: '',
+      barcode: '', name: '', sku: '', size: '', color: '', color_code: '',
       brand: '', category: '', purchase_price: '', sell_price: '',
       quantity: '1', location: '',
     })
+    setLookupMatch(null)
+    setLookupImportName(null)
     fetchInventory()
   }, [manualForm, supabase, showToast, fetchInventory])
 
@@ -1285,14 +1351,66 @@ export default function InventoryPage() {
       {/* ------------------------------------------------------------------ */}
       <Modal
         open={manualAddOpen}
-        onClose={() => setManualAddOpen(false)}
+        onClose={() => {
+          setManualAddOpen(false)
+          setLookupMatch(null)
+          setLookupImportName(null)
+        }}
         title="Aggiungi Prodotto Manualmente"
         size="lg"
       >
         <div className="space-y-4">
           <p className="text-sm text-foreground/60">
-            Inserisci i dati del prodotto. Verrà creato sia in anagrafica che in magazzino.
+            Spara il barcode o digitalo: i campi si compileranno dall&apos;anagrafica.
           </p>
+
+          {/* ---- Barcode field (first, with lookup feedback) ---- */}
+          <div className="relative">
+            <Input
+              label="Barcode"
+              type="text"
+              placeholder="Spara o digita il barcode..."
+              value={manualForm.barcode}
+              onChange={(e) => {
+                setManualForm((f) => ({ ...f, barcode: e.target.value }))
+                setLookupMatch(null)
+                setLookupImportName(null)
+              }}
+              onBlur={() => lookupProductByBarcode(manualForm.barcode)}
+              autoFocus
+            />
+            {/* Feedback icon */}
+            <div className="absolute right-3 top-[34px]">
+              {lookupLoading && (
+                <span className="inline-block w-5 h-5 animate-spin border-2 border-t-brand border-brand/20 rounded-full" />
+              )}
+              {lookupMatch === true && !lookupLoading && (
+                <CheckCircle2 className="w-5 h-5 text-[#7BB35F]" />
+              )}
+              {lookupMatch === false && !lookupLoading && (
+                <span className="text-xs text-foreground/40 font-medium">nuovo</span>
+              )}
+            </div>
+          </div>
+
+          {/* Import badge */}
+          {lookupImportName && (
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#7BB35F]/10 border border-[#7BB35F]/30 text-sm">
+              <CheckCircle2 className="w-4 h-4 text-[#7BB35F] shrink-0" />
+              <span className="text-foreground/70">
+                Dati caricati da Import: <strong className="text-[#7BB35F]">{lookupImportName}</strong>
+              </span>
+            </div>
+          )}
+
+          {lookupMatch === true && (
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#7BB35F]/10 border border-[#7BB35F]/30 text-sm">
+              <CheckCircle2 className="w-4 h-4 text-[#7BB35F] shrink-0" />
+              <span className="text-foreground/70">
+                Prodotto trovato in anagrafica — campi compilati automaticamente.
+              </span>
+            </div>
+          )}
 
           {/* Product details */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -1303,13 +1421,6 @@ export default function InventoryPage() {
               value={manualForm.name}
               onChange={(e) => setManualForm((f) => ({ ...f, name: e.target.value }))}
               required
-            />
-            <Input
-              label="Barcode"
-              type="text"
-              placeholder="es. 8001234567890"
-              value={manualForm.barcode}
-              onChange={(e) => setManualForm((f) => ({ ...f, barcode: e.target.value }))}
             />
             <Input
               label="SKU"
@@ -1331,6 +1442,13 @@ export default function InventoryPage() {
               placeholder="es. Blu"
               value={manualForm.color}
               onChange={(e) => setManualForm((f) => ({ ...f, color: e.target.value }))}
+            />
+            <Input
+              label="Codice Colore"
+              type="text"
+              placeholder="es. 001"
+              value={manualForm.color_code}
+              onChange={(e) => setManualForm((f) => ({ ...f, color_code: e.target.value }))}
             />
             <Input
               label="Brand"
@@ -1355,6 +1473,7 @@ export default function InventoryPage() {
             </p>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <Input
+                ref={purchasePriceRef}
                 label="Prezzo Acquisto (€)"
                 type="number"
                 min="0"
