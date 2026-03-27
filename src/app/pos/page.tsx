@@ -22,6 +22,7 @@ import {
   Trash2,
   ReceiptText,
   Clock,
+  RotateCcw,
 } from 'lucide-react'
 
 // ---------------------------------------------------------------------------
@@ -142,6 +143,12 @@ export default function POSPage() {
   const [historyLoading, setHistoryLoading] = useState(false)
   const [historyOpen, setHistoryOpen] = useState(false)
 
+  // --- Return (reso) modal state ---
+  const [returnOpen, setReturnOpen] = useState(false)
+  const [returnBarcode, setReturnBarcode] = useState('')
+  const [returnLoading, setReturnLoading] = useState(false)
+  const returnBarcodeRef = useRef<HTMLInputElement>(null)
+
   // --- Toasts ---
   const [toasts, setToasts] = useState<Toast[]>([])
 
@@ -156,6 +163,58 @@ export default function POSPage() {
   useEffect(() => {
     focusBarcode()
   }, [focusBarcode])
+
+  // ---------------------------------------------------------------------------
+  // Global barcode scanner listener
+  // Captures keystrokes from barcode scanners even when focus is elsewhere.
+  // Scanners typically send characters rapidly ending with Enter.
+  // ---------------------------------------------------------------------------
+
+  const scanBufferRef = useRef('')
+  const scanTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Skip if user is typing in an input/textarea (other than the barcode input)
+      const target = e.target as HTMLElement
+      const isBarcode = target === barcodeInputRef.current
+      const isInteractive = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT'
+      if (isInteractive && !isBarcode) return
+
+      // If already focused on barcode input, let normal flow handle it
+      if (isBarcode) return
+
+      // Ignore modifier keys and special keys (except Enter)
+      if (e.ctrlKey || e.altKey || e.metaKey) return
+      if (e.key === 'Shift' || e.key === 'Tab' || e.key === 'Escape') return
+
+      if (e.key === 'Enter' && scanBufferRef.current.length >= 4) {
+        e.preventDefault()
+        const code = scanBufferRef.current
+        scanBufferRef.current = ''
+        if (scanTimerRef.current) clearTimeout(scanTimerRef.current)
+        // Trigger barcode lookup
+        setBarcodeValue(code)
+        setTimeout(() => {
+          barcodeInputRef.current?.form?.requestSubmit()
+        }, 10)
+        return
+      }
+
+      if (e.key.length === 1) {
+        e.preventDefault()
+        scanBufferRef.current += e.key
+        // Reset buffer after 100ms of inactivity (scanner sends chars rapidly)
+        if (scanTimerRef.current) clearTimeout(scanTimerRef.current)
+        scanTimerRef.current = setTimeout(() => {
+          scanBufferRef.current = ''
+        }, 100)
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
 
   // ---------------------------------------------------------------------------
   // Toast helpers
@@ -412,6 +471,91 @@ export default function POSPage() {
     setCompletedSale(null)
     focusBarcode()
   }, [focusBarcode])
+
+  // ---------------------------------------------------------------------------
+  // Return (Reso) logic
+  // ---------------------------------------------------------------------------
+
+  const openReturnModal = useCallback(() => {
+    setReturnBarcode('')
+    setReturnOpen(true)
+    setTimeout(() => returnBarcodeRef.current?.focus(), 80)
+  }, [])
+
+  const handleReturn = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault()
+      const trimmed = returnBarcode.trim()
+      if (!trimmed) return
+
+      setReturnLoading(true)
+
+      // Find the product by barcode
+      const { data: invData } = await supabase
+        .from('inventory')
+        .select('*, product_registry!inner(*)')
+        .eq('product_registry.barcode', trimmed)
+        .maybeSingle()
+
+      if (!invData) {
+        showToast(`Prodotto non trovato per barcode "${trimmed}"`, 'error')
+        setReturnLoading(false)
+        return
+      }
+
+      const product = invData as InventoryProduct
+
+      // Increment inventory quantity
+      const { error: invError } = await supabase
+        .from('inventory')
+        .update({ quantity: product.quantity + 1 })
+        .eq('id', product.id)
+
+      if (invError) {
+        showToast('Errore durante il ripristino della giacenza', 'error')
+        setReturnLoading(false)
+        return
+      }
+
+      // Register a negative sale (reso) for cash tracking
+      const { data: saleData, error: saleError } = await supabase
+        .from('sales')
+        .insert({
+          payment_method: 'cash' as PaymentMethod,
+          total: -product.sell_price,
+        })
+        .select()
+        .single()
+
+      if (saleError || !saleData) {
+        showToast('Giacenza aggiornata, ma errore nella registrazione del movimento di cassa', 'warning')
+        setReturnLoading(false)
+        setReturnOpen(false)
+        fetchProducts()
+        fetchTodaySales()
+        return
+      }
+
+      // Register the negative sale item
+      await supabase.from('sale_items').insert({
+        sale_id: saleData.id,
+        product_id: product.product_id,
+        quantity: -1,
+        unit_price: product.sell_price,
+      })
+
+      setReturnLoading(false)
+      setReturnOpen(false)
+      showToast(
+        `Reso registrato: "${product.product_registry.name}" — ${formatCurrency(product.sell_price)} rimborsato`,
+        'success'
+      )
+      fetchProducts()
+      fetchTodaySales()
+      focusBarcode()
+    },
+    [returnBarcode, supabase, showToast, fetchProducts, fetchTodaySales, focusBarcode]
+  )
 
   // ---------------------------------------------------------------------------
   // Filtered products grid
@@ -766,7 +910,7 @@ export default function POSPage() {
                 disabled={cart.length === 0}
                 className={cn(
                   'flex flex-col items-center justify-center gap-2 rounded-2xl py-7 px-4',
-                  'font-bold text-xl transition-all duration-150 select-none',
+                  'font-bold text-xl transition-all duration-150 select-none min-h-[50px]',
                   'focus:outline-none focus:ring-4 focus:ring-brand/30',
                   cart.length === 0
                     ? 'bg-surface/40 text-foreground/25 cursor-not-allowed'
@@ -783,7 +927,7 @@ export default function POSPage() {
                 disabled={cart.length === 0}
                 className={cn(
                   'flex flex-col items-center justify-center gap-2 rounded-2xl py-7 px-4',
-                  'font-bold text-xl transition-all duration-150 select-none',
+                  'font-bold text-xl transition-all duration-150 select-none min-h-[50px]',
                   'focus:outline-none focus:ring-4 focus:ring-blue-300',
                   cart.length === 0
                     ? 'bg-surface/40 text-foreground/25 cursor-not-allowed'
@@ -795,6 +939,21 @@ export default function POSPage() {
                 <span>POS / CARTA</span>
               </button>
             </div>
+
+            {/* Return (Reso) button */}
+            <button
+              onClick={openReturnModal}
+              className={cn(
+                'w-full flex items-center justify-center gap-3 rounded-2xl py-4 px-4 min-h-[50px]',
+                'font-bold text-base transition-all duration-150 select-none',
+                'focus:outline-none focus:ring-4 focus:ring-yellow-300',
+                'bg-yellow-500 text-white hover:bg-yellow-600 active:scale-[0.98] shadow-md hover:shadow-lg cursor-pointer'
+              )}
+              aria-label="Effettua reso"
+            >
+              <RotateCcw className="w-6 h-6" />
+              <span>EFFETTUA RESO</span>
+            </button>
           </div>
         </div>
 
@@ -1132,6 +1291,78 @@ export default function POSPage() {
             </Button>
           </div>
         )}
+      </Modal>
+
+      {/* ------------------------------------------------------------------ */}
+      {/* Return (Reso) modal                                                 */}
+      {/* ------------------------------------------------------------------ */}
+      <Modal
+        open={returnOpen}
+        onClose={() => !returnLoading && setReturnOpen(false)}
+        title="Effettua Reso"
+        size="md"
+      >
+        <div className="space-y-5">
+          <div className="flex items-center justify-center gap-3 p-5 rounded-2xl bg-yellow-50">
+            <RotateCcw className="w-10 h-10 text-yellow-600" />
+            <span className="text-2xl font-extrabold text-yellow-700">RESO</span>
+          </div>
+
+          <p className="text-sm text-foreground/60 text-center">
+            Scansiona o digita il barcode del prodotto da rendere.
+            La giacenza verrà incrementata e un movimento di cassa negativo registrato.
+          </p>
+
+          <form onSubmit={handleReturn}>
+            <div className="flex gap-3 items-center">
+              <div className="relative flex-1">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none text-yellow-600">
+                  <Scan className="w-5 h-5" />
+                </div>
+                <input
+                  ref={returnBarcodeRef}
+                  type="text"
+                  value={returnBarcode}
+                  onChange={(e) => setReturnBarcode(e.target.value)}
+                  placeholder="Barcode prodotto..."
+                  className={cn(
+                    'w-full pl-12 pr-4 py-4 text-xl font-mono rounded-xl border-2 bg-white',
+                    'focus:outline-none focus:ring-4 transition-all duration-200',
+                    'placeholder:text-gray-300 placeholder:font-sans placeholder:text-base',
+                    'border-yellow-300 focus:border-yellow-500 focus:ring-yellow-200'
+                  )}
+                  autoComplete="off"
+                  spellCheck={false}
+                  aria-label="Barcode prodotto per reso"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-5">
+              <Button
+                type="submit"
+                variant="primary"
+                size="lg"
+                loading={returnLoading}
+                disabled={!returnBarcode.trim()}
+                className="flex-1 min-h-[50px] bg-yellow-500 hover:bg-yellow-600 focus:ring-yellow-300"
+              >
+                <RotateCcw className="w-5 h-5 mr-2" />
+                Conferma Reso
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                size="lg"
+                onClick={() => setReturnOpen(false)}
+                disabled={returnLoading}
+                className="min-h-[50px]"
+              >
+                Annulla
+              </Button>
+            </div>
+          </form>
+        </div>
       </Modal>
     </AppShell>
   )

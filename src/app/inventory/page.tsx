@@ -162,6 +162,51 @@ export default function InventoryPage() {
   }, [focusBarcode])
 
   // ---------------------------------------------------------------------------
+  // Global barcode scanner listener
+  // Captures keystrokes from barcode scanners even when focus is elsewhere.
+  // ---------------------------------------------------------------------------
+
+  const scanBufferRef = useRef('')
+  const scanTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement
+      const isBarcode = target === barcodeInputRef.current
+      const isInteractive = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT'
+      if (isInteractive && !isBarcode) return
+      if (isBarcode) return
+
+      if (e.ctrlKey || e.altKey || e.metaKey) return
+      if (e.key === 'Shift' || e.key === 'Tab' || e.key === 'Escape') return
+
+      if (e.key === 'Enter' && scanBufferRef.current.length >= 4) {
+        e.preventDefault()
+        const code = scanBufferRef.current
+        scanBufferRef.current = ''
+        if (scanTimerRef.current) clearTimeout(scanTimerRef.current)
+        setBarcodeValue(code)
+        setTimeout(() => {
+          barcodeInputRef.current?.form?.requestSubmit()
+        }, 10)
+        return
+      }
+
+      if (e.key.length === 1) {
+        e.preventDefault()
+        scanBufferRef.current += e.key
+        if (scanTimerRef.current) clearTimeout(scanTimerRef.current)
+        scanTimerRef.current = setTimeout(() => {
+          scanBufferRef.current = ''
+        }, 100)
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
+
+  // ---------------------------------------------------------------------------
   // Toast helpers
   // ---------------------------------------------------------------------------
 

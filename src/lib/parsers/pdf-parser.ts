@@ -22,6 +22,15 @@ function extractFieldsFromLine(line: string): ParsedRow | null {
   const trimmed = line.trim()
   if (!trimmed || trimmed.length < 5) return null
 
+  // Skip lines that look like headers, footers, page numbers, or noise
+  if (/^(page|pagina|pag\.?)\s*\d/i.test(trimmed)) return null
+  if (/^(totale|subtotale|iva|imposta|sconto|spedizione)/i.test(trimmed)) return null
+  if (/^\d+\s*[/\-]\s*\d+\s*[/\-]\s*\d+$/.test(trimmed)) return null
+  if (/^[\s\-_=*#.]+$/.test(trimmed)) return null
+  const lowerTrimmed = trimmed.toLowerCase()
+  if (lowerTrimmed.startsWith('tel') || lowerTrimmed.startsWith('fax') || lowerTrimmed.startsWith('email')) return null
+  if (/^(p\.?\s*iva|c\.?\s*f\.?|cod\.?\s*fisc)/i.test(trimmed)) return null
+
   const row: ParsedRow = {
     barcode: '',
     sku: '',
@@ -64,10 +73,12 @@ function extractFieldsFromLine(line: string): ParsedRow | null {
   // Il resto diventa il nome (rimuovi barcode/sku/taglia/colore trovati)
   let name = trimmed
   if (row.barcode) name = name.replace(row.barcode, '')
-  if (row.sku) name = name.replace(new RegExp(row.sku, 'i'), '')
+  if (row.sku) name = name.replace(new RegExp(row.sku.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'), '')
   if (row.size) name = name.replace(new RegExp(`\\b${row.size}\\b`, 'i'), '')
   if (row.color) name = name.replace(new RegExp(`\\b${row.color}\\b`, 'i'), '')
-  row.name = name.replace(/\s+/g, ' ').replace(/^[\s,;-]+|[\s,;-]+$/g, '').trim()
+  // Remove leftover prices (e.g. €12.50, 12,50)
+  name = name.replace(/€?\s*\d+[.,]\d{2}\b/g, '')
+  row.name = name.replace(/\s+/g, ' ').replace(/^[\s,;:\-–—]+|[\s,;:\-–—]+$/g, '').trim()
 
   // Solo se abbiamo almeno un campo significativo
   if (!row.barcode && !row.sku && !row.name) return null
@@ -76,24 +87,53 @@ function extractFieldsFromLine(line: string): ParsedRow | null {
 }
 
 export async function parsePDF(file: File): Promise<{ headers: string[]; rows: ParsedRow[] }> {
-  const arrayBuffer = await file.arrayBuffer()
-  const uint8Array = new Uint8Array(arrayBuffer)
+  // Validate file before sending
+  if (!file || file.size === 0) {
+    throw new Error('Il file PDF è vuoto o non valido.')
+  }
+  if (file.size > 20 * 1024 * 1024) {
+    throw new Error('Il file PDF è troppo grande (max 20 MB).')
+  }
 
-  // Dynamic import di pdf-parse (funziona solo lato client con workaround)
-  // Per il parsing PDF usiamo un approccio basato su API route
   const formData = new FormData()
   formData.append('file', file)
 
-  const response = await fetch('/api/parse-pdf', {
-    method: 'POST',
-    body: formData,
-  })
-
-  if (!response.ok) {
-    throw new Error('Errore nel parsing del PDF')
+  let response: Response
+  try {
+    response = await fetch('/api/parse-pdf', {
+      method: 'POST',
+      body: formData,
+    })
+  } catch {
+    throw new Error(
+      'Impossibile connettersi al server per il parsing del PDF. Verifica la connessione e riprova.'
+    )
   }
 
-  const { text } = await response.json()
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}))
+    const serverMsg = body?.error || ''
+    throw new Error(
+      serverMsg
+        ? `Errore nel parsing del PDF: ${serverMsg}`
+        : `Errore nel parsing del PDF (codice ${response.status}). Il file potrebbe essere protetto, danneggiato o in un formato non supportato.`
+    )
+  }
+
+  let text: string
+  try {
+    const body = await response.json()
+    text = body?.text ?? ''
+  } catch {
+    throw new Error('Risposta non valida dal server durante il parsing del PDF.')
+  }
+
+  if (!text || text.trim().length < 10) {
+    throw new Error(
+      'Il PDF non contiene testo estraibile. Potrebbe essere un PDF composto solo da immagini (scansione). ' +
+      'Prova a convertirlo in un formato testuale (CSV/Excel) prima di importarlo.'
+    )
+  }
 
   const lines = text.split('\n').filter((l: string) => l.trim().length > 5)
   const rows: ParsedRow[] = []
@@ -103,6 +143,14 @@ export async function parsePDF(file: File): Promise<{ headers: string[]; rows: P
     if (parsed) {
       rows.push(parsed)
     }
+  }
+
+  if (rows.length === 0) {
+    throw new Error(
+      `Il parsing del PDF non ha prodotto righe di prodotti valide. ` +
+      `Sono state analizzate ${lines.length} righe di testo, ma nessuna corrisponde al formato atteso. ` +
+      `Verifica che il file contenga un elenco prodotti con barcode, nome, taglia o colore.`
+    )
   }
 
   const headers = ['barcode', 'sku', 'name', 'size', 'color']
