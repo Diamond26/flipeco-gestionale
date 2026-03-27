@@ -20,6 +20,40 @@ const COLOR_KEYWORDS = [
   'GREY', 'GRAY', 'BROWN', 'CREAM', 'IVORY', 'KHAKI', 'OLIVE', 'CAMEL', 'TAUPE'
 ]
 
+// Pattern per codici colore alfanumerici brevi (2-5 char) accanto al nome colore
+// Cattura pattern come "NERO 900", "BLU/001", "ROSSO-A2"
+const COLOR_CODE_PATTERN = /\b([A-Z0-9]{2,5})\b/i
+
+/**
+ * Dato un testo che contiene un colore, separa il nome colore dal codice colore.
+ * Es: "NERO 900" -> { color: 'NERO', colorCode: '900' }
+ *     "BLU"      -> { color: 'BLU',  colorCode: '' }
+ */
+function splitColorAndCode(text: string): { color: string; colorCode: string } {
+  const upper = text.trim().toUpperCase()
+
+  for (const color of COLOR_KEYWORDS) {
+    const regex = new RegExp(`\\b${color}\\b`, 'i')
+    if (regex.test(upper)) {
+      // Togli il nome colore e vedi se rimane un codice
+      const remainder = upper.replace(regex, '').replace(/[\s/\-_.,]+/g, ' ').trim()
+      let colorCode = ''
+      if (remainder.length >= 1 && remainder.length <= 5 && COLOR_CODE_PATTERN.test(remainder)) {
+        colorCode = remainder
+      }
+      return { color, colorCode }
+    }
+  }
+
+  // Nessun nome colore trovato — tutta la stringa potrebbe essere un codice
+  const trimmed = text.trim()
+  if (trimmed.length >= 1 && trimmed.length <= 5 && /^[A-Z0-9]+$/i.test(trimmed)) {
+    return { color: '', colorCode: trimmed }
+  }
+
+  return { color: text.trim(), colorCode: '' }
+}
+
 function extractFieldsWithScore(line: string): ParsedRow | null {
   const trimmed = line.trim()
   if (!trimmed || trimmed.length < 5) return null
@@ -33,7 +67,7 @@ function extractFieldsWithScore(line: string): ParsedRow | null {
   if (lowerTrimmed.startsWith('tel') || lowerTrimmed.startsWith('fax') || lowerTrimmed.startsWith('email')) return null
   if (/^(p\.?\s*iva|c\.?\s*f\.?|cod\.?\s*fisc)/i.test(trimmed)) return null
 
-  const row: ParsedRow = { barcode: '', sku: '', name: '', size: '', color: '' }
+  const row: ParsedRow = { barcode: '', sku: '', name: '', size: '', color: '', color_code: '' }
   let score = 0
 
   // 1. Tabular Awareness: prova a splittare per multipli spazi o tab
@@ -52,7 +86,9 @@ function extractFieldsWithScore(line: string): ParsedRow | null {
         row.size = col.trim()
         score += 1
       } else if (!row.color && COLOR_KEYWORDS.some(k => new RegExp(`\\b${k}\\b`, 'i').test(col))) {
-        row.color = col.trim()
+        const { color, colorCode } = splitColorAndCode(col)
+        row.color = color
+        row.color_code = colorCode
         score += 1
       } else if (!row.name && col.length > 3 && !/^\d+[.,]?\d*$/.test(col)) {
         row.name = col.trim()
@@ -84,6 +120,15 @@ function extractFieldsWithScore(line: string): ParsedRow | null {
       if (new RegExp(`\\b${color}\\b`, 'i').test(upperLine)) {
         row.color = color
         score += 1
+        // Cerca un codice colore adiacente (es: "NERO 900")
+        const colorIdx = upperLine.indexOf(color)
+        const after = upperLine.slice(colorIdx + color.length).trim()
+        const codeBefore = upperLine.slice(0, colorIdx).trim()
+        // Cerca prima dopo, poi prima del nome colore
+        const codeMatch = after.match(/^[\s/\-_]*([A-Z0-9]{1,5})\b/i) || codeBefore.match(/\b([A-Z0-9]{1,5})[\s/\-_]*$/i)
+        if (codeMatch && codeMatch[1] !== row.barcode && codeMatch[1] !== row.sku && codeMatch[1] !== row.size) {
+          row.color_code = codeMatch[1]
+        }
         break
       }
     }
@@ -94,6 +139,7 @@ function extractFieldsWithScore(line: string): ParsedRow | null {
     if (row.sku) tempName = tempName.replace(row.sku, '')
     if (row.size) tempName = tempName.replace(new RegExp(`\\b${row.size}\\b`, 'i'), '')
     if (row.color) tempName = tempName.replace(new RegExp(`\\b${row.color}\\b`, 'i'), '')
+    if (row.color_code) tempName = tempName.replace(new RegExp(`\\b${row.color_code}\\b`, 'i'), '')
     
     // Pulisci i prezzi rimasti
     tempName = tempName.replace(/€?\s*\d+[.,]\d{2}\b/g, '')
@@ -177,7 +223,7 @@ export async function parsePDF(file: File): Promise<{ headers: string[]; rows: P
     )
   }
 
-  const headers = ['barcode', 'sku', 'name', 'size', 'color']
+  const headers = ['barcode', 'sku', 'name', 'size', 'color', 'color_code']
 
   return { headers, rows }
 }

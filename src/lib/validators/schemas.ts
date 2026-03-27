@@ -18,6 +18,7 @@ export const productRegistrySchema = z.object({
   name: z.string().min(1, 'Nome prodotto obbligatorio'),
   size: z.string().optional(),
   color: z.string().optional(),
+  color_code: z.string().optional(),
   brand: z.string().optional(),
   category: z.string().optional(),
   supplier_id: z.string().uuid().optional().nullable(),

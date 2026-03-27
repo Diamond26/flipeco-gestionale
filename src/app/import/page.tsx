@@ -36,6 +36,7 @@ interface MappingConfig {
   name: string;
   size: string;
   color: string;
+  color_code: string;
 }
 
 interface ProductRow {
@@ -45,6 +46,7 @@ interface ProductRow {
   name: string;
   size: string;
   color: string;
+  color_code: string;
   hasError: boolean;
 }
 
@@ -66,7 +68,8 @@ function autoDetectMapping(headers: string[]): MappingConfig {
     sku: find([/sku/, /art/]),
     name: find([/nome/, /desc/, /name/]),
     size: find([/tagl/, /size/]),
-    color: find([/color/, /colore/]),
+    color: find([/^color/, /colore/]),
+    color_code: find([/cod\.?\s*col/, /color.?cod/, /codice.?col/]),
   };
 }
 
@@ -150,7 +153,7 @@ export default function ImportPage() {
 
   // --- mapping state ---
   const [mapping, setMapping] = useState<MappingConfig>({
-    barcode: '', sku: '', name: '', size: '', color: '',
+    barcode: '', sku: '', name: '', size: '', color: '', color_code: '',
   });
 
   // --- review state ---
@@ -256,6 +259,7 @@ export default function ImportPage() {
         name,
         size: mapping.size ? (raw[mapping.size] ?? '') : '',
         color: mapping.color ? (raw[mapping.color] ?? '') : '',
+        color_code: mapping.color_code ? (raw[mapping.color_code] ?? '') : '',
         hasError: !name.trim(),
       };
     });
@@ -334,6 +338,7 @@ export default function ImportPage() {
         name: row.name,
         size: row.size || undefined,
         color: row.color || undefined,
+        color_code: row.color_code || undefined,
         supplier_id: selectedSupplierId,
       });
       if (result.success) {
@@ -390,8 +395,8 @@ export default function ImportPage() {
   const handleExportPDF = () => {
     exportToPDF({
       title: 'Anagrafica Prodotti Importati',
-      headers: ['Barcode', 'SKU', 'Nome', 'Taglia', 'Colore'],
-      rows: rows.map((r) => [r.barcode, r.sku, r.name, r.size, r.color]),
+      headers: ['Barcode', 'SKU', 'Nome', 'Taglia', 'Colore', 'Cod. Colore'],
+      rows: rows.map((r) => [r.barcode, r.sku, r.name, r.size, r.color, r.color_code]),
       filename: 'prodotti-importati.pdf',
     });
   };
@@ -421,6 +426,7 @@ export default function ImportPage() {
     { key: 'sku', label: 'SKU / Articolo' },
     { key: 'size', label: 'Taglia' },
     { key: 'color', label: 'Colore' },
+    { key: 'color_code', label: 'Codice Colore' },
   ];
 
   // ---------------------------------------------------------------------------
@@ -714,6 +720,7 @@ export default function ImportPage() {
                       <th className="px-3 py-3 text-left font-semibold text-foreground/70">Nome *</th>
                       <th className="px-3 py-3 text-left font-semibold text-foreground/70">Taglia</th>
                       <th className="px-3 py-3 text-left font-semibold text-foreground/70">Colore</th>
+                      <th className="px-3 py-3 text-left font-semibold text-foreground/70">Cod. Colore</th>
                       <th className="px-3 py-3 text-left font-semibold text-foreground/70 w-10"></th>
                     </tr>
                   </thead>
@@ -727,7 +734,7 @@ export default function ImportPage() {
                         ].join(' ')}
                       >
                         <td className="px-3 py-2 text-foreground/40 text-xs">{idx + 1}</td>
-                        {(['barcode', 'sku', 'name', 'size', 'color'] as const).map((field) => (
+                        {(['barcode', 'sku', 'name', 'size', 'color', 'color_code'] as const).map((field) => (
                           <td key={field} className="px-1 py-1">
                             <input
                               type="text"
@@ -832,7 +839,7 @@ export default function ImportPage() {
                   setRows([]);
                   setSavedCount(0);
                   setSaveError('');
-                  setMapping({ barcode: '', sku: '', name: '', size: '', color: '' });
+                  setMapping({ barcode: '', sku: '', name: '', size: '', color: '', color_code: '' });
                 }}
               >
                 Importa Altro File

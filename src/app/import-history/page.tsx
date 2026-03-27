@@ -41,6 +41,7 @@ interface ProductRow {
   name: string
   size: string
   color: string
+  color_code: string
 }
 
 // ---------------------------------------------------------------------------
@@ -104,7 +105,7 @@ export default function ImportHistoryPage() {
 
     const { data, error } = await supabase
       .from('product_registry')
-      .select('id, barcode, sku, name, size, color')
+      .select('id, barcode, sku, name, size, color, color_code')
       .eq('import_id', log.id)
       .order('created_at', { ascending: true })
 
@@ -124,6 +125,7 @@ export default function ImportHistoryPage() {
         name: d.name ?? '',
         size: d.size ?? '',
         color: d.color ?? '',
+        color_code: d.color_code ?? '',
       }))
     )
   }
@@ -171,6 +173,7 @@ export default function ImportHistoryPage() {
           name: row.name.trim(),
           size: row.size.trim() || null,
           color: row.color.trim() || null,
+          color_code: row.color_code.trim() || null,
         })
         .eq('id', row.id)
     )
@@ -221,7 +224,7 @@ export default function ImportHistoryPage() {
   const handleExportPdf = async (log: ImportLog) => {
     const { data } = await supabase
       .from('product_registry')
-      .select('barcode, sku, name, size, color')
+      .select('barcode, sku, name, size, color, color_code')
       .eq('import_id', log.id)
       .order('created_at', { ascending: true })
 
@@ -232,8 +235,8 @@ export default function ImportHistoryPage() {
 
     exportToPDF({
       title: `Import ${log.filename} — ${new Date(log.created_at).toLocaleDateString('it-IT')}`,
-      headers: ['Barcode', 'SKU', 'Nome', 'Taglia', 'Colore'],
-      rows: data.map((r: any) => [r.barcode ?? '', r.sku ?? '', r.name ?? '', r.size ?? '', r.color ?? '']),
+      headers: ['Barcode', 'SKU', 'Nome', 'Taglia', 'Colore', 'Cod. Colore'],
+      rows: data.map((r: any) => [r.barcode ?? '', r.sku ?? '', r.name ?? '', r.size ?? '', r.color ?? '', r.color_code ?? '']),
       filename: `storico_${log.filename.replace(/\.[^/.]+$/, '')}.pdf`,
     })
   }
@@ -438,6 +441,7 @@ export default function ImportHistoryPage() {
                     <th className="px-3 py-3 text-left font-semibold text-foreground/70">Nome *</th>
                     <th className="px-3 py-3 text-left font-semibold text-foreground/70 w-24">Taglia</th>
                     <th className="px-3 py-3 text-left font-semibold text-foreground/70 w-28">Colore</th>
+                    <th className="px-3 py-3 text-left font-semibold text-foreground/70 w-24">Cod. Colore</th>
                     <th className="px-3 py-3 w-10" />
                   </tr>
                 </thead>
@@ -453,7 +457,7 @@ export default function ImportHistoryPage() {
                         )}
                       >
                         <td className="px-3 py-2 text-xs text-foreground/40">{idx + 1}</td>
-                        {(['barcode', 'sku', 'name', 'size', 'color'] as const).map((field) => (
+                        {(['barcode', 'sku', 'name', 'size', 'color', 'color_code'] as const).map((field) => (
                           <td key={field} className="px-1 py-1">
                             <input
                               type="text"
