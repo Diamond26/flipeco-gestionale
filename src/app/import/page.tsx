@@ -349,10 +349,33 @@ export default function ImportPage() {
       return;
     }
 
-    const { error } = await supabase.from('product_registry').insert(validRows);
+    // 1. Registra import log
+    const { data: logData, error: logError } = await supabase
+      .from('import_logs')
+      .insert({
+        supplier_id: selectedSupplierId,
+        filename: selectedFile?.name || 'unknown',
+        items_count: validRows.length,
+        status: 'success',
+      })
+      .select('id')
+      .single();
+
+    if (logError || !logData) {
+      setSaveError(`Errore creazione log importazione: ${logError?.message}`);
+      setSaving(false);
+      return;
+    }
+
+    // 2. Collega tutti i prodotti al log
+    const rowsWithImport = validRows.map((r) => ({ ...r, import_id: logData.id }));
+
+    const { error } = await supabase.from('product_registry').insert(rowsWithImport);
     setSaving(false);
     if (error) {
       setSaveError(error.message);
+      // Puliamo il log orfano
+      await supabase.from('import_logs').delete().eq('id', logData.id);
       return;
     }
     setSavedCount(validRows.length);

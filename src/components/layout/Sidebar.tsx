@@ -14,6 +14,7 @@ import {
   LogOut,
   Menu,
   X,
+  History,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
@@ -21,6 +22,7 @@ import { cn } from '@/lib/utils'
 const navItems = [
   { label: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
   { label: 'Import Fornitori', icon: Upload, href: '/import' },
+  { label: 'Storico Importazioni', icon: History, href: '/import-history' },
   { label: 'Magazzino', icon: Package, href: '/inventory' },
   { label: 'Ordini Clienti', icon: ShoppingBag, href: '/customer-orders' },
   { label: 'Ordini Acquisto', icon: Truck, href: '/purchase-orders' },
