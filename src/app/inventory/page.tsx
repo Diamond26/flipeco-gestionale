@@ -288,22 +288,34 @@ export default function InventoryPage() {
       setScanError(null)
       setScannedProduct(null)
 
-      const { data, error } = await supabase
+      // Ricerca esatta prima
+      const { data: exactData } = await supabase
         .from('product_registry')
         .select('id, barcode, name, sku, size, color, color_code, brand')
         .eq('barcode', trimmed)
-        .single()
+        .limit(1)
+
+      let found = exactData && exactData.length > 0 ? exactData[0] : null
+
+      // Fallback: ricerca parziale ilike se non trovato
+      if (!found) {
+        const { data: partialData } = await supabase
+          .from('product_registry')
+          .select('id, barcode, name, sku, size, color, color_code, brand')
+          .ilike('barcode', `%${trimmed}%`)
+          .limit(1)
+
+        found = partialData && partialData.length > 0 ? partialData[0] : null
+      }
 
       setScanLoading(false)
 
-      console.log('[Scan] product_registry result:', { data, error })
-
-      if (error || !data) {
+      if (!found) {
         setScanError(trimmed)
         return
       }
 
-      setScannedProduct(data as ScannedProduct)
+      setScannedProduct(found as ScannedProduct)
       setAddForm({ purchase_price: '', sell_price: '', quantity: '1', location: '' })
 
       // Shift focus to the first editable field in the add-form
@@ -496,32 +508,26 @@ export default function InventoryPage() {
   const pickSuggestion = useCallback((product: ProductSuggestion) => {
     // Cancella eventuali timer di lookup in corso per evitare race condition
     if (lookupTimerRef.current) clearTimeout(lookupTimerRef.current)
+    if (suggestTimerRef.current) clearTimeout(suggestTimerRef.current)
 
-    const barcode = product.barcode ?? ''
-    const name = product.name ?? ''
-    const sku = product.sku ?? ''
-    const size = product.size ?? ''
-    const color = product.color ?? ''
-    const colorCode = product.color_code ?? ''
-    const brand = product.brand ?? ''
-    const category = product.category ?? ''
-
+    // SEMPRE sovrascrivere i campi dal prodotto scelto
     setMatchedProductId(product.id)
     setManualForm((f) => ({
       ...f,
-      barcode: barcode || f.barcode,
-      name: name || f.name,
-      sku: sku || f.sku,
-      size: size || f.size,
-      color: color || f.color,
-      color_code: colorCode || f.color_code,
-      brand: brand || f.brand,
-      category: category || f.category,
+      barcode: product.barcode ?? f.barcode,
+      name: product.name ?? '',
+      sku: product.sku ?? '',
+      size: product.size ?? '',
+      color: product.color ?? '',
+      color_code: product.color_code ?? '',
+      brand: product.brand ?? '',
+      category: product.category ?? '',
     }))
     setProductSuggestions([])
     setSuggestField('')
     setLookupMatch(true)
     setLookupLoading(false)
+    setLookupImportName(null)
     // Focus prezzo acquisto
     setTimeout(() => purchasePriceRef.current?.focus(), 100)
   }, [])
@@ -545,18 +551,18 @@ export default function InventoryPage() {
     setMatchedProductId(null)
 
     // Ricerca esatta prima, poi fallback ilike per barcode parziali
-    let data: { id: string; name: string; sku: string | null; size: string | null; color: string | null; color_code: string | null; brand: string | null; category: string | null; import_id: string | null } | null = null
+    type LookupResult = { id: string; name: string; sku: string | null; size: string | null; color: string | null; color_code: string | null; brand: string | null; category: string | null; import_id: string | null }
+    let data: LookupResult | null = null
 
-    const { data: exactMatch } = await supabase
+    // Usa .limit(1) invece di .maybeSingle() per evitare errori con barcode duplicati
+    const { data: exactMatches } = await supabase
       .from('product_registry')
       .select('id, name, sku, size, color, color_code, brand, category, import_id')
       .eq('barcode', trimmed)
-      .maybeSingle()
+      .limit(1)
 
-    console.log('[Lookup] exact match result:', exactMatch)
-
-    if (exactMatch) {
-      data = exactMatch
+    if (exactMatches && exactMatches.length > 0) {
+      data = exactMatches[0]
     } else {
       // Fallback: ricerca parziale ilike
       const { data: partialMatches } = await supabase
@@ -577,27 +583,19 @@ export default function InventoryPage() {
       return
     }
 
-    // Cattura valori in variabili locali per evitare problemi di closure
+    // SEMPRE sovrascrivere i campi dal prodotto trovato nel DB
+    // Usa i valori dal DB direttamente — NON il pattern `val || f.val` che salta stringhe vuote
     const foundId = data.id
-    const foundName = data.name ?? ''
-    const foundSku = data.sku ?? ''
-    const foundSize = data.size ?? ''
-    const foundColor = data.color ?? ''
-    const foundColorCode = data.color_code ?? ''
-    const foundBrand = data.brand ?? ''
-    const foundCategory = data.category ?? ''
-
-    // Auto-fill the form — sovrascrive SEMPRE i campi prodotto dal DB
     setMatchedProductId(foundId)
     setManualForm((f) => ({
       ...f,
-      name: foundName || f.name,
-      sku: foundSku || f.sku,
-      size: foundSize || f.size,
-      color: foundColor || f.color,
-      color_code: foundColorCode || f.color_code,
-      brand: foundBrand || f.brand,
-      category: foundCategory || f.category,
+      name: data!.name ?? '',
+      sku: data!.sku ?? '',
+      size: data!.size ?? '',
+      color: data!.color ?? '',
+      color_code: data!.color_code ?? '',
+      brand: data!.brand ?? '',
+      category: data!.category ?? '',
     }))
     setLookupMatch(true)
     // Chiudi suggerimenti se aperti
@@ -656,7 +654,15 @@ export default function InventoryPage() {
         setSuggestField('')
       }
     }, 300)
-  }, [supabase])
+
+    // Auto-lookup completo con debounce più lungo (600ms)
+    // Così se l'utente digita/spara un barcode e smette, i campi si compilano automaticamente
+    if (trimmed.length >= 4) {
+      lookupTimerRef.current = setTimeout(() => {
+        lookupProductByBarcode(trimmed)
+      }, 600)
+    }
+  }, [supabase, lookupProductByBarcode])
 
   // Barcode Enter key handler (for scanner) — chiude suggerimenti e fa lookup diretto
   const handleBarcodeKeyDown = useCallback((e: React.KeyboardEvent) => {
