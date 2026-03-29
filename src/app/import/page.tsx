@@ -64,12 +64,12 @@ function autoDetectMapping(headers: string[]): MappingConfig {
   };
 
   return {
-    barcode: find([/barcode/, /\bean\b/, /cod/]),
-    sku: find([/sku/, /art/]),
-    name: find([/nome/, /desc/, /name/]),
-    size: find([/tagl/, /size/]),
-    color: find([/^color/, /colore/]),
-    color_code: find([/cod\.?\s*col/, /color.?cod/, /codice.?col/]),
+    barcode: find([/barcode/, /bar\s*code/, /\bean\b/, /ean13/, /upc/, /cod.*bar/, /codice/]),
+    sku: find([/sku/, /art/, /codice.*art/, /cod.*art/, /riferimento/, /rif/]),
+    name: find([/nome/, /desc/, /name/, /prodotto/, /modello/, /articolo/]),
+    size: find([/tagl/, /size/, /misura/, /tg\.?$/, /numero/]),
+    color: find([/colore/, /^color$/, /variante.*col/, /col\.?$/]),
+    color_code: find([/cod\.?\s*col/, /color.?cod/, /codice.?col/, /cod\.?\s*var/]),
   };
 }
 

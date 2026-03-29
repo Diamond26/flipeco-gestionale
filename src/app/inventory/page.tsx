@@ -295,6 +295,8 @@ export default function InventoryPage() {
 
       setScanLoading(false)
 
+      console.log('[Scan] product_registry result:', { data, error })
+
       if (error || !data) {
         setScanError(trimmed)
         return
@@ -547,6 +549,8 @@ export default function InventoryPage() {
       .select('id, name, sku, size, color, color_code, brand, import_id')
       .eq('barcode', trimmed)
       .maybeSingle()
+
+    console.log('[Lookup] exact match result:', exactMatch)
 
     if (exactMatch) {
       data = exactMatch
