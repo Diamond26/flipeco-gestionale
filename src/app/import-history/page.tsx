@@ -20,6 +20,7 @@ import {
   X,
   PackagePlus,
   Package,
+  Tag,
 } from 'lucide-react'
 
 // ---------------------------------------------------------------------------
@@ -32,6 +33,7 @@ interface ImportLog {
   filename: string
   status: string
   items_count: number
+  brand: string | null
   created_at: string
   suppliers: { id: string; name: string } | null
 }
@@ -65,6 +67,11 @@ export default function ImportHistoryPage() {
   const [savingRows, setSavingRows] = useState(false)
   const [deleteLoading, setDeleteLoading] = useState<string | null>(null)
 
+  // --- Brand modal ---
+  const [brandModalLog, setBrandModalLog] = useState<ImportLog | null>(null)
+  const [brandInput, setBrandInput] = useState('')
+  const [savingBrand, setSavingBrand] = useState(false)
+
   // --- Move to inventory ---
   const [movingAll, setMovingAll] = useState<string | null>(null)
   const [movingRow, setMovingRow] = useState<string | null>(null)
@@ -96,6 +103,51 @@ export default function ImportHistoryPage() {
     }
     setLoading(false)
   }, [supabase, showToast])
+
+  // ---------------------------------------------------------------------------
+  // Brand assignment
+  // ---------------------------------------------------------------------------
+
+  const openBrandModal = (log: ImportLog) => {
+    setBrandModalLog(log)
+    setBrandInput(log.brand ?? '')
+  }
+
+  const saveBrand = async () => {
+    if (!brandModalLog) return
+    const trimmed = brandInput.trim()
+
+    setSavingBrand(true)
+
+    // 1. Salva il brand sull'import_log
+    const { error: logError } = await supabase
+      .from('import_logs')
+      .update({ brand: trimmed || null })
+      .eq('id', brandModalLog.id)
+
+    if (logError) {
+      showToast(`Errore salvataggio brand: ${logError.message}`, 'error')
+      setSavingBrand(false)
+      return
+    }
+
+    // 2. Propaga il brand a TUTTI i prodotti di questa importazione
+    const { error: prodError } = await supabase
+      .from('product_registry')
+      .update({ brand: trimmed || null })
+      .eq('import_id', brandModalLog.id)
+
+    setSavingBrand(false)
+
+    if (prodError) {
+      showToast(`Brand salvato sul log ma errore aggiornamento prodotti: ${prodError.message}`, 'warning')
+    } else {
+      showToast(trimmed ? `Brand "${trimmed}" assegnato a tutti i prodotti dell'importazione!` : 'Brand rimosso da tutti i prodotti.', 'success')
+    }
+
+    setBrandModalLog(null)
+    fetchLogs()
+  }
 
   useEffect(() => {
     fetchLogs()
@@ -424,6 +476,7 @@ export default function ImportHistoryPage() {
                   <th className="px-5 py-3.5 font-semibold text-foreground/70">Data</th>
                   <th className="px-5 py-3.5 font-semibold text-foreground/70">Fornitore</th>
                   <th className="px-5 py-3.5 font-semibold text-foreground/70">File</th>
+                  <th className="px-5 py-3.5 font-semibold text-foreground/70">Brand</th>
                   <th className="px-5 py-3.5 font-semibold text-foreground/70 text-center">Articoli</th>
                   <th className="px-5 py-3.5 font-semibold text-foreground/70 text-center">Stato</th>
                   <th className="px-5 py-3.5 font-semibold text-foreground/70 text-right">Azioni</th>
@@ -432,14 +485,14 @@ export default function ImportHistoryPage() {
               <tbody className="divide-y divide-surface-light">
                 {loading ? (
                   <tr>
-                    <td colSpan={6} className="py-16 text-center text-foreground/40 text-base">
+                    <td colSpan={7} className="py-16 text-center text-foreground/40 text-base">
                       <span className="inline-block animate-spin w-5 h-5 border-2 border-t-brand border-brand/20 rounded-full mr-3 align-middle" />
                       Caricamento storico...
                     </td>
                   </tr>
                 ) : filtered.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="py-16 text-center text-foreground/40 text-base font-medium">
+                    <td colSpan={7} className="py-16 text-center text-foreground/40 text-base font-medium">
                       {searchQuery ? 'Nessun risultato per la ricerca.' : 'Nessuna importazione trovata.'}
                     </td>
                   </tr>
@@ -457,6 +510,27 @@ export default function ImportHistoryPage() {
                       </td>
                       <td className="px-5 py-3.5 text-foreground/80 break-all max-w-[220px]">
                         {log.filename}
+                      </td>
+                      <td className="px-5 py-3.5">
+                        {log.brand ? (
+                          <button
+                            onClick={() => openBrandModal(log)}
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-brand/10 text-brand font-semibold text-xs hover:bg-brand/20 transition-colors cursor-pointer"
+                            title="Modifica Brand"
+                          >
+                            <Tag className="w-3 h-3" />
+                            {log.brand}
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => openBrandModal(log)}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-dashed border-foreground/20 text-foreground/40 text-xs hover:border-brand hover:text-brand transition-colors cursor-pointer"
+                            title="Assegna Brand"
+                          >
+                            <Tag className="w-3 h-3" />
+                            Assegna
+                          </button>
+                        )}
                       </td>
                       <td className="px-5 py-3.5 text-center">
                         <span className="inline-flex items-center justify-center min-w-[28px] px-2 py-0.5 rounded-full bg-brand/10 text-brand font-bold text-xs">
@@ -477,6 +551,18 @@ export default function ImportHistoryPage() {
                       </td>
                       <td className="px-5 py-3.5">
                         <div className="flex items-center justify-end gap-1.5">
+                          <button
+                            title="Assegna Brand"
+                            onClick={() => openBrandModal(log)}
+                            className={cn(
+                              'p-2 rounded-lg transition-colors',
+                              log.brand
+                                ? 'text-brand hover:bg-brand/10'
+                                : 'text-foreground/40 hover:bg-surface-light hover:text-foreground'
+                            )}
+                          >
+                            <Tag className="w-4 h-4" />
+                          </button>
                           <button
                             title="Sposta tutti in Magazzino"
                             onClick={() => moveAllToInventory(log.id)}
@@ -657,6 +743,64 @@ export default function ImportHistoryPage() {
                 Salva Modifiche
               </Button>
             </div>
+          </div>
+        </div>
+      </Modal>
+
+      {/* ================================================================ */}
+      {/* MODAL — Assign Brand                                             */}
+      {/* ================================================================ */}
+      <Modal
+        open={!!brandModalLog}
+        title={brandModalLog ? `Brand — ${brandModalLog.filename}` : ''}
+        onClose={() => { if (!savingBrand) setBrandModalLog(null) }}
+        size="sm"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-foreground/60">
+            Assegna un brand a <strong>tutti gli articoli</strong> di questa importazione.
+            Il brand verrà salvato sia sull&apos;importazione che su ogni prodotto dell&apos;anagrafica collegato.
+          </p>
+
+          <div>
+            <label className="block text-sm font-semibold text-foreground/70 mb-1.5">Brand / Marca</label>
+            <input
+              type="text"
+              value={brandInput}
+              onChange={(e) => setBrandInput(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); saveBrand() } }}
+              placeholder="Es. Nike, Adidas, Levi's..."
+              className="w-full px-4 py-2.5 rounded-xl border border-surface-light bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-all"
+              autoFocus
+            />
+          </div>
+
+          {brandModalLog?.brand && brandInput.trim() === '' && (
+            <p className="text-xs text-foreground/40 flex items-center gap-1">
+              <AlertTriangle className="w-3.5 h-3.5 text-yellow-500" />
+              Salvando vuoto rimuoverai il brand da tutti i prodotti.
+            </p>
+          )}
+
+          <div className="flex justify-end gap-3 pt-2">
+            <Button
+              variant="secondary"
+              size="md"
+              onClick={() => setBrandModalLog(null)}
+              disabled={savingBrand}
+            >
+              Annulla
+            </Button>
+            <Button
+              variant="primary"
+              size="md"
+              onClick={saveBrand}
+              loading={savingBrand}
+              disabled={savingBrand}
+            >
+              <Tag className="w-4 h-4 mr-2" />
+              Salva Brand
+            </Button>
           </div>
         </div>
       </Modal>
