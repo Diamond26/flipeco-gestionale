@@ -18,6 +18,8 @@ import {
   History,
   Save,
   X,
+  PackagePlus,
+  Package,
 } from 'lucide-react'
 
 // ---------------------------------------------------------------------------
@@ -62,6 +64,10 @@ export default function ImportHistoryPage() {
   const [editRows, setEditRows] = useState<ProductRow[]>([])
   const [savingRows, setSavingRows] = useState(false)
   const [deleteLoading, setDeleteLoading] = useState<string | null>(null)
+
+  // --- Move to inventory ---
+  const [movingAll, setMovingAll] = useState<string | null>(null)
+  const [movingRow, setMovingRow] = useState<string | null>(null)
 
   // --- Toast ---
   const [toasts, setToasts] = useState<{ id: number; msg: string; type: 'success' | 'error' | 'warning' }[]>([])
@@ -242,6 +248,109 @@ export default function ImportHistoryPage() {
   }
 
   // ---------------------------------------------------------------------------
+  // Move ALL products of an import to inventory
+  // ---------------------------------------------------------------------------
+
+  const moveAllToInventory = async (logId: string) => {
+    setMovingAll(logId)
+
+    const { data: products, error: fetchErr } = await supabase
+      .from('product_registry')
+      .select('id, barcode, name, sku, size, color, color_code, brand')
+      .eq('import_id', logId)
+
+    if (fetchErr || !products || products.length === 0) {
+      showToast(fetchErr ? `Errore: ${fetchErr.message}` : 'Nessun prodotto trovato per questa importazione.', 'error')
+      setMovingAll(null)
+      return
+    }
+
+    let added = 0
+    let updated = 0
+    let errors = 0
+
+    for (const product of products) {
+      const { data: existing } = await supabase
+        .from('inventory')
+        .select('id, quantity')
+        .eq('product_id', product.id)
+        .maybeSingle()
+
+      if (existing) {
+        const { error } = await supabase
+          .from('inventory')
+          .update({ quantity: existing.quantity + 1, updated_at: new Date().toISOString() })
+          .eq('id', existing.id)
+        if (error) errors++; else updated++
+      } else {
+        const { error } = await supabase
+          .from('inventory')
+          .insert({
+            product_id: product.id,
+            quantity: 1,
+            purchase_price: 0,
+            sell_price: 0,
+            location: null,
+            updated_at: new Date().toISOString(),
+          })
+        if (error) errors++; else added++
+      }
+    }
+
+    setMovingAll(null)
+
+    if (errors > 0) {
+      showToast(`Completato con ${errors} errori. Aggiunti: ${added}, aggiornati: ${updated}.`, 'warning')
+    } else {
+      showToast(`${added + updated} prodotti spostati in magazzino! (${added} nuovi, ${updated} aggiornati)`, 'success')
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Move SINGLE product to inventory
+  // ---------------------------------------------------------------------------
+
+  const moveSingleToInventory = async (productId: string, productName: string) => {
+    setMovingRow(productId)
+
+    const { data: existing } = await supabase
+      .from('inventory')
+      .select('id, quantity')
+      .eq('product_id', productId)
+      .maybeSingle()
+
+    let opError: { message: string } | null = null
+
+    if (existing) {
+      const { error } = await supabase
+        .from('inventory')
+        .update({ quantity: existing.quantity + 1, updated_at: new Date().toISOString() })
+        .eq('id', existing.id)
+      opError = error
+    } else {
+      const { error } = await supabase
+        .from('inventory')
+        .insert({
+          product_id: productId,
+          quantity: 1,
+          purchase_price: 0,
+          sell_price: 0,
+          location: null,
+          updated_at: new Date().toISOString(),
+        })
+      opError = error
+    }
+
+    setMovingRow(null)
+
+    if (opError) {
+      showToast(`Errore: ${opError.message}`, 'error')
+    } else {
+      showToast(`"${productName}" spostato in magazzino!`, 'success')
+    }
+  }
+
+  // ---------------------------------------------------------------------------
   // Filter
   // ---------------------------------------------------------------------------
 
@@ -369,6 +478,18 @@ export default function ImportHistoryPage() {
                       <td className="px-5 py-3.5">
                         <div className="flex items-center justify-end gap-1.5">
                           <button
+                            title="Sposta tutti in Magazzino"
+                            onClick={() => moveAllToInventory(log.id)}
+                            disabled={movingAll === log.id}
+                            className="p-2 rounded-lg text-success hover:bg-success/10 transition-colors disabled:opacity-40"
+                          >
+                            {movingAll === log.id ? (
+                              <span className="inline-block w-4 h-4 animate-spin border-2 border-t-success border-success/20 rounded-full" />
+                            ) : (
+                              <PackagePlus className="w-4 h-4" />
+                            )}
+                          </button>
+                          <button
                             title="Esporta PDF"
                             onClick={() => handleExportPdf(log)}
                             className="p-2 rounded-lg text-foreground/40 hover:bg-surface-light hover:text-foreground transition-colors"
@@ -442,7 +563,7 @@ export default function ImportHistoryPage() {
                     <th className="px-3 py-3 text-left font-semibold text-foreground/70 w-24">Taglia</th>
                     <th className="px-3 py-3 text-left font-semibold text-foreground/70 w-28">Colore</th>
                     <th className="px-3 py-3 text-left font-semibold text-foreground/70 w-24">Cod. Colore</th>
-                    <th className="px-3 py-3 w-10" />
+                    <th className="px-3 py-3 w-20" />
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-surface-light">
@@ -476,16 +597,32 @@ export default function ImportHistoryPage() {
                             />
                           </td>
                         ))}
-                        <td className="px-2 py-1 text-center">
-                          <button
-                            type="button"
-                            onClick={() => deleteEditRow(row.id)}
-                            aria-label={`Elimina riga ${idx + 1}`}
-                            className="w-7 h-7 flex items-center justify-center rounded-full text-danger hover:bg-danger/10 transition-colors"
-                            title="Elimina riga"
-                          >
-                            <X className="w-4 h-4" />
-                          </button>
+                        <td className="px-2 py-1">
+                          <div className="flex items-center gap-0.5">
+                            <button
+                              type="button"
+                              onClick={() => moveSingleToInventory(row.id, row.name)}
+                              disabled={movingRow === row.id}
+                              aria-label={`Sposta in magazzino riga ${idx + 1}`}
+                              className="w-7 h-7 flex items-center justify-center rounded-full text-success hover:bg-success/10 transition-colors disabled:opacity-40"
+                              title="Sposta in Magazzino"
+                            >
+                              {movingRow === row.id ? (
+                                <span className="inline-block w-3.5 h-3.5 animate-spin border-2 border-t-success border-success/20 rounded-full" />
+                              ) : (
+                                <Package className="w-4 h-4" />
+                              )}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => deleteEditRow(row.id)}
+                              aria-label={`Elimina riga ${idx + 1}`}
+                              className="w-7 h-7 flex items-center justify-center rounded-full text-danger hover:bg-danger/10 transition-colors"
+                              title="Elimina riga"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     )
