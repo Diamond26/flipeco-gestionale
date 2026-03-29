@@ -59,8 +59,11 @@ interface ScannedProduct {
   id: string
   barcode: string
   name: string
-  size: string
-  color: string
+  sku: string | null
+  size: string | null
+  color: string | null
+  color_code: string | null
+  brand: string | null
 }
 
 interface EditForm {
@@ -286,7 +289,7 @@ export default function InventoryPage() {
 
       const { data, error } = await supabase
         .from('product_registry')
-        .select('id, barcode, name, size, color')
+        .select('id, barcode, name, sku, size, color, color_code, brand')
         .eq('barcode', trimmed)
         .single()
 
@@ -1194,17 +1197,42 @@ export default function InventoryPage() {
                   </p>
                   <p className="font-bold text-foreground">{scannedProduct.name}</p>
                 </div>
+                {scannedProduct.sku && (
+                  <div className="p-3 rounded-xl bg-surface-light/50 border border-surface/40 min-w-[80px]">
+                    <p className="text-xs font-semibold text-foreground/50 uppercase tracking-wide mb-0.5">
+                      SKU
+                    </p>
+                    <p className="font-mono text-sm text-foreground">{scannedProduct.sku}</p>
+                  </div>
+                )}
+                {scannedProduct.brand && (
+                  <div className="p-3 rounded-xl bg-surface-light/50 border border-surface/40 min-w-[80px]">
+                    <p className="text-xs font-semibold text-foreground/50 uppercase tracking-wide mb-0.5">
+                      Brand
+                    </p>
+                    <p className="font-bold text-foreground">{scannedProduct.brand}</p>
+                  </div>
+                )}
                 <div className="p-3 rounded-xl bg-surface-light/50 border border-surface/40 min-w-[80px]">
                   <p className="text-xs font-semibold text-foreground/50 uppercase tracking-wide mb-0.5">
                     Taglia
                   </p>
-                  <p className="font-bold text-foreground">{scannedProduct.size}</p>
+                  <p className="font-bold text-foreground">{scannedProduct.size || '—'}</p>
                 </div>
                 <div className="p-3 rounded-xl bg-surface-light/50 border border-surface/40 min-w-[100px]">
                   <p className="text-xs font-semibold text-foreground/50 uppercase tracking-wide mb-0.5">
                     Colore
                   </p>
-                  <p className="font-bold text-foreground">{scannedProduct.color}</p>
+                  <p className="font-bold text-foreground">
+                    {scannedProduct.color
+                      ? <span className="inline-flex items-center gap-1.5">
+                          {scannedProduct.color_code && (
+                            <span className="inline-block w-3 h-3 rounded-full border border-foreground/20" style={{ backgroundColor: scannedProduct.color_code }} />
+                          )}
+                          {scannedProduct.color}
+                        </span>
+                      : '—'}
+                  </p>
                 </div>
                 <div className="p-3 rounded-xl bg-surface-light/50 border border-surface/40 min-w-[120px]">
                   <p className="text-xs font-semibold text-foreground/50 uppercase tracking-wide mb-0.5">
