@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/Input';
 import { Card } from '@/components/ui/Card';
 import { Modal } from '@/components/ui/Modal';
 import { Select } from '@/components/ui/Select';
-import { Upload } from 'lucide-react';
+import { Upload, Pencil, Trash2 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { parseCSV } from '@/lib/parsers/csv-parser';
 import { parseExcel } from '@/lib/parsers/excel-parser';
@@ -176,8 +176,19 @@ export default function ImportPage() {
   const [creatingSupplier, setCreatingSupplier] = useState(false);
   const [newSupplierError, setNewSupplierError] = useState('');
 
+  // --- edit supplier modal ---
+  const [editSupplierModal, setEditSupplierModal] = useState(false);
+  const [editSupplier, setEditSupplier] = useState({ id: '', name: '', email: '', phone: '', address: '' });
+  const [editingSupplier, setEditingSupplier] = useState(false);
+  const [editSupplierError, setEditSupplierError] = useState('');
+
+  // --- delete supplier confirm ---
+  const [deleteSupplierModal, setDeleteSupplierModal] = useState(false);
+  const [deletingSupplier, setDeletingSupplier] = useState(false);
+
   // --- success toast ---
   const [toast, setToast] = useState('');
+  const [toastType, setToastType] = useState<'success' | 'error'>('success');
 
   // ---------------------------------------------------------------------------
   // Load suppliers on mount (lazy)
@@ -325,6 +336,76 @@ export default function ImportPage() {
   };
 
   // ---------------------------------------------------------------------------
+  // Edit supplier
+  // ---------------------------------------------------------------------------
+
+  const openEditSupplier = () => {
+    const supplier = suppliers.find((s) => s.id === selectedSupplierId);
+    if (!supplier) return;
+    setEditSupplier({
+      id: supplier.id,
+      name: supplier.name,
+      email: supplier.email ?? '',
+      phone: supplier.phone ?? '',
+      address: supplier.address ?? '',
+    });
+    setEditSupplierError('');
+    setEditSupplierModal(true);
+  };
+
+  const handleEditSupplier = async () => {
+    if (!editSupplier.name.trim()) {
+      setEditSupplierError('Il nome del fornitore è obbligatorio.');
+      return;
+    }
+    setEditingSupplier(true);
+    setEditSupplierError('');
+    const { data, error } = await supabase
+      .from('suppliers')
+      .update({
+        name: editSupplier.name.trim(),
+        email: editSupplier.email.trim() || null,
+        phone: editSupplier.phone.trim() || null,
+        address: editSupplier.address.trim() || null,
+      })
+      .eq('id', editSupplier.id)
+      .select('id,name,email,phone,address')
+      .single();
+    setEditingSupplier(false);
+    if (error) {
+      setEditSupplierError(error.message);
+      return;
+    }
+    if (data) {
+      setSuppliers((prev) =>
+        prev.map((s) => (s.id === data.id ? (data as Supplier) : s)).sort((a, b) => a.name.localeCompare(b.name))
+      );
+    }
+    setEditSupplierModal(false);
+    showToast('Fornitore aggiornato con successo!');
+  };
+
+  // ---------------------------------------------------------------------------
+  // Delete supplier
+  // ---------------------------------------------------------------------------
+
+  const handleDeleteSupplier = async () => {
+    if (!selectedSupplierId) return;
+    setDeletingSupplier(true);
+    const { error } = await supabase.from('suppliers').delete().eq('id', selectedSupplierId);
+    setDeletingSupplier(false);
+    if (error) {
+      setDeleteSupplierModal(false);
+      showToast(`Errore eliminazione: ${error.message}`, 'error');
+      return;
+    }
+    setSuppliers((prev) => prev.filter((s) => s.id !== selectedSupplierId));
+    setSelectedSupplierId('');
+    setDeleteSupplierModal(false);
+    showToast('Fornitore eliminato con successo!');
+  };
+
+  // ---------------------------------------------------------------------------
   // Save
   // ---------------------------------------------------------------------------
 
@@ -415,8 +496,9 @@ export default function ImportPage() {
   // Toast helper
   // ---------------------------------------------------------------------------
 
-  const showToast = (msg: string) => {
+  const showToast = (msg: string, type: 'success' | 'error' = 'success') => {
     setToast(msg);
+    setToastType(type);
     setTimeout(() => setToast(''), 4000);
   };
 
@@ -449,7 +531,7 @@ export default function ImportPage() {
     <AppShell>
       {/* Toast */}
       {toast && (
-        <div className="fixed top-6 right-6 z-50 bg-success text-white px-5 py-3 rounded-xl shadow-xl font-medium text-sm animate-fade-in">
+        <div className={`fixed top-6 right-6 z-50 ${toastType === 'error' ? 'bg-danger' : 'bg-success'} text-white px-5 py-3 rounded-xl shadow-xl font-medium text-sm animate-fade-in`}>
           {toast}
         </div>
       )}
@@ -483,16 +565,38 @@ export default function ImportPage() {
                     onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedSupplierId(e.target.value)}
                   />
                 </div>
-                <Button
-                  variant="secondary"
-                  size="md"
-                  onClick={() => {
-                    loadSuppliers();
-                    setShowNewSupplierModal(true);
-                  }}
-                >
-                  + Nuovo Fornitore
-                </Button>
+                <div className="flex gap-2">
+                  {selectedSupplierId && (
+                    <>
+                      <button
+                        type="button"
+                        title="Modifica fornitore"
+                        onClick={openEditSupplier}
+                        className="p-3 rounded-xl border border-surface bg-surface text-brand hover:bg-brand/10 transition-colors"
+                      >
+                        <Pencil className="w-5 h-5" />
+                      </button>
+                      <button
+                        type="button"
+                        title="Elimina fornitore"
+                        onClick={() => setDeleteSupplierModal(true)}
+                        className="p-3 rounded-xl border border-surface bg-surface text-danger hover:bg-danger/10 transition-colors"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    </>
+                  )}
+                  <Button
+                    variant="secondary"
+                    size="md"
+                    onClick={() => {
+                      loadSuppliers();
+                      setShowNewSupplierModal(true);
+                    }}
+                  >
+                    + Nuovo Fornitore
+                  </Button>
+                </div>
               </div>
             </Card>
 
@@ -696,9 +800,31 @@ export default function ImportPage() {
                     placeholder="Scegli un fornitore..."
                   />
                 </div>
-                <Button variant="secondary" size="md" onClick={() => setShowNewSupplierModal(true)}>
-                  + Nuovo Fornitore
-                </Button>
+                <div className="flex gap-2">
+                  {selectedSupplierId && (
+                    <>
+                      <button
+                        type="button"
+                        title="Modifica fornitore"
+                        onClick={openEditSupplier}
+                        className="p-3 rounded-xl border border-surface bg-surface text-brand hover:bg-brand/10 transition-colors"
+                      >
+                        <Pencil className="w-5 h-5" />
+                      </button>
+                      <button
+                        type="button"
+                        title="Elimina fornitore"
+                        onClick={() => setDeleteSupplierModal(true)}
+                        className="p-3 rounded-xl border border-surface bg-surface text-danger hover:bg-danger/10 transition-colors"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    </>
+                  )}
+                  <Button variant="secondary" size="md" onClick={() => setShowNewSupplierModal(true)}>
+                    + Nuovo Fornitore
+                  </Button>
+                </div>
               </div>
               {!selectedSupplierId && (
                 <p className="mt-3 text-sm text-danger font-medium" role="alert">
@@ -938,6 +1064,130 @@ export default function ImportPage() {
               onClick={createSupplier}
             >
               Crea Fornitore
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* ================================================================== */}
+      {/* MODAL — Modifica Fornitore                                          */}
+      {/* ================================================================== */}
+      <Modal
+        open={editSupplierModal}
+        onClose={() => {
+          setEditSupplierModal(false);
+          setEditSupplierError('');
+        }}
+        title="Modifica Fornitore"
+        size="md"
+      >
+        <div className="space-y-4">
+          <Input
+            label="Nome fornitore *"
+            placeholder="es. Zara Italia S.r.l."
+            value={editSupplier.name}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setEditSupplier((prev) => ({ ...prev, name: e.target.value }))
+            }
+            error={!editSupplier.name.trim() && editSupplierError ? 'Campo obbligatorio' : undefined}
+          />
+          <Input
+            label="Email"
+            type="email"
+            placeholder="fornitore@esempio.it"
+            value={editSupplier.email}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setEditSupplier((prev) => ({ ...prev, email: e.target.value }))
+            }
+          />
+          <Input
+            label="Telefono"
+            type="tel"
+            placeholder="+39 02 1234567"
+            value={editSupplier.phone}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setEditSupplier((prev) => ({ ...prev, phone: e.target.value }))
+            }
+          />
+          <Input
+            label="Indirizzo"
+            placeholder="Via Roma 1, Milano"
+            value={editSupplier.address}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setEditSupplier((prev) => ({ ...prev, address: e.target.value }))
+            }
+          />
+
+          {editSupplierError && (
+            <p className="text-sm text-danger font-medium" role="alert">
+              {editSupplierError}
+            </p>
+          )}
+
+          <div className="flex justify-end gap-3 pt-2">
+            <Button
+              variant="ghost"
+              size="md"
+              onClick={() => {
+                setEditSupplierModal(false);
+                setEditSupplierError('');
+              }}
+            >
+              Annulla
+            </Button>
+            <Button
+              variant="primary"
+              size="md"
+              loading={editingSupplier}
+              onClick={handleEditSupplier}
+            >
+              Salva Modifiche
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* ================================================================== */}
+      {/* MODAL — Conferma Eliminazione Fornitore                             */}
+      {/* ================================================================== */}
+      <Modal
+        open={deleteSupplierModal}
+        onClose={() => setDeleteSupplierModal(false)}
+        title="Elimina Fornitore"
+        size="sm"
+      >
+        <div className="space-y-5">
+          <div className="flex items-start gap-3 p-4 bg-danger/10 rounded-xl">
+            <Trash2 className="w-5 h-5 text-danger shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-semibold text-foreground">
+                Sei sicuro di voler eliminare il fornitore{' '}
+                <span className="text-danger">
+                  &quot;{suppliers.find((s) => s.id === selectedSupplierId)?.name}&quot;
+                </span>?
+              </p>
+              <p className="text-xs text-foreground/60 mt-1">
+                Questa azione è irreversibile. I prodotti e le importazioni collegate non verranno eliminati,
+                ma perderanno il riferimento al fornitore.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-3">
+            <Button
+              variant="ghost"
+              size="md"
+              onClick={() => setDeleteSupplierModal(false)}
+            >
+              Annulla
+            </Button>
+            <Button
+              variant="danger"
+              size="md"
+              loading={deletingSupplier}
+              onClick={handleDeleteSupplier}
+            >
+              Elimina Fornitore
             </Button>
           </div>
         </div>
