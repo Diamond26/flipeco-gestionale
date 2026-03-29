@@ -488,20 +488,32 @@ export default function InventoryPage() {
   }, [supabase])
 
   const pickSuggestion = useCallback((product: ProductSuggestion) => {
+    // Cancella eventuali timer di lookup in corso per evitare race condition
+    if (lookupTimerRef.current) clearTimeout(lookupTimerRef.current)
+
+    const barcode = product.barcode ?? ''
+    const name = product.name ?? ''
+    const sku = product.sku ?? ''
+    const size = product.size ?? ''
+    const color = product.color ?? ''
+    const colorCode = product.color_code ?? ''
+    const brand = product.brand ?? ''
+
     setMatchedProductId(product.id)
     setManualForm((f) => ({
       ...f,
-      barcode: product.barcode || f.barcode,
-      name: product.name || f.name,
-      sku: product.sku || f.sku,
-      size: product.size || f.size,
-      color: product.color || f.color,
-      color_code: product.color_code || f.color_code,
-      brand: product.brand || f.brand,
+      barcode: barcode || f.barcode,
+      name: name || f.name,
+      sku: sku || f.sku,
+      size: size || f.size,
+      color: color || f.color,
+      color_code: colorCode || f.color_code,
+      brand: brand || f.brand,
     }))
     setProductSuggestions([])
     setSuggestField('')
     setLookupMatch(true)
+    setLookupLoading(false)
     // Focus prezzo acquisto
     setTimeout(() => purchasePriceRef.current?.focus(), 100)
   }, [])
@@ -555,18 +567,30 @@ export default function InventoryPage() {
       return
     }
 
-    // Auto-fill the form con sovrascrittura totale dai dati DB
-    setMatchedProductId(data.id)
+    // Cattura valori in variabili locali per evitare problemi di closure
+    const foundId = data.id
+    const foundName = data.name ?? ''
+    const foundSku = data.sku ?? ''
+    const foundSize = data.size ?? ''
+    const foundColor = data.color ?? ''
+    const foundColorCode = data.color_code ?? ''
+    const foundBrand = data.brand ?? ''
+
+    // Auto-fill the form — sovrascrive SEMPRE i campi prodotto dal DB
+    setMatchedProductId(foundId)
     setManualForm((f) => ({
       ...f,
-      name: data.name || f.name,
-      sku: data.sku || f.sku,
-      size: data.size || f.size,
-      color: data.color || f.color,
-      color_code: data.color_code || f.color_code,
-      brand: data.brand || f.brand,
+      name: foundName || f.name,
+      sku: foundSku || f.sku,
+      size: foundSize || f.size,
+      color: foundColor || f.color,
+      color_code: foundColorCode || f.color_code,
+      brand: foundBrand || f.brand,
     }))
     setLookupMatch(true)
+    // Chiudi suggerimenti se aperti
+    setProductSuggestions([])
+    setSuggestField('')
 
     // Check if it came from an import
     if (data.import_id) {
@@ -585,32 +609,51 @@ export default function InventoryPage() {
     setTimeout(() => purchasePriceRef.current?.focus(), 100)
   }, [supabase])
 
-  // Debounced barcode change handler — attiva sia suggerimenti typeahead che lookup
+  // Debounced barcode change handler — attiva suggerimenti typeahead E lookup auto-fill
   const handleBarcodeChange = useCallback((value: string) => {
     setManualForm((f) => ({ ...f, barcode: value }))
     setLookupMatch(null)
     setLookupImportName(null)
     setMatchedProductId(null)
 
+    // Cancella timer precedenti
     if (lookupTimerRef.current) clearTimeout(lookupTimerRef.current)
+    if (suggestTimerRef.current) clearTimeout(suggestTimerRef.current)
+
     const trimmed = value.trim()
 
-    // Typeahead suggerimenti barcode (da 3 caratteri)
-    fetchSuggestions('barcode', 'barcode', value)
-
-    // Lookup esatto/parziale per auto-fill (da 6 caratteri, con debounce più lungo)
-    if (trimmed.length >= 6) {
-      lookupTimerRef.current = setTimeout(() => {
-        lookupProductByBarcode(value)
-      }, 300)
+    if (trimmed.length < 2) {
+      setProductSuggestions([])
+      setSuggestField('')
+      return
     }
-  }, [lookupProductByBarcode, fetchSuggestions])
 
-  // Barcode Enter key handler (for scanner)
+    // Suggerimenti typeahead barcode con debounce 300ms
+    suggestTimerRef.current = setTimeout(async () => {
+      const { data } = await supabase
+        .from('product_registry')
+        .select('id, barcode, name, sku, size, color, color_code, brand')
+        .ilike('barcode', `%${trimmed}%`)
+        .limit(10)
+
+      if (data && data.length > 0) {
+        setProductSuggestions(data as ProductSuggestion[])
+        setSuggestField('barcode')
+      } else {
+        setProductSuggestions([])
+        setSuggestField('')
+      }
+    }, 300)
+  }, [supabase])
+
+  // Barcode Enter key handler (for scanner) — chiude suggerimenti e fa lookup diretto
   const handleBarcodeKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       e.preventDefault()
       if (lookupTimerRef.current) clearTimeout(lookupTimerRef.current)
+      if (suggestTimerRef.current) clearTimeout(suggestTimerRef.current)
+      setProductSuggestions([])
+      setSuggestField('')
       lookupProductByBarcode(manualForm.barcode)
     }
   }, [lookupProductByBarcode, manualForm.barcode])
