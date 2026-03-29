@@ -28,7 +28,26 @@ CREATE POLICY "Authenticated users full access" ON suppliers
   FOR ALL USING (auth.role() = 'authenticated');
 
 -- ============================================
--- 2. ANAGRAFICA PRODOTTI (da import fornitori)
+-- 2. STORICO IMPORTAZIONI
+-- ============================================
+CREATE TABLE import_logs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  supplier_id UUID REFERENCES suppliers(id) ON DELETE SET NULL,
+  filename TEXT NOT NULL,
+  status TEXT DEFAULT 'success',
+  items_count INTEGER DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT now() NOT NULL
+);
+
+CREATE INDEX idx_import_logs_supplier ON import_logs(supplier_id);
+CREATE INDEX idx_import_logs_created ON import_logs(created_at DESC);
+
+ALTER TABLE import_logs ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Authenticated users full access" ON import_logs
+  FOR ALL USING (auth.role() = 'authenticated');
+
+-- ============================================
+-- 3. ANAGRAFICA PRODOTTI (da import fornitori)
 -- ============================================
 CREATE TABLE product_registry (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -37,21 +56,24 @@ CREATE TABLE product_registry (
   name TEXT NOT NULL,
   size TEXT,
   color TEXT,
+  color_code TEXT,
   brand TEXT,
   category TEXT,
   supplier_id UUID REFERENCES suppliers(id) ON DELETE SET NULL,
+  import_id UUID REFERENCES import_logs(id) ON DELETE CASCADE,
   created_at TIMESTAMPTZ DEFAULT now() NOT NULL
 );
 
 CREATE INDEX idx_product_registry_barcode ON product_registry(barcode);
 CREATE INDEX idx_product_registry_sku ON product_registry(sku);
+CREATE INDEX idx_product_registry_import ON product_registry(import_id);
 
 ALTER TABLE product_registry ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Authenticated users full access" ON product_registry
   FOR ALL USING (auth.role() = 'authenticated');
 
 -- ============================================
--- 3. MAGAZZINO / GIACENZE
+-- 4. MAGAZZINO / GIACENZE
 -- ============================================
 CREATE TABLE inventory (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -70,7 +92,7 @@ CREATE POLICY "Authenticated users full access" ON inventory
   FOR ALL USING (auth.role() = 'authenticated');
 
 -- ============================================
--- 4. ORDINI CLIENTI
+-- 5. ORDINI CLIENTI
 -- ============================================
 CREATE TABLE customer_orders (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -87,7 +109,7 @@ CREATE POLICY "Authenticated users full access" ON customer_orders
   FOR ALL USING (auth.role() = 'authenticated');
 
 -- ============================================
--- 5. RIGHE ORDINE CLIENTE
+-- 6. RIGHE ORDINE CLIENTE
 -- ============================================
 CREATE TABLE customer_order_items (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -102,7 +124,7 @@ CREATE POLICY "Authenticated users full access" ON customer_order_items
   FOR ALL USING (auth.role() = 'authenticated');
 
 -- ============================================
--- 6. ORDINI ACQUISTO (DAL FORNITORE)
+-- 7. ORDINI ACQUISTO (DAL FORNITORE)
 -- ============================================
 CREATE TABLE purchase_orders (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -118,7 +140,7 @@ CREATE POLICY "Authenticated users full access" ON purchase_orders
   FOR ALL USING (auth.role() = 'authenticated');
 
 -- ============================================
--- 7. RIGHE ORDINE ACQUISTO
+-- 8. RIGHE ORDINE ACQUISTO
 -- ============================================
 CREATE TABLE purchase_order_items (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -133,7 +155,7 @@ CREATE POLICY "Authenticated users full access" ON purchase_order_items
   FOR ALL USING (auth.role() = 'authenticated');
 
 -- ============================================
--- 8. VENDITE / CASSA
+-- 9. VENDITE / CASSA
 -- ============================================
 CREATE TABLE sales (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -147,7 +169,7 @@ CREATE POLICY "Authenticated users full access" ON sales
   FOR ALL USING (auth.role() = 'authenticated');
 
 -- ============================================
--- 9. RIGHE VENDITA
+-- 10. RIGHE VENDITA
 -- ============================================
 CREATE TABLE sale_items (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
