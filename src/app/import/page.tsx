@@ -37,6 +37,8 @@ interface MappingConfig {
   size: string;
   color: string;
   color_code: string;
+  brand: string;
+  category: string;
 }
 
 interface ProductRow {
@@ -47,6 +49,8 @@ interface ProductRow {
   size: string;
   color: string;
   color_code: string;
+  brand: string;
+  category: string;
   hasError: boolean;
 }
 
@@ -70,6 +74,8 @@ function autoDetectMapping(headers: string[]): MappingConfig {
     size: find([/tagl/, /size/, /misura/, /tg\.?$/, /numero/]),
     color: find([/colore/, /^color$/, /variante.*col/, /col\.?$/]),
     color_code: find([/cod\.?\s*col/, /color.?cod/, /codice.?col/, /cod\.?\s*var/]),
+    brand: find([/brand/, /marca/, /marchio/, /griffe/]),
+    category: find([/categ/, /category/, /tipo/, /reparto/, /classe/]),
   };
 }
 
@@ -153,7 +159,7 @@ export default function ImportPage() {
 
   // --- mapping state ---
   const [mapping, setMapping] = useState<MappingConfig>({
-    barcode: '', sku: '', name: '', size: '', color: '', color_code: '',
+    barcode: '', sku: '', name: '', size: '', color: '', color_code: '', brand: '', category: '',
   });
 
   // --- review state ---
@@ -260,6 +266,8 @@ export default function ImportPage() {
         size: mapping.size ? (raw[mapping.size] ?? '') : '',
         color: mapping.color ? (raw[mapping.color] ?? '') : '',
         color_code: mapping.color_code ? (raw[mapping.color_code] ?? '') : '',
+        brand: mapping.brand ? (raw[mapping.brand] ?? '') : '',
+        category: mapping.category ? (raw[mapping.category] ?? '') : '',
         hasError: !name.trim(),
       };
     });
@@ -339,6 +347,8 @@ export default function ImportPage() {
         size: row.size || undefined,
         color: row.color || undefined,
         color_code: row.color_code || undefined,
+        brand: row.brand || undefined,
+        category: row.category || undefined,
         supplier_id: selectedSupplierId,
       });
       if (result.success) {
@@ -395,8 +405,8 @@ export default function ImportPage() {
   const handleExportPDF = () => {
     exportToPDF({
       title: 'Anagrafica Prodotti Importati',
-      headers: ['Barcode', 'SKU', 'Nome', 'Taglia', 'Colore', 'Cod. Colore'],
-      rows: rows.map((r) => [r.barcode, r.sku, r.name, r.size, r.color, r.color_code]),
+      headers: ['Barcode', 'SKU', 'Nome', 'Taglia', 'Colore', 'Cod. Colore', 'Brand', 'Categoria'],
+      rows: rows.map((r) => [r.barcode, r.sku, r.name, r.size, r.color, r.color_code, r.brand, r.category]),
       filename: 'prodotti-importati.pdf',
     });
   };
@@ -427,6 +437,8 @@ export default function ImportPage() {
     { key: 'size', label: 'Taglia' },
     { key: 'color', label: 'Colore' },
     { key: 'color_code', label: 'Codice Colore' },
+    { key: 'brand', label: 'Brand / Marca' },
+    { key: 'category', label: 'Categoria' },
   ];
 
   // ---------------------------------------------------------------------------
@@ -721,6 +733,8 @@ export default function ImportPage() {
                       <th className="px-3 py-3 text-left font-semibold text-foreground/70">Taglia</th>
                       <th className="px-3 py-3 text-left font-semibold text-foreground/70">Colore</th>
                       <th className="px-3 py-3 text-left font-semibold text-foreground/70">Cod. Colore</th>
+                      <th className="px-3 py-3 text-left font-semibold text-foreground/70">Brand</th>
+                      <th className="px-3 py-3 text-left font-semibold text-foreground/70">Categoria</th>
                       <th className="px-3 py-3 text-left font-semibold text-foreground/70 w-10"></th>
                     </tr>
                   </thead>
@@ -734,7 +748,7 @@ export default function ImportPage() {
                         ].join(' ')}
                       >
                         <td className="px-3 py-2 text-foreground/40 text-xs">{idx + 1}</td>
-                        {(['barcode', 'sku', 'name', 'size', 'color', 'color_code'] as const).map((field) => (
+                        {(['barcode', 'sku', 'name', 'size', 'color', 'color_code', 'brand', 'category'] as const).map((field) => (
                           <td key={field} className="px-1 py-1">
                             <input
                               type="text"
@@ -839,7 +853,7 @@ export default function ImportPage() {
                   setRows([]);
                   setSavedCount(0);
                   setSaveError('');
-                  setMapping({ barcode: '', sku: '', name: '', size: '', color: '', color_code: '' });
+                  setMapping({ barcode: '', sku: '', name: '', size: '', color: '', color_code: '', brand: '', category: '' });
                 }}
               >
                 Importa Altro File

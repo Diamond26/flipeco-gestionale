@@ -165,6 +165,7 @@ export default function InventoryPage() {
     color: string | null
     color_code: string | null
     brand: string | null
+    category: string | null
   }
   const [productSuggestions, setProductSuggestions] = useState<ProductSuggestion[]>([])
   const [suggestField, setSuggestField] = useState('')
@@ -468,7 +469,7 @@ export default function InventoryPage() {
     suggestTimerRef.current = setTimeout(async () => {
       const { data } = await supabase
         .from('product_registry')
-        .select('id, barcode, name, sku, size, color, color_code, brand')
+        .select('id, barcode, name, sku, size, color, color_code, brand, category')
         .ilike(dbColumn, `%${trimmed}%`)
         .limit(20)
 
@@ -503,6 +504,7 @@ export default function InventoryPage() {
     const color = product.color ?? ''
     const colorCode = product.color_code ?? ''
     const brand = product.brand ?? ''
+    const category = product.category ?? ''
 
     setMatchedProductId(product.id)
     setManualForm((f) => ({
@@ -514,6 +516,7 @@ export default function InventoryPage() {
       color: color || f.color,
       color_code: colorCode || f.color_code,
       brand: brand || f.brand,
+      category: category || f.category,
     }))
     setProductSuggestions([])
     setSuggestField('')
@@ -542,11 +545,11 @@ export default function InventoryPage() {
     setMatchedProductId(null)
 
     // Ricerca esatta prima, poi fallback ilike per barcode parziali
-    let data: { id: string; name: string; sku: string | null; size: string | null; color: string | null; color_code: string | null; brand: string | null; import_id: string | null } | null = null
+    let data: { id: string; name: string; sku: string | null; size: string | null; color: string | null; color_code: string | null; brand: string | null; category: string | null; import_id: string | null } | null = null
 
     const { data: exactMatch } = await supabase
       .from('product_registry')
-      .select('id, name, sku, size, color, color_code, brand, import_id')
+      .select('id, name, sku, size, color, color_code, brand, category, import_id')
       .eq('barcode', trimmed)
       .maybeSingle()
 
@@ -558,7 +561,7 @@ export default function InventoryPage() {
       // Fallback: ricerca parziale ilike
       const { data: partialMatches } = await supabase
         .from('product_registry')
-        .select('id, name, sku, size, color, color_code, brand, import_id')
+        .select('id, name, sku, size, color, color_code, brand, category, import_id')
         .ilike('barcode', `%${trimmed}%`)
         .limit(1)
 
@@ -582,6 +585,7 @@ export default function InventoryPage() {
     const foundColor = data.color ?? ''
     const foundColorCode = data.color_code ?? ''
     const foundBrand = data.brand ?? ''
+    const foundCategory = data.category ?? ''
 
     // Auto-fill the form — sovrascrive SEMPRE i campi prodotto dal DB
     setMatchedProductId(foundId)
@@ -593,6 +597,7 @@ export default function InventoryPage() {
       color: foundColor || f.color,
       color_code: foundColorCode || f.color_code,
       brand: foundBrand || f.brand,
+      category: foundCategory || f.category,
     }))
     setLookupMatch(true)
     // Chiudi suggerimenti se aperti
@@ -639,7 +644,7 @@ export default function InventoryPage() {
     suggestTimerRef.current = setTimeout(async () => {
       const { data } = await supabase
         .from('product_registry')
-        .select('id, barcode, name, sku, size, color, color_code, brand')
+        .select('id, barcode, name, sku, size, color, color_code, brand, category')
         .ilike('barcode', `%${trimmed}%`)
         .limit(10)
 
