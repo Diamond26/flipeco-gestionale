@@ -52,7 +52,7 @@ interface InventoryItem {
   product_registry: ProductRegistry
 }
 
-type SortField = 'name' | 'quantity' | 'sell_price' | 'purchase_price'
+type SortField = 'barcode' | 'name' | 'brand' | 'size' | 'color' | 'quantity' | 'sell_price' | 'purchase_price' | 'location'
 type SortDir = 'asc' | 'desc'
 
 interface ScannedProduct {
@@ -839,9 +839,25 @@ export default function InventoryPage() {
       let bVal: string | number
 
       switch (sortField) {
+        case 'barcode':
+          aVal = a.product_registry.barcode?.toLowerCase() ?? ''
+          bVal = b.product_registry.barcode?.toLowerCase() ?? ''
+          break
         case 'name':
           aVal = a.product_registry.name?.toLowerCase() ?? ''
           bVal = b.product_registry.name?.toLowerCase() ?? ''
+          break
+        case 'brand':
+          aVal = (a.product_registry.brand ?? '').toLowerCase()
+          bVal = (b.product_registry.brand ?? '').toLowerCase()
+          break
+        case 'size':
+          aVal = (a.product_registry.size ?? '').toLowerCase()
+          bVal = (b.product_registry.size ?? '').toLowerCase()
+          break
+        case 'color':
+          aVal = (a.product_registry.color ?? '').toLowerCase()
+          bVal = (b.product_registry.color ?? '').toLowerCase()
           break
         case 'quantity':
           aVal = a.quantity
@@ -854,6 +870,10 @@ export default function InventoryPage() {
         case 'purchase_price':
           aVal = a.purchase_price
           bVal = b.purchase_price
+          break
+        case 'location':
+          aVal = (a.location ?? '').toLowerCase()
+          bVal = (b.location ?? '').toLowerCase()
           break
         default:
           return 0
@@ -929,7 +949,14 @@ export default function InventoryPage() {
   const columns = [
     {
       key: 'barcode',
-      header: 'Barcode',
+      header: (
+        <button
+          onClick={() => handleSort('barcode')}
+          className="flex items-center gap-1 hover:text-brand transition-colors"
+        >
+          Barcode <SortIcon field="barcode" />
+        </button>
+      ) as unknown as string,
       render: (row: InventoryItem) => (
         <span className="font-mono text-xs text-foreground/60">
           {row.product_registry.barcode}
@@ -952,7 +979,14 @@ export default function InventoryPage() {
     },
     {
       key: 'brand',
-      header: 'Brand',
+      header: (
+        <button
+          onClick={() => handleSort('brand')}
+          className="flex items-center gap-1 hover:text-brand transition-colors"
+        >
+          Brand <SortIcon field="brand" />
+        </button>
+      ) as unknown as string,
       render: (row: InventoryItem) => (
         <span className="text-sm font-medium text-foreground/80">
           {row.product_registry.brand || '—'}
@@ -961,7 +995,14 @@ export default function InventoryPage() {
     },
     {
       key: 'size',
-      header: 'Taglia',
+      header: (
+        <button
+          onClick={() => handleSort('size')}
+          className="flex items-center gap-1 hover:text-brand transition-colors"
+        >
+          Taglia <SortIcon field="size" />
+        </button>
+      ) as unknown as string,
       render: (row: InventoryItem) => (
         <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-surface text-xs font-semibold">
           {row.product_registry.size}
@@ -970,7 +1011,14 @@ export default function InventoryPage() {
     },
     {
       key: 'color',
-      header: 'Colore',
+      header: (
+        <button
+          onClick={() => handleSort('color')}
+          className="flex items-center gap-1 hover:text-brand transition-colors"
+        >
+          Colore <SortIcon field="color" />
+        </button>
+      ) as unknown as string,
       render: (row: InventoryItem) => (
         <span className="text-sm">{row.product_registry.color}</span>
       ),
@@ -1034,7 +1082,14 @@ export default function InventoryPage() {
     },
     {
       key: 'location',
-      header: 'Ubicazione',
+      header: (
+        <button
+          onClick={() => handleSort('location')}
+          className="flex items-center gap-1 hover:text-brand transition-colors"
+        >
+          Ubicazione <SortIcon field="location" />
+        </button>
+      ) as unknown as string,
       render: (row: InventoryItem) =>
         row.location ? (
           <span className="text-sm text-foreground/60">{row.location}</span>
