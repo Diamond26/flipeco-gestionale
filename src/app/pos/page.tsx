@@ -124,6 +124,13 @@ function monthLabel(date: Date): string {
   }).format(date)
 }
 
+function toLocalDateInputValue(date: Date): string {
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const d = String(date.getDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
+}
+
 // ---------------------------------------------------------------------------
 // Page
 // ---------------------------------------------------------------------------
@@ -168,7 +175,7 @@ export default function POSPage() {
 
   // --- Sales history ---
   const [todaySales, setTodaySales] = useState<Sale[]>([])
-  const [historyDate, setHistoryDate] = useState(() => new Date().toISOString().slice(0, 10))
+  const [historyDate, setHistoryDate] = useState(() => toLocalDateInputValue(new Date()))
   const [historyMonthAnchor, setHistoryMonthAnchor] = useState(() => {
     const d = new Date()
     return new Date(d.getFullYear(), d.getMonth(), 1)
@@ -1269,7 +1276,7 @@ export default function POSPage() {
                         key={day.key}
                         type="button"
                         onClick={() => {
-                          const selected = day.date!.toISOString().slice(0, 10)
+                          const selected = toLocalDateInputValue(day.date!)
                           setHistoryDate(selected)
                         }}
                         className={cn(
