@@ -25,8 +25,6 @@ import {
   ReceiptText,
   Clock,
   RotateCcw,
-  Moon,
-  Sun,
 } from 'lucide-react'
 
 // ---------------------------------------------------------------------------
@@ -199,7 +197,6 @@ export default function POSPage() {
 
   // --- Toasts ---
   const [toasts, setToasts] = useState<Toast[]>([])
-  const [isDarkMode, setIsDarkMode] = useState(false)
 
   // ---------------------------------------------------------------------------
   // Focus helpers
@@ -212,15 +209,6 @@ export default function POSPage() {
   useEffect(() => {
     focusBarcode()
   }, [focusBarcode])
-
-  useEffect(() => {
-    const stored = window.localStorage.getItem('flip-pos-theme')
-    if (stored === 'dark') setIsDarkMode(true)
-  }, [])
-
-  useEffect(() => {
-    window.localStorage.setItem('flip-pos-theme', isDarkMode ? 'dark' : 'light')
-  }, [isDarkMode])
 
   // ---------------------------------------------------------------------------
   // Global barcode scanner listener
@@ -914,21 +902,6 @@ export default function POSPage() {
 
   return (
     <AppShell pageTitle="Cassa — POS">
-      <button
-        type="button"
-        onClick={() => setIsDarkMode((v) => !v)}
-        className={cn(
-          'fixed left-4 top-4 z-[120] h-10 px-3 rounded-xl border shadow-sm backdrop-blur-sm',
-          'flex items-center gap-2 text-sm font-semibold transition-colors',
-          isDarkMode
-            ? 'bg-slate-900/90 text-slate-100 border-slate-700'
-            : 'bg-white/90 text-foreground border-white/70'
-        )}
-      >
-        {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-        {isDarkMode ? 'Light' : 'Dark'}
-      </button>
-
       {/* ------------------------------------------------------------------ */}
       {/* Toast notifications                                                  */}
       {/* ------------------------------------------------------------------ */}
@@ -954,7 +927,7 @@ export default function POSPage() {
         ))}
       </div>
 
-      <div className={cn('max-w-[1500px] mx-auto space-y-4 animate-fade-in pos-theme-root', isDarkMode && 'pos-theme-dark')}>
+      <div className={cn('max-w-[1500px] mx-auto space-y-4 animate-fade-in pos-theme-root')}>
         {/* ------------------------------------------------------------------ */}
         {/* Indicator Scanner                                                  */}
         {/* ------------------------------------------------------------------ */}
