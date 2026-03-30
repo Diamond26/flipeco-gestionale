@@ -156,6 +156,11 @@ export default function POSPage() {
   const [productMenuOpen, setProductMenuOpen] = useState(false)
   const [productMenuQuery, setProductMenuQuery] = useState('')
   const [productSortBy, setProductSortBy] = useState<'name' | 'brand' | 'size' | 'price' | 'quantity'>('name')
+  const [selectedMenuProductIds, setSelectedMenuProductIds] = useState<string[]>([])
+  const [bulkEditOpen, setBulkEditOpen] = useState(false)
+  const [bulkEditPrice, setBulkEditPrice] = useState('')
+  const [bulkEditQuantity, setBulkEditQuantity] = useState('')
+  const [bulkActionLoading, setBulkActionLoading] = useState(false)
 
   // --- Cart ---
   const [cart, setCart] = useState<CartItem[]>([])
@@ -369,6 +374,13 @@ export default function POSPage() {
     })
   }, [productMenuQuery, productSortBy, products])
 
+  const selectedInMenuCount = useMemo(
+    () => productMenuItems.filter((item) => selectedMenuProductIds.includes(item.id)).length,
+    [productMenuItems, selectedMenuProductIds]
+  )
+
+  const allVisibleSelected = productMenuItems.length > 0 && selectedInMenuCount === productMenuItems.length
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node
@@ -464,6 +476,96 @@ export default function POSPage() {
   const toggleSaleExpand = useCallback((saleId: string) => {
     setExpandedSales((prev) => ({ ...prev, [saleId]: !prev[saleId] }))
   }, [])
+
+  const toggleProductSelection = useCallback((inventoryId: string) => {
+    setSelectedMenuProductIds((prev) =>
+      prev.includes(inventoryId) ? prev.filter((id) => id !== inventoryId) : [...prev, inventoryId]
+    )
+  }, [])
+
+  const toggleSelectAllVisibleProducts = useCallback(() => {
+    if (allVisibleSelected) {
+      setSelectedMenuProductIds((prev) => prev.filter((id) => !productMenuItems.some((p) => p.id === id)))
+      return
+    }
+    setSelectedMenuProductIds((prev) => {
+      const next = new Set(prev)
+      productMenuItems.forEach((p) => next.add(p.id))
+      return Array.from(next)
+    })
+  }, [allVisibleSelected, productMenuItems])
+
+  const handleBulkDeleteProducts = useCallback(async () => {
+    if (selectedMenuProductIds.length === 0 || bulkActionLoading) return
+    const ok = window.confirm(`Eliminare ${selectedMenuProductIds.length} articoli selezionati dal magazzino?`)
+    if (!ok) return
+
+    setBulkActionLoading(true)
+    const { error } = await supabase.from('inventory').delete().in('id', selectedMenuProductIds)
+    setBulkActionLoading(false)
+
+    if (error) {
+      showToast(`Errore eliminazione: ${error.message}`, 'error')
+      return
+    }
+
+    showToast(`${selectedMenuProductIds.length} articoli eliminati`, 'success')
+    setSelectedMenuProductIds([])
+    await fetchProducts()
+  }, [selectedMenuProductIds, bulkActionLoading, supabase, showToast, fetchProducts])
+
+  const handleBulkEditProducts = useCallback(async () => {
+    if (selectedMenuProductIds.length === 0 || bulkActionLoading) return
+    const updates: { sell_price?: number; quantity?: number } = {}
+
+    const parsedPrice = bulkEditPrice.trim() === '' ? null : Number(bulkEditPrice)
+    const parsedQty = bulkEditQuantity.trim() === '' ? null : Number(bulkEditQuantity)
+
+    if (parsedPrice !== null) {
+      if (Number.isNaN(parsedPrice) || parsedPrice < 0) {
+        showToast('Prezzo non valido', 'warning')
+        return
+      }
+      updates.sell_price = parsedPrice
+    }
+
+    if (parsedQty !== null) {
+      if (Number.isNaN(parsedQty) || parsedQty < 0) {
+        showToast('Quantita non valida', 'warning')
+        return
+      }
+      updates.quantity = Math.floor(parsedQty)
+    }
+
+    if (Object.keys(updates).length === 0) {
+      showToast('Inserisci almeno un campo da modificare', 'warning')
+      return
+    }
+
+    setBulkActionLoading(true)
+    const { error } = await supabase.from('inventory').update(updates).in('id', selectedMenuProductIds)
+    setBulkActionLoading(false)
+
+    if (error) {
+      showToast(`Errore modifica: ${error.message}`, 'error')
+      return
+    }
+
+    showToast(`Aggiornati ${selectedMenuProductIds.length} articoli`, 'success')
+    setBulkEditPrice('')
+    setBulkEditQuantity('')
+    setBulkEditOpen(false)
+    setSelectedMenuProductIds([])
+    await fetchProducts()
+  }, [
+    selectedMenuProductIds,
+    bulkActionLoading,
+    bulkEditPrice,
+    bulkEditQuantity,
+    supabase,
+    showToast,
+    fetchProducts,
+  ])
 
   // ---------------------------------------------------------------------------
   // Barcode scan → add to cart
@@ -1469,7 +1571,10 @@ export default function POSPage() {
       {/* ------------------------------------------------------------------ */}
       <Modal
         open={productMenuOpen}
-        onClose={() => setProductMenuOpen(false)}
+        onClose={() => {
+          setProductMenuOpen(false)
+          setSelectedMenuProductIds([])
+        }}
         title="Seleziona articolo dal catalogo"
         size="lg"
       >
@@ -1510,6 +1615,45 @@ export default function POSPage() {
             {productMenuItems.length} articoli disponibili
           </div>
 
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={toggleSelectAllVisibleProducts}
+              className="px-3 py-1.5 rounded-lg text-xs font-semibold border border-surface/40 bg-white hover:bg-surface/20 transition-colors"
+            >
+              {allVisibleSelected ? 'Deseleziona tutti' : 'Seleziona tutti'}
+            </button>
+            <span className="text-xs text-foreground/50">
+              {selectedInMenuCount} selezionati
+            </span>
+            <button
+              type="button"
+              onClick={() => setBulkEditOpen(true)}
+              disabled={selectedInMenuCount === 0 || bulkActionLoading}
+              className={cn(
+                'ml-auto px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors',
+                selectedInMenuCount === 0 || bulkActionLoading
+                  ? 'bg-surface/20 text-foreground/30 cursor-not-allowed'
+                  : 'bg-brand/10 text-brand hover:bg-brand/20'
+              )}
+            >
+              Modifica selezionati
+            </button>
+            <button
+              type="button"
+              onClick={handleBulkDeleteProducts}
+              disabled={selectedInMenuCount === 0 || bulkActionLoading}
+              className={cn(
+                'px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors',
+                selectedInMenuCount === 0 || bulkActionLoading
+                  ? 'bg-surface/20 text-foreground/30 cursor-not-allowed'
+                  : 'bg-danger/10 text-danger hover:bg-danger/20'
+              )}
+            >
+              Elimina selezionati
+            </button>
+          </div>
+
           <div className="max-h-[58vh] overflow-y-auto rounded-xl border border-surface/20 divide-y divide-surface/20">
             {productsLoading ? (
               <div className="flex items-center justify-center py-12 text-foreground/40">
@@ -1523,30 +1667,112 @@ export default function POSPage() {
             ) : (
               productMenuItems.map((product) => {
                 const pr = product.product_registry
+                const isSelected = selectedMenuProductIds.includes(product.id)
                 return (
-                  <button
+                  <div
                     key={product.id}
-                    type="button"
-                    onClick={() => {
-                      addToCart(product)
-                      focusBarcode()
-                    }}
-                    className="w-full text-left px-4 py-3 hover:bg-brand/[0.06] transition-colors"
+                    className={cn(
+                      'w-full px-4 py-3 transition-colors',
+                      isSelected ? 'bg-brand/[0.07]' : 'hover:bg-brand/[0.06]'
+                    )}
                   >
                     <div className="grid grid-cols-1 lg:grid-cols-6 gap-2 text-sm">
-                      <p className="lg:col-span-2 font-semibold truncate">{pr.name}</p>
+                      <div className="lg:col-span-2 flex items-center gap-2 min-w-0">
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => toggleProductSelection(product.id)}
+                          className="h-4 w-4 rounded border-surface/60 text-brand focus:ring-brand/30"
+                          aria-label={`Seleziona ${pr.name}`}
+                        />
+                        <p className="font-semibold truncate">{pr.name}</p>
+                      </div>
                       <p className="text-foreground/60 truncate">{pr.brand || 'N/D'}</p>
                       <p className="text-foreground/60 truncate">Taglia {pr.size || '-'}</p>
                       <p className="font-semibold text-brand">{formatCurrency(product.sell_price)}</p>
                       <p className="text-foreground/60 text-right">{product.quantity} pz</p>
                     </div>
-                    <p className="text-xs text-foreground/50 mt-1 truncate">
-                      {pr.barcode} · {pr.color || '-'}
-                    </p>
-                  </button>
+                    <div className="mt-1 flex items-center justify-between gap-3">
+                      <p className="text-xs text-foreground/50 truncate">
+                        {pr.barcode} · {pr.color || '-'}
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          addToCart(product)
+                          focusBarcode()
+                        }}
+                        className="px-2.5 py-1 rounded-md text-xs font-semibold bg-brand/10 text-brand hover:bg-brand/20 transition-colors"
+                      >
+                        Aggiungi al carrello
+                      </button>
+                    </div>
+                  </div>
                 )
               })
             )}
+          </div>
+        </div>
+      </Modal>
+
+      <Modal
+        open={bulkEditOpen}
+        onClose={() => !bulkActionLoading && setBulkEditOpen(false)}
+        title="Modifica articoli selezionati"
+        size="sm"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-foreground/60">
+            Articoli selezionati: <span className="font-semibold text-foreground">{selectedInMenuCount}</span>
+          </p>
+          <div className="space-y-2">
+            <label className="text-xs font-semibold uppercase tracking-wider text-foreground/50">
+              Nuovo prezzo vendita (opzionale)
+            </label>
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              value={bulkEditPrice}
+              onChange={(e) => setBulkEditPrice(e.target.value)}
+              className="w-full rounded-xl border border-surface/80 bg-white px-3 py-2.5 text-sm focus:outline-none focus:border-brand focus:ring-4 focus:ring-brand/15"
+              placeholder="Es. 39.90"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-xs font-semibold uppercase tracking-wider text-foreground/50">
+              Nuova quantita (opzionale)
+            </label>
+            <input
+              type="number"
+              min="0"
+              step="1"
+              value={bulkEditQuantity}
+              onChange={(e) => setBulkEditQuantity(e.target.value)}
+              className="w-full rounded-xl border border-surface/80 bg-white px-3 py-2.5 text-sm focus:outline-none focus:border-brand focus:ring-4 focus:ring-brand/15"
+              placeholder="Es. 10"
+            />
+          </div>
+          <div className="flex gap-2 pt-1">
+            <Button
+              type="button"
+              variant="primary"
+              size="sm"
+              loading={bulkActionLoading}
+              onClick={handleBulkEditProducts}
+              className="flex-1"
+            >
+              Salva modifiche
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              disabled={bulkActionLoading}
+              onClick={() => setBulkEditOpen(false)}
+            >
+              Annulla
+            </Button>
           </div>
         </div>
       </Modal>
