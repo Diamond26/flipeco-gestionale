@@ -730,6 +730,10 @@ export default function POSPage() {
   // ---------------------------------------------------------------------------
 
   const dailyTotal = todaySales.reduce((sum, s) => sum + s.total, 0)
+  const soldItemsCount = todaySales.reduce(
+    (sum, s) => sum + s.sale_items.reduce((inner, i) => inner + i.quantity, 0),
+    0
+  )
 
   // ---------------------------------------------------------------------------
   // Render
@@ -762,7 +766,7 @@ export default function POSPage() {
         ))}
       </div>
 
-      <div className="max-w-[1600px] mx-auto space-y-5 animate-fade-in">
+      <div className="max-w-[1500px] mx-auto space-y-4 animate-fade-in">
         {/* ------------------------------------------------------------------ */}
         {/* Indicator Scanner                                                  */}
         {/* ------------------------------------------------------------------ */}
@@ -776,12 +780,30 @@ export default function POSPage() {
         {/* ---------------------------------------------------------------- */}
         {/* Main two-column POS layout                                        */}
         {/* ---------------------------------------------------------------- */}
-        <div className="flex flex-col lg:flex-row gap-5 items-start">
+        <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_460px] gap-4 items-start">
 
           {/* ============================================================== */}
           {/* LEFT — Product selection                                         */}
           {/* ============================================================== */}
-          <div className="flex-1 min-w-0 space-y-5">
+          <div className="min-w-0 space-y-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div className="rounded-xl border border-white/60 bg-white/75 backdrop-blur-sm p-3 shadow-sm">
+                <p className="text-[11px] uppercase tracking-wider text-foreground/45 font-semibold">Disponibili</p>
+                <p className="text-lg font-bold text-foreground">{products.length}</p>
+              </div>
+              <div className="rounded-xl border border-white/60 bg-white/75 backdrop-blur-sm p-3 shadow-sm">
+                <p className="text-[11px] uppercase tracking-wider text-foreground/45 font-semibold">Transazioni giorno</p>
+                <p className="text-lg font-bold text-foreground">{todaySales.length}</p>
+              </div>
+              <div className="rounded-xl border border-white/60 bg-white/75 backdrop-blur-sm p-3 shadow-sm">
+                <p className="text-[11px] uppercase tracking-wider text-foreground/45 font-semibold">Articoli venduti</p>
+                <p className="text-lg font-bold text-foreground">{soldItemsCount}</p>
+              </div>
+              <div className="rounded-xl border border-white/60 bg-white/75 backdrop-blur-sm p-3 shadow-sm">
+                <p className="text-[11px] uppercase tracking-wider text-foreground/45 font-semibold">Incasso giorno</p>
+                <p className="text-lg font-extrabold text-brand">{formatCurrency(dailyTotal)}</p>
+              </div>
+            </div>
 
             {/* Barcode scanner input */}
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 p-4">
@@ -879,25 +901,41 @@ export default function POSPage() {
             </div>
 
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 p-4">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50">
-                    Catalogo articoli
-                  </p>
-                  <p className="text-sm text-foreground/60">
-                    Apri il menu per cercare e ordinare i prodotti disponibili.
-                  </p>
-                </div>
+              <div className="flex flex-wrap items-center gap-2">
                 <Button
                   type="button"
                   variant="secondary"
-                  size="lg"
+                  size="sm"
                   onClick={() => setProductMenuOpen(true)}
-                  className="sm:min-w-[220px]"
                 >
                   <Search className="w-4 h-4 mr-2" />
-                  Apri lista prodotti
+                  Lista Prodotti
                 </Button>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => {
+                    setHistoryOpen(true)
+                    fetchTodaySales(historyDate)
+                  }}
+                >
+                  <ReceiptText className="w-4 h-4 mr-2" />
+                  Storico
+                </Button>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  onClick={openReturnModal}
+                  className="text-amber-700 border-amber-200 hover:bg-amber-50"
+                >
+                  <RotateCcw className="w-4 h-4 mr-2" />
+                  Reso
+                </Button>
+                <div className="ml-auto text-xs text-foreground/50">
+                  Modalita rapida: scanner + azioni
+                </div>
               </div>
             </div>
           </div>
@@ -905,7 +943,7 @@ export default function POSPage() {
           {/* ============================================================== */}
           {/* RIGHT — Cart + Payment                                           */}
           {/* ============================================================== */}
-          <div className="w-full lg:w-[420px] xl:w-[460px] shrink-0 space-y-5 lg:sticky lg:top-4">
+          <div className="w-full space-y-4 xl:sticky xl:top-4">
 
             {/* Cart panel */}
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 overflow-hidden">
@@ -1047,8 +1085,8 @@ export default function POSPage() {
                 onClick={() => cart.length > 0 && setPaymentMethod('cash')}
                 disabled={cart.length === 0}
                 className={cn(
-                  'flex flex-col items-center justify-center gap-2 rounded-2xl py-7 px-4',
-                  'font-bold text-xl transition-all duration-200 select-none min-h-[50px]',
+                  'flex flex-col items-center justify-center gap-1.5 rounded-2xl py-5 px-4',
+                  'font-bold text-lg transition-all duration-200 select-none min-h-[50px]',
                   'focus:outline-none focus:ring-4 focus:ring-brand/30',
                   cart.length === 0
                     ? 'bg-surface/30 text-foreground/25 cursor-not-allowed'
@@ -1064,8 +1102,8 @@ export default function POSPage() {
                 onClick={() => cart.length > 0 && setPaymentMethod('pos')}
                 disabled={cart.length === 0}
                 className={cn(
-                  'flex flex-col items-center justify-center gap-2 rounded-2xl py-7 px-4',
-                  'font-bold text-xl transition-all duration-200 select-none min-h-[50px]',
+                  'flex flex-col items-center justify-center gap-1.5 rounded-2xl py-5 px-4',
+                  'font-bold text-lg transition-all duration-200 select-none min-h-[50px]',
                   'focus:outline-none focus:ring-4 focus:ring-blue-300/30',
                   cart.length === 0
                     ? 'bg-surface/30 text-foreground/25 cursor-not-allowed'
@@ -1175,12 +1213,7 @@ export default function POSPage() {
                       <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50 mb-1">
                         Articoli venduti
                       </p>
-                      <p className="text-2xl font-bold">
-                        {todaySales.reduce(
-                          (sum, s) => sum + s.sale_items.reduce((si, i) => si + i.quantity, 0),
-                          0
-                        )}
-                      </p>
+                      <p className="text-2xl font-bold">{soldItemsCount}</p>
                     </div>
                     <div className="p-4 text-center">
                       <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50 mb-1">
