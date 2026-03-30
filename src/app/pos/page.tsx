@@ -25,6 +25,8 @@ import {
   ReceiptText,
   Clock,
   RotateCcw,
+  Moon,
+  Sun,
 } from 'lucide-react'
 
 // ---------------------------------------------------------------------------
@@ -197,6 +199,7 @@ export default function POSPage() {
 
   // --- Toasts ---
   const [toasts, setToasts] = useState<Toast[]>([])
+  const [isDarkMode, setIsDarkMode] = useState(false)
 
   // ---------------------------------------------------------------------------
   // Focus helpers
@@ -209,6 +212,15 @@ export default function POSPage() {
   useEffect(() => {
     focusBarcode()
   }, [focusBarcode])
+
+  useEffect(() => {
+    const stored = window.localStorage.getItem('flip-pos-theme')
+    if (stored === 'dark') setIsDarkMode(true)
+  }, [])
+
+  useEffect(() => {
+    window.localStorage.setItem('flip-pos-theme', isDarkMode ? 'dark' : 'light')
+  }, [isDarkMode])
 
   // ---------------------------------------------------------------------------
   // Global barcode scanner listener
@@ -902,6 +914,21 @@ export default function POSPage() {
 
   return (
     <AppShell pageTitle="Cassa — POS">
+      <button
+        type="button"
+        onClick={() => setIsDarkMode((v) => !v)}
+        className={cn(
+          'fixed left-4 top-4 z-[120] h-10 px-3 rounded-xl border shadow-sm backdrop-blur-sm',
+          'flex items-center gap-2 text-sm font-semibold transition-colors',
+          isDarkMode
+            ? 'bg-slate-900/90 text-slate-100 border-slate-700'
+            : 'bg-white/90 text-foreground border-white/70'
+        )}
+      >
+        {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+        {isDarkMode ? 'Light' : 'Dark'}
+      </button>
+
       {/* ------------------------------------------------------------------ */}
       {/* Toast notifications                                                  */}
       {/* ------------------------------------------------------------------ */}
@@ -927,7 +954,7 @@ export default function POSPage() {
         ))}
       </div>
 
-      <div className="max-w-[1500px] mx-auto space-y-4 animate-fade-in">
+      <div className={cn('max-w-[1500px] mx-auto space-y-4 animate-fade-in pos-theme-root', isDarkMode && 'pos-theme-dark')}>
         {/* ------------------------------------------------------------------ */}
         {/* Indicator Scanner                                                  */}
         {/* ------------------------------------------------------------------ */}
@@ -967,7 +994,7 @@ export default function POSPage() {
             </div>
 
             {/* Barcode scanner input */}
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 p-4">
+            <div className="pos-surface bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 p-4">
               <form onSubmit={handleBarcodeScan}>
                 <div className="flex gap-3 items-center">
                   <div ref={scannerBoxRef} className="relative flex-1">
@@ -1061,7 +1088,7 @@ export default function POSPage() {
               </form>
             </div>
 
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 p-4">
+            <div className="pos-surface bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 p-4">
               <div className="flex items-center gap-3">
                 <Button
                   type="button"
@@ -1083,7 +1110,7 @@ export default function POSPage() {
           <div className="w-full space-y-4 xl:sticky xl:top-4">
 
             {/* Cart panel */}
-            <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 overflow-hidden">
+            <div className="pos-surface relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 overflow-hidden">
               {/* Decorative square lines */}
               <span className="pointer-events-none absolute left-3 top-3 h-5 w-5 border-l-2 border-t-2 border-brand/35 rounded-tl-md" />
               <span className="pointer-events-none absolute right-3 top-3 h-5 w-5 border-r-2 border-t-2 border-brand/35 rounded-tr-md" />
@@ -1278,7 +1305,7 @@ export default function POSPage() {
         {/* ---------------------------------------------------------------- */}
         {/* Sales history (always open)                                       */}
         {/* ---------------------------------------------------------------- */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 overflow-hidden">
+        <div className="pos-surface bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 overflow-hidden">
           <div className="px-5 py-4 border-b border-surface/20 bg-surface-light/10">
             <div className="flex items-center gap-3">
               <ReceiptText className="w-5 h-5 text-brand" />
@@ -2026,6 +2053,23 @@ export default function POSPage() {
           </form>
         </div>
       </Modal>
+      <style jsx global>{`
+        .pos-theme-dark {
+          color: #e5e7eb;
+        }
+        .pos-theme-dark .pos-surface {
+          background: rgba(15, 23, 42, 0.82) !important;
+          border-color: rgba(100, 116, 139, 0.45) !important;
+          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+        }
+        .pos-theme-dark input,
+        .pos-theme-dark select,
+        .pos-theme-dark textarea {
+          background: rgba(30, 41, 59, 0.88) !important;
+          color: #e5e7eb !important;
+          border-color: rgba(100, 116, 139, 0.5) !important;
+        }
+      `}</style>
     </AppShell>
   )
 }
