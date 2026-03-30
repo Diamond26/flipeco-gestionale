@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react'
 import AppShell from '@/components/layout/AppShell'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
@@ -73,6 +73,13 @@ interface EditForm {
   location: string
 }
 
+interface BulkEditForm {
+  quantity: string
+  purchase_price: string
+  sell_price: string
+  location: string
+}
+
 // ---------------------------------------------------------------------------
 // Toast helper
 // ---------------------------------------------------------------------------
@@ -116,6 +123,15 @@ export default function InventoryPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [sortField, setSortField] = useState<SortField>('name')
   const [sortDir, setSortDir] = useState<SortDir>('asc')
+  const [selectedInventoryIds, setSelectedInventoryIds] = useState<string[]>([])
+  const [bulkEditOpen, setBulkEditOpen] = useState(false)
+  const [bulkEditLoading, setBulkEditLoading] = useState(false)
+  const [bulkEditForm, setBulkEditForm] = useState<BulkEditForm>({
+    quantity: '',
+    purchase_price: '',
+    sell_price: '',
+    location: '',
+  })
 
   // --- Edit modal state ---
   const [editItem, setEditItem] = useState<InventoryItem | null>(null)
@@ -464,6 +480,108 @@ export default function InventoryPage() {
     setDeleteItem(null)
     fetchInventory()
   }, [deleteItem, supabase, showToast, fetchInventory])
+
+  const toggleRowSelection = useCallback((inventoryId: string) => {
+    setSelectedInventoryIds((prev) =>
+      prev.includes(inventoryId) ? prev.filter((id) => id !== inventoryId) : [...prev, inventoryId]
+    )
+  }, [])
+
+  const toggleSelectAllVisible = useCallback(() => {
+    if (allVisibleSelected) {
+      setSelectedInventoryIds((prev) =>
+        prev.filter((id) => !filteredInventory.some((item) => item.id === id))
+      )
+      return
+    }
+    setSelectedInventoryIds((prev) => {
+      const next = new Set(prev)
+      filteredInventory.forEach((item) => next.add(item.id))
+      return Array.from(next)
+    })
+  }, [allVisibleSelected, filteredInventory])
+
+  const handleBulkDelete = useCallback(async () => {
+    if (selectedInventoryIds.length === 0 || bulkEditLoading) return
+    const ok = window.confirm(
+      `Sei sicuro di voler eliminare ${selectedInventoryIds.length} articoli selezionati?`
+    )
+    if (!ok) return
+
+    setBulkEditLoading(true)
+    const { error } = await supabase.from('inventory').delete().in('id', selectedInventoryIds)
+    setBulkEditLoading(false)
+
+    if (error) {
+      showToast(`Errore durante eliminazione multipla: ${error.message}`, 'error')
+      return
+    }
+
+    showToast(`${selectedInventoryIds.length} articoli eliminati`, 'success')
+    setSelectedInventoryIds([])
+    fetchInventory()
+  }, [selectedInventoryIds, bulkEditLoading, supabase, showToast, fetchInventory])
+
+  const handleBulkEditSave = useCallback(async () => {
+    if (selectedInventoryIds.length === 0 || bulkEditLoading) return
+    const payload: Record<string, unknown> = {
+      updated_at: new Date().toISOString(),
+    }
+
+    if (bulkEditForm.quantity.trim() !== '') {
+      const quantity = parseInt(bulkEditForm.quantity, 10)
+      if (Number.isNaN(quantity) || quantity < 0) {
+        showToast('Quantità non valida', 'warning')
+        return
+      }
+      payload.quantity = quantity
+    }
+
+    if (bulkEditForm.purchase_price.trim() !== '') {
+      const purchase = parseFloat(bulkEditForm.purchase_price)
+      if (Number.isNaN(purchase) || purchase < 0) {
+        showToast('Prezzo acquisto non valido', 'warning')
+        return
+      }
+      payload.purchase_price = purchase
+    }
+
+    if (bulkEditForm.sell_price.trim() !== '') {
+      const sell = parseFloat(bulkEditForm.sell_price)
+      if (Number.isNaN(sell) || sell < 0) {
+        showToast('Prezzo vendita non valido', 'warning')
+        return
+      }
+      payload.sell_price = sell
+    }
+
+    if (bulkEditForm.location.trim() !== '') {
+      payload.location = bulkEditForm.location.trim()
+    }
+
+    if (Object.keys(payload).length <= 1) {
+      showToast('Inserisci almeno un campo da modificare', 'warning')
+      return
+    }
+
+    setBulkEditLoading(true)
+    const { error } = await supabase
+      .from('inventory')
+      .update(payload)
+      .in('id', selectedInventoryIds)
+    setBulkEditLoading(false)
+
+    if (error) {
+      showToast(`Errore durante modifica multipla: ${error.message}`, 'error')
+      return
+    }
+
+    showToast(`${selectedInventoryIds.length} articoli aggiornati`, 'success')
+    setBulkEditOpen(false)
+    setBulkEditForm({ quantity: '', purchase_price: '', sell_price: '', location: '' })
+    setSelectedInventoryIds([])
+    fetchInventory()
+  }, [selectedInventoryIds, bulkEditLoading, bulkEditForm, supabase, showToast, fetchInventory])
 
   // ---------------------------------------------------------------------------
   // Autocomplete suggestions for text fields
@@ -834,6 +952,13 @@ export default function InventoryPage() {
         pr.color?.toLowerCase().includes(q)
       )
     })
+
+  const selectedVisibleCount = useMemo(
+    () => filteredInventory.filter((item) => selectedInventoryIds.includes(item.id)).length,
+    [filteredInventory, selectedInventoryIds]
+  )
+  const allVisibleSelected =
+    filteredInventory.length > 0 && selectedVisibleCount === filteredInventory.length
     .sort((a, b) => {
       let aVal: string | number
       let bVal: string | number
@@ -947,6 +1072,28 @@ export default function InventoryPage() {
   // ---------------------------------------------------------------------------
 
   const columns = [
+    {
+      key: 'select',
+      header: (
+        <input
+          type="checkbox"
+          checked={allVisibleSelected}
+          onChange={toggleSelectAllVisible}
+          aria-label={allVisibleSelected ? 'Deseleziona tutti' : 'Seleziona tutti'}
+          className="h-4 w-4 rounded border-surface/60 text-brand focus:ring-brand/30"
+        />
+      ) as unknown as string,
+      className: 'w-10',
+      render: (row: InventoryItem) => (
+        <input
+          type="checkbox"
+          checked={selectedInventoryIds.includes(row.id)}
+          onChange={() => toggleRowSelection(row.id)}
+          aria-label={`Seleziona ${row.product_registry.name}`}
+          className="h-4 w-4 rounded border-surface/60 text-brand focus:ring-brand/30"
+        />
+      ),
+    },
     {
       key: 'barcode',
       header: (
@@ -1493,6 +1640,34 @@ export default function InventoryPage() {
             </p>
           )}
 
+          <div className="flex flex-wrap items-center gap-2 mb-4">
+            <Button variant="secondary" size="sm" onClick={toggleSelectAllVisible}>
+              {allVisibleSelected ? 'Deseleziona tutti' : 'Seleziona tutti'}
+            </Button>
+            <span className="text-xs text-foreground/50">
+              {selectedVisibleCount} selezionati
+            </span>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setBulkEditOpen(true)}
+              disabled={selectedVisibleCount === 0 || bulkEditLoading}
+              className="ml-auto"
+            >
+              <Pencil className="w-4 h-4 mr-1.5" />
+              Modifica selezionati
+            </Button>
+            <Button
+              variant="danger"
+              size="sm"
+              onClick={handleBulkDelete}
+              disabled={selectedVisibleCount === 0 || bulkEditLoading}
+            >
+              <Trash2 className="w-4 h-4 mr-1.5" />
+              Elimina selezionati
+            </Button>
+          </div>
+
           {/* Legend */}
           <div className="flex flex-wrap gap-3 mb-4 text-xs">
             <span className="flex items-center gap-1.5 text-yellow-600">
@@ -1663,6 +1838,87 @@ export default function InventoryPage() {
             </div>
           </div>
         )}
+      </Modal>
+
+      {/* ------------------------------------------------------------------ */}
+      {/* Bulk edit modal                                                      */}
+      {/* ------------------------------------------------------------------ */}
+      <Modal
+        open={bulkEditOpen}
+        onClose={() => !bulkEditLoading && setBulkEditOpen(false)}
+        title="Modifica articoli selezionati"
+        size="md"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-foreground/60">
+            Articoli selezionati: <span className="font-bold text-foreground">{selectedVisibleCount}</span>
+          </p>
+
+          <div className="grid grid-cols-2 gap-4">
+            <Input
+              label="Quantità (opzionale)"
+              type="number"
+              min="0"
+              step="1"
+              value={bulkEditForm.quantity}
+              onChange={(e) =>
+                setBulkEditForm((f) => ({ ...f, quantity: e.target.value }))
+              }
+              placeholder="Lascia vuoto per non modificare"
+            />
+            <Input
+              label="Ubicazione (opzionale)"
+              type="text"
+              value={bulkEditForm.location}
+              onChange={(e) =>
+                setBulkEditForm((f) => ({ ...f, location: e.target.value }))
+              }
+              placeholder="Lascia vuoto per non modificare"
+            />
+            <Input
+              label="Prezzo Acquisto (opzionale)"
+              type="number"
+              min="0"
+              step="0.01"
+              value={bulkEditForm.purchase_price}
+              onChange={(e) =>
+                setBulkEditForm((f) => ({ ...f, purchase_price: e.target.value }))
+              }
+              placeholder="Lascia vuoto per non modificare"
+            />
+            <Input
+              label="Prezzo Vendita (opzionale)"
+              type="number"
+              min="0"
+              step="0.01"
+              value={bulkEditForm.sell_price}
+              onChange={(e) =>
+                setBulkEditForm((f) => ({ ...f, sell_price: e.target.value }))
+              }
+              placeholder="Lascia vuoto per non modificare"
+            />
+          </div>
+
+          <div className="flex gap-3 pt-1">
+            <Button
+              variant="primary"
+              size="md"
+              loading={bulkEditLoading}
+              onClick={handleBulkEditSave}
+              className="flex-1"
+            >
+              Salva modifiche
+            </Button>
+            <Button
+              variant="secondary"
+              size="md"
+              onClick={() => setBulkEditOpen(false)}
+              disabled={bulkEditLoading}
+            >
+              Annulla
+            </Button>
+          </div>
+        </div>
       </Modal>
 
       {/* ------------------------------------------------------------------ */}
