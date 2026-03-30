@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { Fragment, useEffect, useRef, useState, useCallback, useMemo } from 'react'
 import AppShell from '@/components/layout/AppShell'
 import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'
@@ -33,6 +33,7 @@ interface ProductRegistry {
   id: string
   barcode: string
   name: string
+  brand: string
   size: string
   color: string
   sku?: string
@@ -49,7 +50,9 @@ interface InventoryProduct {
 interface CartItem {
   inventoryId: string
   productId: string
+  barcode: string
   name: string
+  brand: string
   size: string
   color: string
   price: number
@@ -88,14 +91,25 @@ interface Toast {
 // Helpers
 // ---------------------------------------------------------------------------
 
-function todayStart(): string {
-  const d = new Date()
-  d.setHours(0, 0, 0, 0)
-  return d.toISOString()
+function dayRange(dateInput: string): { start: string; end: string } {
+  const [year, month, day] = dateInput.split('-').map(Number)
+  const startDate = new Date(year, month - 1, day, 0, 0, 0, 0)
+  const endDate = new Date(year, month - 1, day, 23, 59, 59, 999)
+  return { start: startDate.toISOString(), end: endDate.toISOString() }
 }
 
 function timeOnly(iso: string): string {
   return new Intl.DateTimeFormat('it-IT', {
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(new Date(iso))
+}
+
+function dateTimeLabel(iso: string): string {
+  return new Intl.DateTimeFormat('it-IT', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
   }).format(new Date(iso))
@@ -117,11 +131,18 @@ export default function POSPage() {
   const [barcodeValue, setBarcodeValue] = useState('')
   const [scanLoading, setScanLoading] = useState(false)
   const [isReceivingScan, setIsReceivingScan] = useState(false)
+  const [scannerOpen, setScannerOpen] = useState(false)
+  const [scannerActiveIndex, setScannerActiveIndex] = useState(-1)
+  const scannerBoxRef = useRef<HTMLDivElement>(null)
 
   // --- Products grid ---
   const [products, setProducts] = useState<InventoryProduct[]>([])
   const [productsLoading, setProductsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
+  const [manualProductQuery, setManualProductQuery] = useState('')
+  const [manualOpen, setManualOpen] = useState(false)
+  const [manualActiveIndex, setManualActiveIndex] = useState(-1)
+  const manualComboboxRef = useRef<HTMLDivElement>(null)
 
   // --- Cart ---
   const [cart, setCart] = useState<CartItem[]>([])
@@ -141,9 +162,11 @@ export default function POSPage() {
 
   // --- Sales history ---
   const [todaySales, setTodaySales] = useState<Sale[]>([])
+  const [historyDate, setHistoryDate] = useState(() => new Date().toISOString().slice(0, 10))
   const [historyLoading, setHistoryLoading] = useState(false)
   const [historyOpen, setHistoryOpen] = useState(false)
   const [stornoLoading, setStornoLoading] = useState<string | null>(null)
+  const [expandedSales, setExpandedSales] = useState<Record<string, boolean>>({})
 
   // --- Return (reso) modal state ---
   const [returnOpen, setReturnOpen] = useState(false)
@@ -264,12 +287,14 @@ export default function POSPage() {
   // Fetch today's sales
   // ---------------------------------------------------------------------------
 
-  const fetchTodaySales = useCallback(async () => {
+  const fetchTodaySales = useCallback(async (targetDate: string) => {
+    const { start, end } = dayRange(targetDate)
     setHistoryLoading(true)
     const { data, error } = await supabase
       .from('sales')
       .select('*, sale_items(*, product_registry(*))')
-      .gte('created_at', todayStart())
+      .gte('created_at', start)
+      .lte('created_at', end)
       .order('created_at', { ascending: false })
 
     if (!error) {
@@ -279,8 +304,58 @@ export default function POSPage() {
   }, [supabase])
 
   useEffect(() => {
-    fetchTodaySales()
-  }, [fetchTodaySales])
+    fetchTodaySales(historyDate)
+  }, [fetchTodaySales, historyDate])
+
+  const scannerSuggestions = useMemo(() => {
+    const q = barcodeValue.trim().toLowerCase()
+    if (!q) return []
+    return products
+      .filter((p) => {
+        const pr = p.product_registry
+        return (
+          pr.barcode?.toLowerCase().includes(q) ||
+          pr.name?.toLowerCase().includes(q) ||
+          pr.brand?.toLowerCase().includes(q) ||
+          pr.size?.toLowerCase().includes(q) ||
+          pr.color?.toLowerCase().includes(q)
+        )
+      })
+      .slice(0, 8)
+  }, [barcodeValue, products])
+
+  const manualProductSuggestions = useMemo(() => {
+    const q = manualProductQuery.trim().toLowerCase()
+    if (!q) return []
+    return products
+      .filter((p) => {
+        const pr = p.product_registry
+        return (
+          pr.barcode?.toLowerCase().includes(q) ||
+          pr.name?.toLowerCase().includes(q) ||
+          pr.brand?.toLowerCase().includes(q) ||
+          pr.size?.toLowerCase().includes(q) ||
+          pr.color?.toLowerCase().includes(q) ||
+          pr.sku?.toLowerCase().includes(q)
+        )
+      })
+      .slice(0, 10)
+  }, [manualProductQuery, products])
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node
+      if (manualComboboxRef.current && !manualComboboxRef.current.contains(target)) {
+        setManualOpen(false)
+      }
+      if (scannerBoxRef.current && !scannerBoxRef.current.contains(target)) {
+        setScannerOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   // ---------------------------------------------------------------------------
   // Cart helpers
@@ -304,7 +379,9 @@ export default function POSPage() {
           {
             inventoryId: product.id,
             productId: product.product_id,
+            barcode: product.product_registry.barcode,
             name: product.product_registry.name,
+            brand: product.product_registry.brand,
             size: product.product_registry.size,
             color: product.product_registry.color,
             price: product.sell_price,
@@ -349,6 +426,32 @@ export default function POSPage() {
     setCart([])
   }, [])
 
+  const selectManualProduct = useCallback(
+    (product: InventoryProduct) => {
+      addToCart(product)
+      setManualProductQuery('')
+      setManualOpen(false)
+      setManualActiveIndex(-1)
+      focusBarcode()
+    },
+    [addToCart, focusBarcode]
+  )
+
+  const selectScannerSuggestion = useCallback(
+    (product: InventoryProduct) => {
+      addToCart(product)
+      setBarcodeValue('')
+      setScannerOpen(false)
+      setScannerActiveIndex(-1)
+      focusBarcode()
+    },
+    [addToCart, focusBarcode]
+  )
+
+  const toggleSaleExpand = useCallback((saleId: string) => {
+    setExpandedSales((prev) => ({ ...prev, [saleId]: !prev[saleId] }))
+  }, [])
+
   // ---------------------------------------------------------------------------
   // Barcode scan → add to cart
   // ---------------------------------------------------------------------------
@@ -358,6 +461,15 @@ export default function POSPage() {
       e.preventDefault()
       const trimmed = barcodeValue.trim()
       if (!trimmed) return
+
+      if (scannerOpen && scannerActiveIndex >= 0 && scannerSuggestions[scannerActiveIndex]) {
+        addToCart(scannerSuggestions[scannerActiveIndex])
+        setBarcodeValue('')
+        setScannerOpen(false)
+        setScannerActiveIndex(-1)
+        focusBarcode()
+        return
+      }
 
       setScanLoading(true)
 
@@ -371,6 +483,8 @@ export default function POSPage() {
 
       setScanLoading(false)
       setBarcodeValue('')
+      setScannerOpen(false)
+      setScannerActiveIndex(-1)
 
       if (error || !data) {
         // Try by barcode through product_registry join
@@ -394,7 +508,7 @@ export default function POSPage() {
       addToCart(data as InventoryProduct)
       focusBarcode()
     },
-    [barcodeValue, supabase, showToast, focusBarcode, addToCart]
+    [barcodeValue, scannerOpen, scannerActiveIndex, scannerSuggestions, supabase, showToast, focusBarcode, addToCart]
   )
 
   // ---------------------------------------------------------------------------
@@ -456,7 +570,7 @@ export default function POSPage() {
       createdAt: saleData.created_at,
     })
     clearCart()
-    fetchTodaySales()
+    fetchTodaySales(historyDate)
     fetchProducts()
   }, [
     cart,
@@ -468,6 +582,7 @@ export default function POSPage() {
     clearCart,
     fetchTodaySales,
     fetchProducts,
+    historyDate,
   ])
 
   // ---------------------------------------------------------------------------
@@ -539,7 +654,7 @@ export default function POSPage() {
         setReturnLoading(false)
         setReturnOpen(false)
         fetchProducts()
-        fetchTodaySales()
+        fetchTodaySales(historyDate)
         return
       }
 
@@ -558,10 +673,10 @@ export default function POSPage() {
         'success'
       )
       fetchProducts()
-      fetchTodaySales()
+      fetchTodaySales(historyDate)
       focusBarcode()
     },
-    [returnBarcode, supabase, showToast, fetchProducts, fetchTodaySales, focusBarcode]
+    [returnBarcode, supabase, showToast, fetchProducts, fetchTodaySales, focusBarcode, historyDate]
   )
 
   // ---------------------------------------------------------------------------
@@ -616,10 +731,10 @@ export default function POSPage() {
       showToast(`Errore durante lo storno: ${error.message}`, 'error')
     } else {
       showToast('Vendita stornata con successo', 'success')
-      fetchTodaySales()
+      fetchTodaySales(historyDate)
       fetchProducts()
     }
-  }, [supabase, showToast, fetchTodaySales, fetchProducts])
+  }, [supabase, showToast, fetchTodaySales, fetchProducts, historyDate])
 
   // ---------------------------------------------------------------------------
   // Filtered products grid
@@ -631,6 +746,7 @@ export default function POSPage() {
     const pr = p.product_registry
     return (
       pr.name?.toLowerCase().includes(q) ||
+      pr.brand?.toLowerCase().includes(q) ||
       pr.color?.toLowerCase().includes(q) ||
       pr.size?.toLowerCase().includes(q) ||
       pr.barcode?.toLowerCase().includes(q) ||
@@ -700,7 +816,7 @@ export default function POSPage() {
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 p-4">
               <form onSubmit={handleBarcodeScan}>
                 <div className="flex gap-3 items-center">
-                  <div className="relative flex-1">
+                  <div ref={scannerBoxRef} className="relative flex-1">
                     <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none text-brand">
                       <Scan className="w-6 h-6" />
                     </div>
@@ -708,7 +824,28 @@ export default function POSPage() {
                       ref={barcodeInputRef}
                       type="text"
                       value={barcodeValue}
-                      onChange={(e) => setBarcodeValue(e.target.value)}
+                      onChange={(e) => {
+                        setBarcodeValue(e.target.value)
+                        setScannerOpen(true)
+                        setScannerActiveIndex(-1)
+                      }}
+                      onFocus={() => setScannerOpen(true)}
+                      onKeyDown={(e) => {
+                        if (!scannerOpen || scannerSuggestions.length === 0) return
+                        if (e.key === 'ArrowDown') {
+                          e.preventDefault()
+                          setScannerActiveIndex((prev) =>
+                            prev < scannerSuggestions.length - 1 ? prev + 1 : 0
+                          )
+                        } else if (e.key === 'ArrowUp') {
+                          e.preventDefault()
+                          setScannerActiveIndex((prev) =>
+                            prev > 0 ? prev - 1 : scannerSuggestions.length - 1
+                          )
+                        } else if (e.key === 'Escape') {
+                          setScannerOpen(false)
+                        }
+                      }}
                       placeholder="Scansiona barcode o digita..."
                       className={cn(
                         'w-full pl-14 pr-4 py-4 text-2xl font-mono',
@@ -721,6 +858,40 @@ export default function POSPage() {
                       spellCheck={false}
                       aria-label="Scanner barcode cassa"
                     />
+                    {scannerOpen && scannerSuggestions.length > 0 && (
+                      <div className="absolute left-0 right-0 top-[calc(100%+8px)] z-30 rounded-xl border border-surface/40 bg-white/95 backdrop-blur-sm shadow-xl overflow-hidden">
+                        <ul className="max-h-72 overflow-y-auto py-1">
+                          {scannerSuggestions.map((product, index) => {
+                            const pr = product.product_registry
+                            return (
+                              <li key={product.id}>
+                                <button
+                                  type="button"
+                                  onClick={() => selectScannerSuggestion(product)}
+                                  className={cn(
+                                    'w-full text-left px-3 py-2.5 border-b last:border-b-0 border-surface/20 transition-colors',
+                                    index === scannerActiveIndex ? 'bg-brand/10' : 'hover:bg-surface/20'
+                                  )}
+                                >
+                                  <div className="flex items-center justify-between gap-3">
+                                    <div className="min-w-0">
+                                      <p className="text-sm font-semibold truncate">{pr.name}</p>
+                                      <p className="text-xs text-foreground/55 truncate">
+                                        {pr.barcode} · {pr.brand || 'N/D'} · {pr.size} · {pr.color}
+                                      </p>
+                                    </div>
+                                    <div className="text-right shrink-0">
+                                      <p className="text-sm font-bold text-brand">{formatCurrency(product.sell_price)}</p>
+                                      <p className="text-xs text-foreground/50">{product.quantity} pz</p>
+                                    </div>
+                                  </div>
+                                </button>
+                              </li>
+                            )
+                          })}
+                        </ul>
+                      </div>
+                    )}
                   </div>
                   <Button
                     type="submit"
@@ -734,6 +905,94 @@ export default function POSPage() {
                   </Button>
                 </div>
               </form>
+            </div>
+
+            {/* Searchable product dropdown (manual add) */}
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 p-4">
+              <div className="space-y-2">
+                <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50">
+                  Aggiunta manuale rapida
+                </p>
+                <div ref={manualComboboxRef} className="relative">
+                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/40 pointer-events-none" />
+                  <input
+                    type="text"
+                    value={manualProductQuery}
+                    onChange={(e) => {
+                      setManualProductQuery(e.target.value)
+                      setManualOpen(true)
+                      setManualActiveIndex(-1)
+                    }}
+                    onFocus={() => setManualOpen(true)}
+                    onKeyDown={(e) => {
+                      if (!manualOpen || manualProductSuggestions.length === 0) return
+                      if (e.key === 'ArrowDown') {
+                        e.preventDefault()
+                        setManualActiveIndex((prev) =>
+                          prev < manualProductSuggestions.length - 1 ? prev + 1 : 0
+                        )
+                      } else if (e.key === 'ArrowUp') {
+                        e.preventDefault()
+                        setManualActiveIndex((prev) =>
+                          prev > 0 ? prev - 1 : manualProductSuggestions.length - 1
+                        )
+                      } else if (e.key === 'Enter' && manualActiveIndex >= 0) {
+                        e.preventDefault()
+                        selectManualProduct(manualProductSuggestions[manualActiveIndex])
+                      } else if (e.key === 'Escape') {
+                        setManualOpen(false)
+                      }
+                    }}
+                    placeholder="Cerca per barcode, nome, brand, taglia, colore..."
+                    className={cn(
+                      'w-full pl-10 pr-4 py-2.5 text-sm',
+                      'rounded-xl border border-surface/80 bg-white shadow-sm',
+                      'focus:outline-none focus:border-brand focus:ring-4 focus:ring-brand/15 focus:shadow-md',
+                      'placeholder:text-gray-400 transition-all duration-200'
+                    )}
+                  />
+                  {manualOpen && manualProductQuery.trim() && (
+                    <div className="absolute left-0 right-0 top-[calc(100%+8px)] z-20 rounded-xl border border-surface/40 bg-white/95 backdrop-blur-sm shadow-xl overflow-hidden">
+                      {manualProductSuggestions.length === 0 ? (
+                        <p className="px-3 py-3 text-sm text-foreground/50">
+                          Nessun prodotto disponibile in giacenza per questa ricerca.
+                        </p>
+                      ) : (
+                        <ul className="max-h-72 overflow-y-auto py-1">
+                          {manualProductSuggestions.map((product, index) => {
+                            const pr = product.product_registry
+                            return (
+                              <li key={product.id}>
+                                <button
+                                  type="button"
+                                  onClick={() => selectManualProduct(product)}
+                                  className={cn(
+                                    'w-full text-left px-3 py-2.5 border-b last:border-b-0 border-surface/20 transition-colors',
+                                    index === manualActiveIndex ? 'bg-brand/10' : 'hover:bg-surface/20'
+                                  )}
+                                >
+                                  <div className="flex items-center justify-between gap-3">
+                                    <div className="min-w-0">
+                                      <p className="text-sm font-semibold truncate">{pr.name}</p>
+                                      <p className="text-xs text-foreground/55 truncate">
+                                        {pr.barcode} · {pr.brand || 'N/D'} · {pr.size} · {pr.color}
+                                      </p>
+                                    </div>
+                                    <div className="text-right shrink-0">
+                                      <p className="text-sm font-bold text-brand">{formatCurrency(product.sell_price)}</p>
+                                      <p className="text-xs text-foreground/50">{product.quantity} pz</p>
+                                    </div>
+                                  </div>
+                                </button>
+                              </li>
+                            )
+                          })}
+                        </ul>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
 
             {/* Product grid header + search */}
@@ -901,11 +1160,22 @@ export default function POSPage() {
                         <p className="font-semibold text-sm text-foreground leading-tight truncate">
                           {item.name}
                         </p>
-                        <p className="text-xs text-foreground/50 mt-0.5">
-                          {item.size} &middot; {item.color}
-                        </p>
+                        <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 mt-1 text-xs text-foreground/55">
+                          <p className="truncate">
+                            <span className="font-medium text-foreground/70">Barcode:</span> {item.barcode}
+                          </p>
+                          <p className="truncate">
+                            <span className="font-medium text-foreground/70">Brand:</span> {item.brand || 'N/D'}
+                          </p>
+                          <p className="truncate">
+                            <span className="font-medium text-foreground/70">Taglia:</span> {item.size || '-'}
+                          </p>
+                          <p className="truncate">
+                            <span className="font-medium text-foreground/70">Colore:</span> {item.color || '-'}
+                          </p>
+                        </div>
                         <p className="text-xs font-semibold text-brand mt-0.5">
-                          {formatCurrency(item.price)} cad.
+                          Prezzo vendita: {formatCurrency(item.price)}
                         </p>
                       </div>
 
@@ -1040,17 +1310,17 @@ export default function POSPage() {
           <button
             onClick={() => {
               setHistoryOpen((v) => !v)
-              if (!historyOpen) fetchTodaySales()
+              if (!historyOpen) fetchTodaySales(historyDate)
             }}
             className="w-full flex items-center justify-between px-5 py-4 hover:bg-surface-light/20 transition-colors duration-200"
             aria-expanded={historyOpen}
           >
             <div className="flex items-center gap-3">
               <ReceiptText className="w-5 h-5 text-brand" />
-              <span className="font-bold text-base">Vendite di oggi</span>
+              <span className="font-bold text-base">Storico Transazioni</span>
               {todaySales.length > 0 && (
                 <span className="text-sm text-foreground/50">
-                  ({todaySales.length} {todaySales.length === 1 ? 'vendita' : 'vendite'} &middot;{' '}
+                  ({todaySales.length} {todaySales.length === 1 ? 'transazione' : 'transazioni'} &middot;{' '}
                   <span className="font-semibold text-foreground">{formatCurrency(dailyTotal)}</span>)
                 </span>
               )}
@@ -1064,6 +1334,31 @@ export default function POSPage() {
 
           {historyOpen && (
             <div className="border-t border-surface/20">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-5 py-4 border-b border-surface/20 bg-surface-light/10">
+                <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50">
+                  Filtro giorno
+                </p>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="date"
+                    value={historyDate}
+                    onChange={(e) => setHistoryDate(e.target.value)}
+                    className={cn(
+                      'rounded-lg border border-surface/60 bg-white px-3 py-2 text-sm',
+                      'focus:outline-none focus:border-brand focus:ring-4 focus:ring-brand/15'
+                    )}
+                  />
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => fetchTodaySales(historyDate)}
+                    className="shrink-0"
+                  >
+                    Aggiorna
+                  </Button>
+                </div>
+              </div>
               {historyLoading ? (
                 <div className="flex items-center justify-center py-10 text-foreground/40">
                   <div className="w-6 h-6 border-3 border-brand/20 border-t-brand rounded-full animate-spin mr-3" />
@@ -1072,7 +1367,7 @@ export default function POSPage() {
               ) : todaySales.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-10 text-foreground/40 gap-2">
                   <Clock className="w-8 h-8 opacity-40" />
-                  <p className="text-sm">Nessuna vendita registrata oggi</p>
+                  <p className="text-sm">Nessuna transazione per il giorno selezionato</p>
                 </div>
               ) : (
                 <>
@@ -1111,7 +1406,7 @@ export default function POSPage() {
                       <thead>
                         <tr className="border-b border-surface/20 bg-surface-light/10">
                           <th className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider text-foreground/50">
-                            Ora
+                            Data / Ora
                           </th>
                           <th className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider text-foreground/50">
                             Metodo
@@ -1121,6 +1416,9 @@ export default function POSPage() {
                           </th>
                           <th className="text-right px-5 py-3 text-xs font-semibold uppercase tracking-wider text-foreground/50">
                             Totale
+                          </th>
+                          <th className="text-center px-5 py-3 text-xs font-semibold uppercase tracking-wider text-foreground/50">
+                            Dettagli
                           </th>
                           <th className="text-right px-5 py-3 text-xs font-semibold uppercase tracking-wider text-foreground/50">
                             Azioni
@@ -1133,79 +1431,116 @@ export default function POSPage() {
                             (sum, i) => sum + i.quantity,
                             0
                           )
+                          const isExpanded = !!expandedSales[sale.id]
                           return (
-                            <tr
-                              key={sale.id}
-                              className={cn(
-                                'hover:bg-brand/[0.04] transition-colors duration-200',
-                                index % 2 === 0 ? 'bg-transparent' : 'bg-surface-light/20'
+                            <Fragment key={sale.id}>
+                              <tr
+                                className={cn(
+                                  'hover:bg-brand/[0.04] transition-colors duration-200',
+                                  index % 2 === 0 ? 'bg-transparent' : 'bg-surface-light/20'
+                                )}
+                              >
+                                <td className="px-5 py-3 font-mono text-foreground/70">
+                                  {dateTimeLabel(sale.created_at)}
+                                </td>
+                                <td className="px-5 py-3">
+                                  <span
+                                    className={cn(
+                                      'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold ring-1',
+                                      sale.payment_method === 'cash'
+                                        ? 'bg-emerald-50 text-emerald-600 ring-emerald-200'
+                                        : 'bg-blue-50 text-blue-600 ring-blue-200'
+                                    )}
+                                  >
+                                    {sale.payment_method === 'cash' ? (
+                                      <>
+                                        <Banknote className="w-3.5 h-3.5" />
+                                        Contanti
+                                      </>
+                                    ) : (
+                                      <>
+                                        <CreditCard className="w-3.5 h-3.5" />
+                                        POS / Carta
+                                      </>
+                                    )}
+                                  </span>
+                                </td>
+                                <td className="px-5 py-3 text-foreground/60">
+                                  <span className="font-semibold text-foreground">
+                                    {itemCount}
+                                  </span>{' '}
+                                  {itemCount === 1 ? 'articolo' : 'articoli'}
+                                </td>
+                                <td className="px-5 py-3 text-right font-bold text-foreground">
+                                  {formatCurrency(sale.total)}
+                                </td>
+                                <td className="px-5 py-3 text-center">
+                                  <button
+                                    type="button"
+                                    onClick={() => toggleSaleExpand(sale.id)}
+                                    className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg bg-surface/25 hover:bg-brand/10 text-foreground/70 transition-colors"
+                                  >
+                                    {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                                    {isExpanded ? 'Nascondi' : 'Apri'}
+                                  </button>
+                                </td>
+                                <td className="px-5 py-3 text-right">
+                                  <button
+                                    onClick={() => handleStornoSale(sale)}
+                                    disabled={stornoLoading === sale.id}
+                                    className={cn(
+                                      'text-xs flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg transition-colors duration-200 ml-auto font-medium',
+                                      stornoLoading === sale.id
+                                        ? 'text-danger/50 bg-danger/5 cursor-not-allowed'
+                                        : 'text-danger hover:bg-danger/10 cursor-pointer'
+                                    )}
+                                    title="Storna Pagamento"
+                                  >
+                                    {stornoLoading === sale.id ? (
+                                      <div className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                                    ) : (
+                                      <RotateCcw className="w-3.5 h-3.5" />
+                                    )}
+                                    Storna
+                                  </button>
+                                </td>
+                              </tr>
+                              {isExpanded && (
+                                <tr className="bg-brand/[0.03]">
+                                  <td colSpan={6} className="px-5 py-4">
+                                    <div className="rounded-xl border border-brand/15 bg-white/85 p-3">
+                                      <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50 mb-3">
+                                        Dettaglio articoli transazione
+                                      </p>
+                                      <div className="space-y-2">
+                                        {sale.sale_items.map((si) => (
+                                          <div
+                                            key={si.id}
+                                            className="grid grid-cols-1 md:grid-cols-6 gap-2 text-xs rounded-lg bg-surface-light/20 px-3 py-2 border border-surface/20"
+                                          >
+                                            <p className="md:col-span-2 font-semibold text-foreground/85">
+                                              {si.product_registry?.name || 'Prodotto'}
+                                            </p>
+                                            <p className="text-foreground/60">
+                                              Barcode: {si.product_registry?.barcode || '-'}
+                                            </p>
+                                            <p className="text-foreground/60">
+                                              Brand: {si.product_registry?.brand || 'N/D'}
+                                            </p>
+                                            <p className="text-foreground/60">
+                                              Qta: <span className="font-semibold">{si.quantity}</span>
+                                            </p>
+                                            <p className="text-foreground/70 md:text-right">
+                                              {formatCurrency(si.unit_price)}
+                                            </p>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  </td>
+                                </tr>
                               )}
-                            >
-                              <td className="px-5 py-3 font-mono text-foreground/70">
-                                {timeOnly(sale.created_at)}
-                              </td>
-                              <td className="px-5 py-3">
-                                <span
-                                  className={cn(
-                                    'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold ring-1',
-                                    sale.payment_method === 'cash'
-                                      ? 'bg-emerald-50 text-emerald-600 ring-emerald-200'
-                                      : 'bg-blue-50 text-blue-600 ring-blue-200'
-                                  )}
-                                >
-                                  {sale.payment_method === 'cash' ? (
-                                    <>
-                                      <Banknote className="w-3.5 h-3.5" />
-                                      Contanti
-                                    </>
-                                  ) : (
-                                    <>
-                                      <CreditCard className="w-3.5 h-3.5" />
-                                      POS / Carta
-                                    </>
-                                  )}
-                                </span>
-                              </td>
-                              <td className="px-5 py-3 text-foreground/60">
-                                <span className="font-semibold text-foreground">
-                                  {itemCount}
-                                </span>{' '}
-                                {itemCount === 1 ? 'articolo' : 'articoli'}
-                                <div className="flex flex-wrap gap-1 mt-1">
-                                  {sale.sale_items.map((si) => (
-                                    <span
-                                      key={si.id}
-                                      className="text-xs bg-surface/30 rounded-md px-1.5 py-0.5 text-foreground/60 ring-1 ring-surface/20"
-                                    >
-                                      {si.product_registry?.name} x{si.quantity}
-                                    </span>
-                                  ))}
-                                </div>
-                              </td>
-                              <td className="px-5 py-3 text-right font-bold text-foreground">
-                                {formatCurrency(sale.total)}
-                              </td>
-                              <td className="px-5 py-3 text-right">
-                                <button
-                                  onClick={() => handleStornoSale(sale)}
-                                  disabled={stornoLoading === sale.id}
-                                  className={cn(
-                                    "text-xs flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg transition-colors duration-200 ml-auto font-medium",
-                                    stornoLoading === sale.id
-                                      ? "text-danger/50 bg-danger/5 cursor-not-allowed"
-                                      : "text-danger hover:bg-danger/10 cursor-pointer"
-                                  )}
-                                  title="Storna Pagamento"
-                                >
-                                  {stornoLoading === sale.id ? (
-                                    <div className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                                  ) : (
-                                    <RotateCcw className="w-3.5 h-3.5" />
-                                  )}
-                                  Storna
-                                </button>
-                              </td>
-                            </tr>
+                            </Fragment>
                           )
                         })}
                       </tbody>
