@@ -181,7 +181,6 @@ export default function POSPage() {
     return new Date(d.getFullYear(), d.getMonth(), 1)
   })
   const [historyLoading, setHistoryLoading] = useState(false)
-  const [historyOpen, setHistoryOpen] = useState(false)
   const [stornoLoading, setStornoLoading] = useState<string | null>(null)
   const [expandedSales, setExpandedSales] = useState<Record<string, boolean>>({})
 
@@ -961,41 +960,17 @@ export default function POSPage() {
             </div>
 
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 p-4">
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="flex items-center gap-3">
                 <Button
                   type="button"
-                  variant="secondary"
-                  size="sm"
+                  variant="primary"
+                  size="lg"
                   onClick={() => setProductMenuOpen(true)}
+                  className="w-full h-[56px] text-base font-bold"
                 >
-                  <Search className="w-4 h-4 mr-2" />
+                  <Search className="w-5 h-5 mr-2" />
                   Lista Prodotti
                 </Button>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => {
-                    setHistoryOpen(true)
-                    fetchTodaySales(historyDate)
-                  }}
-                >
-                  <ReceiptText className="w-4 h-4 mr-2" />
-                  Storico
-                </Button>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="sm"
-                  onClick={openReturnModal}
-                  className="text-amber-700 border-amber-200 hover:bg-amber-50"
-                >
-                  <RotateCcw className="w-4 h-4 mr-2" />
-                  Reso
-                </Button>
-                <div className="ml-auto text-xs text-foreground/50">
-                  Modalita rapida: scanner + azioni
-                </div>
               </div>
             </div>
           </div>
@@ -1194,17 +1169,10 @@ export default function POSPage() {
         </div>
 
         {/* ---------------------------------------------------------------- */}
-        {/* Sales history (collapsible)                                       */}
+        {/* Sales history (always open)                                       */}
         {/* ---------------------------------------------------------------- */}
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 overflow-hidden">
-          <button
-            onClick={() => {
-              setHistoryOpen((v) => !v)
-              if (!historyOpen) fetchTodaySales(historyDate)
-            }}
-            className="w-full flex items-center justify-between px-5 py-4 hover:bg-surface-light/20 transition-colors duration-200"
-            aria-expanded={historyOpen}
-          >
+          <div className="px-5 py-4 border-b border-surface/20 bg-surface-light/10">
             <div className="flex items-center gap-3">
               <ReceiptText className="w-5 h-5 text-brand" />
               <span className="font-bold text-base">Storico Transazioni</span>
@@ -1215,15 +1183,9 @@ export default function POSPage() {
                 </span>
               )}
             </div>
-            {historyOpen ? (
-              <ChevronUp className="w-5 h-5 text-foreground/40" />
-            ) : (
-              <ChevronDown className="w-5 h-5 text-foreground/40" />
-            )}
-          </button>
+          </div>
 
-          {historyOpen && (
-            <div className="border-t border-surface/20">
+          <div className="border-t border-surface/20">
               <div className="px-5 py-4 border-b border-surface/20 bg-surface-light/10 space-y-3">
                 <div className="flex items-center justify-between gap-3">
                   <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50">
