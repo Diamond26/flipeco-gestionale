@@ -17,6 +17,8 @@ import {
   CheckCircle2,
   AlertTriangle,
   Search,
+  ChevronLeft,
+  ChevronRight,
   ChevronDown,
   ChevronUp,
   Trash2,
@@ -115,6 +117,13 @@ function dateTimeLabel(iso: string): string {
   }).format(new Date(iso))
 }
 
+function monthLabel(date: Date): string {
+  return new Intl.DateTimeFormat('it-IT', {
+    month: 'long',
+    year: 'numeric',
+  }).format(date)
+}
+
 // ---------------------------------------------------------------------------
 // Page
 // ---------------------------------------------------------------------------
@@ -160,6 +169,10 @@ export default function POSPage() {
   // --- Sales history ---
   const [todaySales, setTodaySales] = useState<Sale[]>([])
   const [historyDate, setHistoryDate] = useState(() => new Date().toISOString().slice(0, 10))
+  const [historyMonthAnchor, setHistoryMonthAnchor] = useState(() => {
+    const d = new Date()
+    return new Date(d.getFullYear(), d.getMonth(), 1)
+  })
   const [historyLoading, setHistoryLoading] = useState(false)
   const [historyOpen, setHistoryOpen] = useState(false)
   const [stornoLoading, setStornoLoading] = useState<string | null>(null)
@@ -303,6 +316,11 @@ export default function POSPage() {
   useEffect(() => {
     fetchTodaySales(historyDate)
   }, [fetchTodaySales, historyDate])
+
+  useEffect(() => {
+    const selected = new Date(`${historyDate}T00:00:00`)
+    setHistoryMonthAnchor(new Date(selected.getFullYear(), selected.getMonth(), 1))
+  }, [historyDate])
 
   const scannerSuggestions = useMemo(() => {
     const q = barcodeValue.trim().toLowerCase()
@@ -735,6 +753,41 @@ export default function POSPage() {
     0
   )
 
+  const calendarDays = useMemo(() => {
+    const year = historyMonthAnchor.getFullYear()
+    const month = historyMonthAnchor.getMonth()
+    const firstDay = new Date(year, month, 1)
+    const lastDay = new Date(year, month + 1, 0)
+    const leadingEmpty = (firstDay.getDay() + 6) % 7
+    const totalCells = Math.ceil((leadingEmpty + lastDay.getDate()) / 7) * 7
+    const selectedDate = new Date(`${historyDate}T00:00:00`)
+
+    return Array.from({ length: totalCells }, (_, index) => {
+      const dayNumber = index - leadingEmpty + 1
+      if (dayNumber < 1 || dayNumber > lastDay.getDate()) {
+        return { key: `empty-${index}`, date: null as Date | null, isCurrentMonth: false, isSelected: false, isToday: false }
+      }
+      const date = new Date(year, month, dayNumber)
+      const now = new Date()
+      const isSelected =
+        date.getFullYear() === selectedDate.getFullYear() &&
+        date.getMonth() === selectedDate.getMonth() &&
+        date.getDate() === selectedDate.getDate()
+      const isToday =
+        date.getFullYear() === now.getFullYear() &&
+        date.getMonth() === now.getMonth() &&
+        date.getDate() === now.getDate()
+
+      return {
+        key: date.toISOString(),
+        date,
+        isCurrentMonth: true,
+        isSelected,
+        isToday,
+      }
+    })
+  }, [historyMonthAnchor, historyDate])
+
   // ---------------------------------------------------------------------------
   // Render
   // ---------------------------------------------------------------------------
@@ -1164,20 +1217,80 @@ export default function POSPage() {
 
           {historyOpen && (
             <div className="border-t border-surface/20">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-5 py-4 border-b border-surface/20 bg-surface-light/10">
-                <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50">
-                  Filtro giorno
-                </p>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="date"
-                    value={historyDate}
-                    onChange={(e) => setHistoryDate(e.target.value)}
-                    className={cn(
-                      'rounded-lg border border-surface/60 bg-white px-3 py-2 text-sm',
-                      'focus:outline-none focus:border-brand focus:ring-4 focus:ring-brand/15'
-                    )}
-                  />
+              <div className="px-5 py-4 border-b border-surface/20 bg-surface-light/10 space-y-3">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50">
+                    Calendario transazioni
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setHistoryMonthAnchor(
+                          (prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1)
+                        )
+                      }
+                      className="w-8 h-8 rounded-lg border border-surface/40 bg-white hover:bg-surface/20 text-foreground/60 flex items-center justify-center"
+                      aria-label="Mese precedente"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                    <p className="text-sm font-semibold min-w-[140px] text-center capitalize">
+                      {monthLabel(historyMonthAnchor)}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setHistoryMonthAnchor(
+                          (prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1)
+                        )
+                      }
+                      className="w-8 h-8 rounded-lg border border-surface/40 bg-white hover:bg-surface/20 text-foreground/60 flex items-center justify-center"
+                      aria-label="Mese successivo"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-7 gap-1 text-center text-[11px] uppercase tracking-wide text-foreground/45">
+                  <span>Lun</span>
+                  <span>Mar</span>
+                  <span>Mer</span>
+                  <span>Gio</span>
+                  <span>Ven</span>
+                  <span>Sab</span>
+                  <span>Dom</span>
+                </div>
+                <div className="grid grid-cols-7 gap-1">
+                  {calendarDays.map((day) =>
+                    day.date ? (
+                      <button
+                        key={day.key}
+                        type="button"
+                        onClick={() => {
+                          const selected = day.date!.toISOString().slice(0, 10)
+                          setHistoryDate(selected)
+                        }}
+                        className={cn(
+                          'h-10 rounded-lg text-sm font-medium transition-all border',
+                          day.isSelected
+                            ? 'bg-brand text-white border-brand shadow'
+                            : 'bg-white border-surface/30 hover:bg-brand/10 hover:border-brand/30 text-foreground/75',
+                          day.isToday && !day.isSelected && 'ring-2 ring-brand/25'
+                        )}
+                      >
+                        {day.date.getDate()}
+                      </button>
+                    ) : (
+                      <div key={day.key} className="h-10 rounded-lg bg-transparent border border-transparent" />
+                    )
+                  )}
+                </div>
+                <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+                  <p className="text-xs text-foreground/50">
+                    Giorno selezionato: <span className="font-semibold text-foreground/70">{historyDate}</span>
+                  </p>
                   <Button
                     type="button"
                     variant="secondary"
