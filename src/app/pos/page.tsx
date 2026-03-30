@@ -981,7 +981,12 @@ export default function POSPage() {
           <div className="w-full space-y-4 xl:sticky xl:top-4">
 
             {/* Cart panel */}
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 overflow-hidden">
+            <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 overflow-hidden">
+              {/* Decorative square lines */}
+              <span className="pointer-events-none absolute left-3 top-3 h-5 w-5 border-l-2 border-t-2 border-brand/35 rounded-tl-md" />
+              <span className="pointer-events-none absolute right-3 top-3 h-5 w-5 border-r-2 border-t-2 border-brand/35 rounded-tr-md" />
+              <span className="pointer-events-none absolute left-3 bottom-3 h-5 w-5 border-l-2 border-b-2 border-brand/35 rounded-bl-md" />
+              <span className="pointer-events-none absolute right-3 bottom-3 h-5 w-5 border-r-2 border-b-2 border-brand/35 rounded-br-md" />
               {/* Cart header */}
               <div className="flex items-center justify-between px-5 py-4 border-b border-surface/20 bg-surface-light/20">
                 <div className="flex items-center gap-2">
