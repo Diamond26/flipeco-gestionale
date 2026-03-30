@@ -124,7 +124,6 @@ export default function POSPage() {
 
   // --- Refs ---
   const barcodeInputRef = useRef<HTMLInputElement>(null)
-  const searchInputRef = useRef<HTMLInputElement>(null)
   const toastCounter = useRef(0)
 
   // --- Barcode ---
@@ -138,11 +137,9 @@ export default function POSPage() {
   // --- Products grid ---
   const [products, setProducts] = useState<InventoryProduct[]>([])
   const [productsLoading, setProductsLoading] = useState(true)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [manualProductQuery, setManualProductQuery] = useState('')
-  const [manualOpen, setManualOpen] = useState(false)
-  const [manualActiveIndex, setManualActiveIndex] = useState(-1)
-  const manualComboboxRef = useRef<HTMLDivElement>(null)
+  const [productMenuOpen, setProductMenuOpen] = useState(false)
+  const [productMenuQuery, setProductMenuQuery] = useState('')
+  const [productSortBy, setProductSortBy] = useState<'name' | 'brand' | 'size' | 'price' | 'quantity'>('name')
 
   // --- Cart ---
   const [cart, setCart] = useState<CartItem[]>([])
@@ -324,30 +321,33 @@ export default function POSPage() {
       .slice(0, 8)
   }, [barcodeValue, products])
 
-  const manualProductSuggestions = useMemo(() => {
-    const q = manualProductQuery.trim().toLowerCase()
-    if (!q) return []
-    return products
-      .filter((p) => {
-        const pr = p.product_registry
-        return (
-          pr.barcode?.toLowerCase().includes(q) ||
-          pr.name?.toLowerCase().includes(q) ||
-          pr.brand?.toLowerCase().includes(q) ||
-          pr.size?.toLowerCase().includes(q) ||
-          pr.color?.toLowerCase().includes(q) ||
-          pr.sku?.toLowerCase().includes(q)
-        )
-      })
-      .slice(0, 10)
-  }, [manualProductQuery, products])
+  const productMenuItems = useMemo(() => {
+    const q = productMenuQuery.trim().toLowerCase()
+    const base = products.filter((p) => {
+      if (!q) return true
+      const pr = p.product_registry
+      return (
+        pr.barcode?.toLowerCase().includes(q) ||
+        pr.name?.toLowerCase().includes(q) ||
+        pr.brand?.toLowerCase().includes(q) ||
+        pr.size?.toLowerCase().includes(q) ||
+        pr.color?.toLowerCase().includes(q) ||
+        pr.sku?.toLowerCase().includes(q)
+      )
+    })
+
+    return [...base].sort((a, b) => {
+      if (productSortBy === 'price') return Number(a.sell_price) - Number(b.sell_price)
+      if (productSortBy === 'quantity') return b.quantity - a.quantity
+      if (productSortBy === 'brand') return (a.product_registry.brand || '').localeCompare(b.product_registry.brand || '', 'it')
+      if (productSortBy === 'size') return (a.product_registry.size || '').localeCompare(b.product_registry.size || '', 'it')
+      return (a.product_registry.name || '').localeCompare(b.product_registry.name || '', 'it')
+    })
+  }, [productMenuQuery, productSortBy, products])
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node
-      if (manualComboboxRef.current && !manualComboboxRef.current.contains(target)) {
-        setManualOpen(false)
-      }
       if (scannerBoxRef.current && !scannerBoxRef.current.contains(target)) {
         setScannerOpen(false)
       }
@@ -425,17 +425,6 @@ export default function POSPage() {
   const clearCart = useCallback(() => {
     setCart([])
   }, [])
-
-  const selectManualProduct = useCallback(
-    (product: InventoryProduct) => {
-      addToCart(product)
-      setManualProductQuery('')
-      setManualOpen(false)
-      setManualActiveIndex(-1)
-      focusBarcode()
-    },
-    [addToCart, focusBarcode]
-  )
 
   const selectScannerSuggestion = useCallback(
     (product: InventoryProduct) => {
@@ -737,24 +726,6 @@ export default function POSPage() {
   }, [supabase, showToast, fetchTodaySales, fetchProducts, historyDate])
 
   // ---------------------------------------------------------------------------
-  // Filtered products grid
-  // ---------------------------------------------------------------------------
-
-  const filteredProducts = products.filter((p) => {
-    if (!searchQuery.trim()) return true
-    const q = searchQuery.toLowerCase()
-    const pr = p.product_registry
-    return (
-      pr.name?.toLowerCase().includes(q) ||
-      pr.brand?.toLowerCase().includes(q) ||
-      pr.color?.toLowerCase().includes(q) ||
-      pr.size?.toLowerCase().includes(q) ||
-      pr.barcode?.toLowerCase().includes(q) ||
-      pr.sku?.toLowerCase().includes(q)
-    )
-  })
-
-  // ---------------------------------------------------------------------------
   // Daily total
   // ---------------------------------------------------------------------------
 
@@ -907,205 +878,26 @@ export default function POSPage() {
               </form>
             </div>
 
-            {/* Searchable product dropdown (manual add) */}
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 p-4">
-              <div className="space-y-2">
-                <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50">
-                  Aggiunta manuale rapida
-                </p>
-                <div ref={manualComboboxRef} className="relative">
-                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/40 pointer-events-none" />
-                  <input
-                    type="text"
-                    value={manualProductQuery}
-                    onChange={(e) => {
-                      setManualProductQuery(e.target.value)
-                      setManualOpen(true)
-                      setManualActiveIndex(-1)
-                    }}
-                    onFocus={() => setManualOpen(true)}
-                    onKeyDown={(e) => {
-                      if (!manualOpen || manualProductSuggestions.length === 0) return
-                      if (e.key === 'ArrowDown') {
-                        e.preventDefault()
-                        setManualActiveIndex((prev) =>
-                          prev < manualProductSuggestions.length - 1 ? prev + 1 : 0
-                        )
-                      } else if (e.key === 'ArrowUp') {
-                        e.preventDefault()
-                        setManualActiveIndex((prev) =>
-                          prev > 0 ? prev - 1 : manualProductSuggestions.length - 1
-                        )
-                      } else if (e.key === 'Enter' && manualActiveIndex >= 0) {
-                        e.preventDefault()
-                        selectManualProduct(manualProductSuggestions[manualActiveIndex])
-                      } else if (e.key === 'Escape') {
-                        setManualOpen(false)
-                      }
-                    }}
-                    placeholder="Cerca per barcode, nome, brand, taglia, colore..."
-                    className={cn(
-                      'w-full pl-10 pr-4 py-2.5 text-sm',
-                      'rounded-xl border border-surface/80 bg-white shadow-sm',
-                      'focus:outline-none focus:border-brand focus:ring-4 focus:ring-brand/15 focus:shadow-md',
-                      'placeholder:text-gray-400 transition-all duration-200'
-                    )}
-                  />
-                  {manualOpen && manualProductQuery.trim() && (
-                    <div className="absolute left-0 right-0 top-[calc(100%+8px)] z-20 rounded-xl border border-surface/40 bg-white/95 backdrop-blur-sm shadow-xl overflow-hidden">
-                      {manualProductSuggestions.length === 0 ? (
-                        <p className="px-3 py-3 text-sm text-foreground/50">
-                          Nessun prodotto disponibile in giacenza per questa ricerca.
-                        </p>
-                      ) : (
-                        <ul className="max-h-72 overflow-y-auto py-1">
-                          {manualProductSuggestions.map((product, index) => {
-                            const pr = product.product_registry
-                            return (
-                              <li key={product.id}>
-                                <button
-                                  type="button"
-                                  onClick={() => selectManualProduct(product)}
-                                  className={cn(
-                                    'w-full text-left px-3 py-2.5 border-b last:border-b-0 border-surface/20 transition-colors',
-                                    index === manualActiveIndex ? 'bg-brand/10' : 'hover:bg-surface/20'
-                                  )}
-                                >
-                                  <div className="flex items-center justify-between gap-3">
-                                    <div className="min-w-0">
-                                      <p className="text-sm font-semibold truncate">{pr.name}</p>
-                                      <p className="text-xs text-foreground/55 truncate">
-                                        {pr.barcode} · {pr.brand || 'N/D'} · {pr.size} · {pr.color}
-                                      </p>
-                                    </div>
-                                    <div className="text-right shrink-0">
-                                      <p className="text-sm font-bold text-brand">{formatCurrency(product.sell_price)}</p>
-                                      <p className="text-xs text-foreground/50">{product.quantity} pz</p>
-                                    </div>
-                                  </div>
-                                </button>
-                              </li>
-                            )
-                          })}
-                        </ul>
-                      )}
-                    </div>
-                  )}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50">
+                    Catalogo articoli
+                  </p>
+                  <p className="text-sm text-foreground/60">
+                    Apri il menu per cercare e ordinare i prodotti disponibili.
+                  </p>
                 </div>
-              </div>
-            </div>
-
-            {/* Product grid header + search */}
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60">
-              <div className="flex items-center gap-3 p-4 border-b border-surface/20">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/40 pointer-events-none" />
-                  <input
-                    ref={searchInputRef}
-                    type="text"
-                    placeholder="Cerca prodotto per nome, taglia, colore..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className={cn(
-                      'w-full pl-10 pr-4 py-2.5 text-sm',
-                      'rounded-xl border border-surface/80 bg-white shadow-sm',
-                      'focus:outline-none focus:border-brand focus:ring-4 focus:ring-brand/15 focus:shadow-md',
-                      'placeholder:text-gray-400 transition-all duration-200'
-                    )}
-                  />
-                  {searchQuery && (
-                    <button
-                      onClick={() => {
-                        setSearchQuery('')
-                        focusBarcode()
-                      }}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground/40 hover:text-foreground transition-colors"
-                      aria-label="Cancella ricerca"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  )}
-                </div>
-                <span className="text-sm text-foreground/50 shrink-0">
-                  {filteredProducts.length} art.
-                </span>
-              </div>
-
-              {/* Product cards grid */}
-              <div className="p-4">
-                {productsLoading ? (
-                  <div className="flex items-center justify-center py-16 text-foreground/40">
-                    <div className="w-8 h-8 border-4 border-brand/20 border-t-brand rounded-full animate-spin mr-3" />
-                    Caricamento prodotti...
-                  </div>
-                ) : filteredProducts.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-16 text-foreground/40 gap-3">
-                    <ShoppingCart className="w-12 h-12 opacity-30" />
-                    <p className="text-sm">
-                      {searchQuery
-                        ? `Nessun prodotto trovato per "${searchQuery}"`
-                        : 'Nessun prodotto disponibile in magazzino'}
-                    </p>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3">
-                    {filteredProducts.map((product) => {
-                      const inCart = cart.find((i) => i.inventoryId === product.id)
-                      const pr = product.product_registry
-                      return (
-                        <button
-                          key={product.id}
-                          onClick={() => addToCart(product)}
-                          className={cn(
-                            'relative text-left p-3 rounded-xl border transition-all duration-200',
-                            'hover:border-brand hover:shadow-md hover:scale-[1.02] active:scale-[0.98]',
-                            'focus:outline-none focus:ring-4 focus:ring-brand/15',
-                            'cursor-pointer bg-white/80 backdrop-blur-sm',
-                            inCart
-                              ? 'border-brand bg-brand/5 shadow-sm'
-                              : 'border-surface/30'
-                          )}
-                          aria-label={`Aggiungi ${pr.name} taglia ${pr.size} al carrello`}
-                        >
-                          {/* In-cart badge */}
-                          {inCart && (
-                            <span className="absolute top-2 right-2 w-5 h-5 bg-brand text-white text-xs font-bold rounded-full flex items-center justify-center ring-2 ring-white">
-                              {inCart.qty}
-                            </span>
-                          )}
-
-                          {/* Size swatch */}
-                          <div className="w-8 h-8 rounded-lg bg-surface-light/50 flex items-center justify-center mb-2 shrink-0">
-                            <span className="text-sm font-bold text-foreground/60">
-                              {pr.size || '?'}
-                            </span>
-                          </div>
-
-                          <p className="font-semibold text-sm text-foreground leading-tight line-clamp-2 mb-1">
-                            {pr.name}
-                          </p>
-                          <p className="text-xs text-foreground/50 mb-2">{pr.color}</p>
-
-                          <div className="flex items-center justify-between">
-                            <span className="text-base font-bold text-brand">
-                              {formatCurrency(product.sell_price)}
-                            </span>
-                            <span
-                              className={cn(
-                                'text-xs px-1.5 py-0.5 rounded-md font-medium ring-1',
-                                product.quantity <= 3
-                                  ? 'bg-amber-50 text-amber-600 ring-amber-200'
-                                  : 'bg-surface/30 text-foreground/60 ring-surface/40'
-                              )}
-                            >
-                              {product.quantity} pz
-                            </span>
-                          </div>
-                        </button>
-                      )
-                    })}
-                  </div>
-                )}
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="lg"
+                  onClick={() => setProductMenuOpen(true)}
+                  className="sm:min-w-[220px]"
+                >
+                  <Search className="w-4 h-4 mr-2" />
+                  Apri lista prodotti
+                </Button>
               </div>
             </div>
           </div>
@@ -1552,6 +1344,93 @@ export default function POSPage() {
           )}
         </div>
       </div>
+
+      {/* ------------------------------------------------------------------ */}
+      {/* Product menu modal                                                  */}
+      {/* ------------------------------------------------------------------ */}
+      <Modal
+        open={productMenuOpen}
+        onClose={() => setProductMenuOpen(false)}
+        title="Seleziona articolo dal catalogo"
+        size="lg"
+      >
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="md:col-span-2 relative">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/40 pointer-events-none" />
+              <input
+                type="text"
+                value={productMenuQuery}
+                onChange={(e) => setProductMenuQuery(e.target.value)}
+                placeholder="Cerca per barcode, nome, brand, taglia, colore..."
+                className={cn(
+                  'w-full pl-10 pr-4 py-2.5 text-sm',
+                  'rounded-xl border border-surface/80 bg-white shadow-sm',
+                  'focus:outline-none focus:border-brand focus:ring-4 focus:ring-brand/15 focus:shadow-md',
+                  'placeholder:text-gray-400 transition-all duration-200'
+                )}
+              />
+            </div>
+            <select
+              value={productSortBy}
+              onChange={(e) => setProductSortBy(e.target.value as 'name' | 'brand' | 'size' | 'price' | 'quantity')}
+              className={cn(
+                'w-full rounded-xl border border-surface/80 bg-white px-3 py-2.5 text-sm shadow-sm',
+                'focus:outline-none focus:border-brand focus:ring-4 focus:ring-brand/15'
+              )}
+            >
+              <option value="name">Ordina: Nome</option>
+              <option value="brand">Ordina: Brand</option>
+              <option value="size">Ordina: Taglia</option>
+              <option value="price">Ordina: Prezzo</option>
+              <option value="quantity">Ordina: Giacenza</option>
+            </select>
+          </div>
+
+          <div className="text-xs text-foreground/50">
+            {productMenuItems.length} articoli disponibili
+          </div>
+
+          <div className="max-h-[58vh] overflow-y-auto rounded-xl border border-surface/20 divide-y divide-surface/20">
+            {productsLoading ? (
+              <div className="flex items-center justify-center py-12 text-foreground/40">
+                <div className="w-7 h-7 border-4 border-brand/20 border-t-brand rounded-full animate-spin mr-3" />
+                Caricamento prodotti...
+              </div>
+            ) : productMenuItems.length === 0 ? (
+              <div className="py-10 text-center text-sm text-foreground/50">
+                Nessun articolo disponibile con i filtri selezionati.
+              </div>
+            ) : (
+              productMenuItems.map((product) => {
+                const pr = product.product_registry
+                return (
+                  <button
+                    key={product.id}
+                    type="button"
+                    onClick={() => {
+                      addToCart(product)
+                      focusBarcode()
+                    }}
+                    className="w-full text-left px-4 py-3 hover:bg-brand/[0.06] transition-colors"
+                  >
+                    <div className="grid grid-cols-1 lg:grid-cols-6 gap-2 text-sm">
+                      <p className="lg:col-span-2 font-semibold truncate">{pr.name}</p>
+                      <p className="text-foreground/60 truncate">{pr.brand || 'N/D'}</p>
+                      <p className="text-foreground/60 truncate">Taglia {pr.size || '-'}</p>
+                      <p className="font-semibold text-brand">{formatCurrency(product.sell_price)}</p>
+                      <p className="text-foreground/60 text-right">{product.quantity} pz</p>
+                    </div>
+                    <p className="text-xs text-foreground/50 mt-1 truncate">
+                      {pr.barcode} · {pr.color || '-'}
+                    </p>
+                  </button>
+                )
+              })
+            )}
+          </div>
+        </div>
+      </Modal>
 
       {/* ------------------------------------------------------------------ */}
       {/* Payment confirmation modal                                          */}
