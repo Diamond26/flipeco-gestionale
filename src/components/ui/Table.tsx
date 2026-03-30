@@ -24,15 +24,15 @@ export function Table<T extends Record<string, any>>({
   onRowClick,
 }: TableProps<T>) {
   return (
-    <div className="overflow-x-auto rounded-xl border border-surface/50">
+    <div className="overflow-x-auto rounded-2xl border border-surface/30 bg-white/60 backdrop-blur-sm">
       <table className="w-full">
         <thead>
-          <tr className="bg-surface/30">
+          <tr className="border-b border-surface/30">
             {columns.map((col) => (
               <th
                 key={col.key}
                 className={cn(
-                  'px-4 py-3 text-left text-sm font-semibold text-foreground/70 whitespace-nowrap',
+                  'px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-foreground/50 whitespace-nowrap',
                   col.className
                 )}
               >
@@ -46,7 +46,7 @@ export function Table<T extends Record<string, any>>({
             <tr>
               <td
                 colSpan={columns.length}
-                className="px-4 py-12 text-center text-foreground/50 text-lg"
+                className="px-5 py-14 text-center text-foreground/40 text-base"
               >
                 {emptyMessage}
               </td>
@@ -56,14 +56,14 @@ export function Table<T extends Record<string, any>>({
               <tr
                 key={i}
                 className={cn(
-                  'border-t border-surface/30 transition-colors',
-                  i % 2 === 0 ? 'bg-white' : 'bg-surface-light/30',
-                  onRowClick && 'hover:bg-brand/5 cursor-pointer'
+                  'border-t border-surface/20',
+                  i % 2 === 0 ? 'bg-transparent' : 'bg-surface-light/20',
+                  onRowClick && 'hover:bg-brand/[0.04] cursor-pointer'
                 )}
                 onClick={() => onRowClick?.(row)}
               >
                 {columns.map((col) => (
-                  <td key={col.key} className={cn('px-4 py-3 text-sm', col.className)}>
+                  <td key={col.key} className={cn('px-5 py-3.5 text-sm', col.className)}>
                     {col.render
                       ? col.render(row)
                       : String(row[col.key] ?? '')}

@@ -9,9 +9,15 @@ interface CardProps {
 
 export function Card({ children, className, title, action }: CardProps) {
   return (
-    <div className={cn('bg-card rounded-2xl shadow-sm border border-surface/50 p-6', className)}>
+    <div
+      className={cn(
+        'bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 p-6',
+        'animate-fade-in',
+        className
+      )}
+    >
       {(title || action) && (
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-5">
           {title && <h2 className="text-xl font-bold text-foreground">{title}</h2>}
           {action}
         </div>

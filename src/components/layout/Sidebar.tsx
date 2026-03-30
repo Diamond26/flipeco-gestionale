@@ -49,7 +49,7 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
       {/* Mobile overlay backdrop */}
       {mobileOpen && (
         <div
-          className="fixed inset-0 z-20 bg-black/50 md:hidden"
+          className="fixed inset-0 z-20 bg-black/40 backdrop-blur-sm md:hidden animate-fade-in"
           onClick={onMobileClose}
           aria-hidden="true"
         />
@@ -58,13 +58,13 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
       {/* Sidebar panel */}
       <aside
         className={cn(
-          'fixed top-0 left-0 z-30 flex h-full w-64 flex-col bg-sidebar transition-transform duration-300 ease-in-out',
+          'fixed top-0 left-0 z-30 flex h-full w-64 flex-col glass-dark transition-transform duration-300 ease-in-out',
           mobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         )}
         aria-label="Navigazione principale"
       >
         {/* Header: Brand name */}
-        <div className="flex items-center justify-center px-4 py-5 border-b border-white/10 relative">
+        <div className="flex items-center justify-center px-4 py-6 border-b border-white/[0.06] relative">
           <span className="text-white font-bold text-3xl tracking-wide">
             Flip<span className="text-brand-light">&amp;</span>Co
           </span>
@@ -72,7 +72,7 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
           {/* Mobile close button */}
           <button
             onClick={onMobileClose}
-            className="absolute right-4 text-white/60 hover:text-white md:hidden"
+            className="absolute right-4 text-white/40 hover:text-white md:hidden"
             aria-label="Chiudi menu"
           >
             <X size={20} />
@@ -80,7 +80,7 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1" aria-label="Menu principale">
+        <nav className="flex-1 overflow-y-auto px-3 py-5 space-y-1" aria-label="Menu principale">
           {navItems.map(({ label, icon: Icon, href }) => {
             const isActive = pathname === href || pathname.startsWith(href + '/')
             return (
@@ -89,14 +89,25 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
                 href={href}
                 onClick={onMobileClose}
                 className={cn(
-                  'flex items-center gap-3 rounded-xl py-3 px-4 text-lg font-medium transition-colors duration-150',
+                  'group flex items-center gap-3 rounded-xl py-3 px-4 text-[15px] font-medium relative overflow-hidden',
                   isActive
-                    ? 'bg-brand/20 text-brand-light border-l-4 border-brand-light pl-3'
-                    : 'text-white/80 hover:bg-sidebar-hover hover:text-white border-l-4 border-transparent pl-3'
+                    ? 'bg-brand/20 text-white'
+                    : 'text-white/60 hover:bg-white/[0.06] hover:text-white/90'
                 )}
                 aria-current={isActive ? 'page' : undefined}
               >
-                <Icon size={22} aria-hidden="true" />
+                {/* Active indicator bar */}
+                {isActive && (
+                  <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-7 rounded-r-full bg-brand-light" />
+                )}
+                <Icon
+                  size={20}
+                  className={cn(
+                    'shrink-0',
+                    isActive ? 'text-brand-light' : 'text-white/40 group-hover:text-white/70'
+                  )}
+                  aria-hidden="true"
+                />
                 <span>{label}</span>
               </Link>
             )
@@ -104,12 +115,12 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
         </nav>
 
         {/* Bottom: Logout */}
-        <div className="px-3 py-4 border-t border-white/10">
+        <div className="px-3 py-4 border-t border-white/[0.06]">
           <button
             onClick={handleLogout}
-            className="flex w-full items-center gap-3 rounded-xl py-3 px-4 text-lg font-medium text-white/70 hover:bg-sidebar-hover hover:text-white transition-colors duration-150 border-l-4 border-transparent pl-3"
+            className="group flex w-full items-center gap-3 rounded-xl py-3 px-4 text-[15px] font-medium text-white/50 hover:bg-white/[0.06] hover:text-white/80"
           >
-            <LogOut size={22} aria-hidden="true" />
+            <LogOut size={20} className="text-white/30 group-hover:text-white/60" aria-hidden="true" />
             <span>Esci</span>
           </button>
         </div>

@@ -24,11 +24,11 @@ export default function AppShell({ children, pageTitle }: AppShellProps) {
       {/* Main content area — offset by sidebar width on md+ */}
       <div className="md:ml-64 flex flex-col min-h-screen">
         {/* Top bar */}
-        <header className="sticky top-0 z-10 flex items-center gap-4 bg-background/80 backdrop-blur-sm border-b border-surface px-6 py-4">
+        <header className="sticky top-0 z-10 flex items-center gap-4 bg-background/70 backdrop-blur-xl border-b border-surface/30 px-6 py-4">
           {/* Hamburger — visible only on mobile */}
           <button
             onClick={() => setMobileSidebarOpen(true)}
-            className="md:hidden text-foreground hover:text-brand transition-colors"
+            className="md:hidden text-foreground/60 hover:text-brand"
             aria-label="Apri menu di navigazione"
             aria-expanded={mobileSidebarOpen}
             aria-controls="main-sidebar"
@@ -38,7 +38,7 @@ export default function AppShell({ children, pageTitle }: AppShellProps) {
 
           {/* Page title */}
           {pageTitle && (
-            <h1 className="text-xl font-semibold text-foreground tracking-tight">
+            <h1 className="text-xl font-bold text-foreground tracking-tight">
               {pageTitle}
             </h1>
           )}

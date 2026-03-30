@@ -90,18 +90,18 @@ function StepIndicator({ current }: { current: 1 | 2 | 3 }) {
     { n: 3, label: 'Revisiona e Salva' },
   ];
   return (
-    <div className="flex items-center gap-0 mb-8">
+    <div className="flex items-center justify-center gap-0 mb-10">
       {steps.map((s, idx) => (
         <div key={s.n} className="flex items-center">
           <div className="flex flex-col items-center">
             <div
               className={[
-                'w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm border-2 transition-colors',
+                'w-11 h-11 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300',
                 s.n < current
-                  ? 'bg-brand border-brand text-white'
+                  ? 'bg-gradient-to-br from-brand to-brand/80 text-white shadow-md shadow-brand/20'
                   : s.n === current
-                    ? 'bg-brand border-brand text-white shadow-lg ring-4 ring-brand/20'
-                    : 'bg-surface border-surface-light text-foreground/40',
+                    ? 'bg-gradient-to-br from-brand to-brand/90 text-white shadow-lg ring-[3px] ring-brand/25'
+                    : 'bg-surface/30 text-foreground/30 border border-surface/40',
               ].join(' ')}
             >
               {s.n < current ? (
@@ -114,20 +114,23 @@ function StepIndicator({ current }: { current: 1 | 2 | 3 }) {
             </div>
             <span
               className={[
-                'mt-1 text-xs font-medium whitespace-nowrap',
-                s.n === current ? 'text-brand' : 'text-foreground/40',
+                'mt-2 text-xs font-semibold whitespace-nowrap tracking-wide',
+                s.n < current ? 'text-brand/70' : s.n === current ? 'text-brand' : 'text-foreground/30',
               ].join(' ')}
             >
               {s.label}
             </span>
           </div>
           {idx < steps.length - 1 && (
-            <div
-              className={[
-                'h-0.5 w-16 mx-2 mt-[-14px] transition-colors',
-                s.n < current ? 'bg-brand' : 'bg-surface-light',
-              ].join(' ')}
-            />
+            <div className="relative mx-3 mt-[-14px]">
+              <div className="h-[2px] w-20 bg-surface/20 rounded-full" />
+              <div
+                className={[
+                  'absolute top-0 left-0 h-[2px] rounded-full transition-all duration-500',
+                  s.n < current ? 'w-full bg-gradient-to-r from-brand to-brand/70' : 'w-0 bg-brand',
+                ].join(' ')}
+              />
+            </div>
           )}
         </div>
       ))}
@@ -531,16 +534,16 @@ export default function ImportPage() {
     <AppShell>
       {/* Toast */}
       {toast && (
-        <div className={`fixed top-6 right-6 z-50 ${toastType === 'error' ? 'bg-danger' : 'bg-success'} text-white px-5 py-3 rounded-xl shadow-xl font-medium text-sm animate-fade-in`}>
+        <div className={`fixed top-6 right-6 z-50 ${toastType === 'error' ? 'bg-danger' : 'bg-success'} text-white px-5 py-3 rounded-2xl shadow-lg shadow-black/10 font-medium text-sm animate-toast-in backdrop-blur-sm`}>
           {toast}
         </div>
       )}
 
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto px-4 py-8 animate-fade-in">
         {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-foreground">Importazione Prodotti</h1>
-          <p className="text-foreground/60 mt-1">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-foreground tracking-tight">Importazione Prodotti</h1>
+          <p className="text-foreground/50 mt-1.5">
             Carica un file CSV, Excel o PDF per importare prodotti nell&apos;anagrafica.
           </p>
         </div>
@@ -552,9 +555,10 @@ export default function ImportPage() {
         {/* STEP 1 — UPLOAD                                                  */}
         {/* ================================================================ */}
         {step === 'upload' && (
-          <div className="space-y-6">
+          <div className="space-y-5">
             {/* Supplier selector */}
-            <Card title="Fornitore">
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 p-6">
+              <h3 className="text-sm font-semibold text-foreground mb-4">Fornitore</h3>
               <div className="flex flex-col sm:flex-row gap-4 items-end">
                 <div className="flex-1" onClick={loadSuppliers}>
                   <Select
@@ -572,7 +576,7 @@ export default function ImportPage() {
                         type="button"
                         title="Modifica fornitore"
                         onClick={openEditSupplier}
-                        className="p-3 rounded-xl border border-surface bg-surface text-brand hover:bg-brand/10 transition-colors"
+                        className="p-3 rounded-xl border border-surface/20 bg-white/60 text-brand hover:bg-brand/10 transition-colors"
                       >
                         <Pencil className="w-5 h-5" />
                       </button>
@@ -580,7 +584,7 @@ export default function ImportPage() {
                         type="button"
                         title="Elimina fornitore"
                         onClick={() => setDeleteSupplierModal(true)}
-                        className="p-3 rounded-xl border border-surface bg-surface text-danger hover:bg-danger/10 transition-colors"
+                        className="p-3 rounded-xl border border-surface/20 bg-white/60 text-danger hover:bg-danger/10 transition-colors"
                       >
                         <Trash2 className="w-5 h-5" />
                       </button>
@@ -598,10 +602,11 @@ export default function ImportPage() {
                   </Button>
                 </div>
               </div>
-            </Card>
+            </div>
 
             {/* File upload zone */}
-            <Card title="Carica File">
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 p-6">
+              <h3 className="text-sm font-semibold text-foreground mb-4">Carica File</h3>
               <div
                 role="button"
                 tabIndex={0}
@@ -614,20 +619,20 @@ export default function ImportPage() {
                 className={[
                   'border-2 border-dashed rounded-2xl p-12 flex flex-col items-center justify-center gap-4 cursor-pointer transition-all duration-200',
                   isDragging
-                    ? 'border-brand bg-brand/10 scale-[1.01]'
+                    ? 'border-brand bg-gradient-to-b from-brand/10 to-brand/5 scale-[1.01]'
                     : selectedFile
-                      ? 'border-brand bg-brand/5'
-                      : 'border-surface-light bg-surface hover:border-brand hover:bg-brand/5',
+                      ? 'border-brand/40 bg-gradient-to-b from-brand/5 to-transparent'
+                      : 'border-surface/30 bg-gradient-to-b from-surface/20 to-transparent hover:border-brand hover:from-brand/5 hover:to-transparent',
                 ].join(' ')}
               >
-                <div className={['w-16 h-16 rounded-full flex items-center justify-center transition-colors', isDragging ? 'bg-brand text-white' : 'bg-surface-light text-brand'].join(' ')}>
+                <div className={['w-16 h-16 rounded-full flex items-center justify-center transition-colors', isDragging ? 'bg-brand text-white' : 'bg-surface/30 text-brand'].join(' ')}>
                   <Upload size={32} />
                 </div>
 
                 {selectedFile ? (
                   <div className="text-center">
                     <p className="text-lg font-semibold text-foreground">{selectedFile.name}</p>
-                    <p className="text-sm text-foreground/50 mt-1">
+                    <p className="text-sm text-foreground/40 mt-1">
                       {(selectedFile.size / 1024).toFixed(1)} KB &mdash; clicca per cambiare
                     </p>
                   </div>
@@ -636,8 +641,8 @@ export default function ImportPage() {
                     <p className="text-xl font-semibold text-foreground">
                       Trascina il file qui
                     </p>
-                    <p className="text-foreground/50 mt-1">oppure clicca per sfogliare</p>
-                    <p className="text-xs text-foreground/40 mt-3">
+                    <p className="text-foreground/40 mt-1">oppure clicca per sfogliare</p>
+                    <p className="text-xs text-foreground/30 mt-3">
                       Formati accettati: .csv, .xlsx, .xls, .pdf
                     </p>
                   </div>
@@ -666,14 +671,14 @@ export default function ImportPage() {
               )}
 
               {selectedFile && parsedHeaders.length > 0 && (
-                <div className="mt-4 p-4 bg-success/10 rounded-xl text-sm text-foreground">
+                <div className="mt-4 p-4 bg-success/10 rounded-xl text-sm text-foreground ring-1 ring-success/20">
                   <span className="font-semibold text-success">File analizzato con successo.</span>
-                  <span className="ml-2 text-foreground/60">
+                  <span className="ml-2 text-foreground/50">
                     {parsedHeaders.length} colonne rilevate, {parsedRows.length} righe trovate.
                   </span>
                 </div>
               )}
-            </Card>
+            </div>
 
             {/* CTA */}
             <div className="flex justify-end">
@@ -694,16 +699,15 @@ export default function ImportPage() {
         {/* STEP 2 — COLUMN MAPPING                                          */}
         {/* ================================================================ */}
         {step === 'mapping' && (
-          <div className="space-y-6">
-            <Card
-              title="Mappatura Colonne"
-              action={
-                <span className="text-xs text-foreground/50 font-normal">
+          <div className="space-y-5">
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-semibold text-foreground">Mappatura Colonne</h3>
+                <span className="text-xs text-foreground/40 font-normal">
                   File: <strong>{selectedFile?.name}</strong>
                 </span>
-              }
-            >
-              <p className="text-sm text-foreground/60 mb-6">
+              </div>
+              <p className="text-sm text-foreground/50 mb-6">
                 Il sistema ha tentato di abbinare automaticamente le colonne del file ai campi
                 dell&apos;anagrafica. Verifica e correggi le associazioni se necessario.
               </p>
@@ -734,17 +738,18 @@ export default function ImportPage() {
                   Il campo &quot;Nome Prodotto&quot; è obbligatorio per procedere.
                 </p>
               )}
-            </Card>
+            </div>
 
             {/* Preview */}
             {parsedRows.length > 0 && (
-              <Card title={`Anteprima Dati (prime 3 righe)`}>
-                <div className="overflow-x-auto">
+              <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 p-6">
+                <h3 className="text-sm font-semibold text-foreground mb-4">Anteprima Dati (prime 3 righe)</h3>
+                <div className="overflow-x-auto rounded-xl border border-surface/20">
                   <table className="w-full text-sm border-collapse">
                     <thead>
-                      <tr className="bg-surface">
+                      <tr className="bg-surface/30">
                         {parsedHeaders.map((h) => (
-                          <th key={h} className="px-3 py-2 text-left font-semibold text-foreground/70 border border-surface-light whitespace-nowrap">
+                          <th key={h} className="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wider text-foreground/50 border-b border-surface/20 whitespace-nowrap">
                             {h}
                           </th>
                         ))}
@@ -752,9 +757,12 @@ export default function ImportPage() {
                     </thead>
                     <tbody>
                       {parsedRows.slice(0, 3).map((row, idx) => (
-                        <tr key={idx} className="hover:bg-surface/50">
+                        <tr key={idx} className={[
+                          'hover:bg-surface/20 transition-colors',
+                          idx % 2 === 1 ? 'bg-surface/10' : '',
+                        ].join(' ')}>
                           {parsedHeaders.map((h) => (
-                            <td key={h} className="px-3 py-2 border border-surface-light text-foreground/80 whitespace-nowrap">
+                            <td key={h} className="px-3 py-2 border-b border-surface/10 text-foreground/70 whitespace-nowrap">
                               {row[h] ?? ''}
                             </td>
                           ))}
@@ -763,7 +771,7 @@ export default function ImportPage() {
                     </tbody>
                   </table>
                 </div>
-              </Card>
+              </div>
             )}
 
             {/* Navigation */}
@@ -787,9 +795,10 @@ export default function ImportPage() {
         {/* STEP 3 — REVIEW & SAVE                                           */}
         {/* ================================================================ */}
         {step === 'review' && (
-          <div className="space-y-6">
+          <div className="space-y-5">
             {/* Supplier confirm */}
-            <Card title="Fornitore Selezionato">
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 p-6">
+              <h3 className="text-sm font-semibold text-foreground mb-4">Fornitore Selezionato</h3>
               <div className="flex flex-col sm:flex-row gap-4 items-end">
                 <div className="flex-1">
                   <Select
@@ -807,7 +816,7 @@ export default function ImportPage() {
                         type="button"
                         title="Modifica fornitore"
                         onClick={openEditSupplier}
-                        className="p-3 rounded-xl border border-surface bg-surface text-brand hover:bg-brand/10 transition-colors"
+                        className="p-3 rounded-xl border border-surface/20 bg-white/60 text-brand hover:bg-brand/10 transition-colors"
                       >
                         <Pencil className="w-5 h-5" />
                       </button>
@@ -815,7 +824,7 @@ export default function ImportPage() {
                         type="button"
                         title="Elimina fornitore"
                         onClick={() => setDeleteSupplierModal(true)}
-                        className="p-3 rounded-xl border border-surface bg-surface text-danger hover:bg-danger/10 transition-colors"
+                        className="p-3 rounded-xl border border-surface/20 bg-white/60 text-danger hover:bg-danger/10 transition-colors"
                       >
                         <Trash2 className="w-5 h-5" />
                       </button>
@@ -831,37 +840,36 @@ export default function ImportPage() {
                   Seleziona un fornitore per abilitare il salvataggio.
                 </p>
               )}
-            </Card>
+            </div>
 
             {/* Editable table */}
-            <Card
-              title={`Revisione Prodotti — ${rows.length} righe`}
-              action={
-                <span className="text-xs text-foreground/50">
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-semibold text-foreground">Revisione Prodotti — {rows.length} righe</h3>
+                <span className="text-xs text-foreground/40 ring-1 ring-foreground/10 rounded-full px-2.5 py-0.5">
                   {rows.filter((r) => r.hasError).length} righe con problemi
                 </span>
-              }
-            >
-              <p className="text-sm text-foreground/60 mb-4">
+              </div>
+              <p className="text-sm text-foreground/50 mb-4">
                 Modifica direttamente le celle per correggere eventuali errori prima di salvare.
                 Le righe che presentano problemi critici sul Nome sono evidenziate.
                 <strong> I campi evidenziati in #CCD0D5 indicano dati incerti o non riconosciuti.</strong>
               </p>
 
-              <div className="overflow-x-auto rounded-xl border border-surface-light">
+              <div className="overflow-x-auto rounded-xl border border-surface/20">
                 <table className="w-full text-sm border-collapse">
                   <thead>
-                    <tr className="bg-surface border-b border-surface-light">
-                      <th className="px-3 py-3 text-left font-semibold text-foreground/70 w-8">#</th>
-                      <th className="px-3 py-3 text-left font-semibold text-foreground/70">Barcode</th>
-                      <th className="px-3 py-3 text-left font-semibold text-foreground/70">SKU</th>
-                      <th className="px-3 py-3 text-left font-semibold text-foreground/70">Nome *</th>
-                      <th className="px-3 py-3 text-left font-semibold text-foreground/70">Taglia</th>
-                      <th className="px-3 py-3 text-left font-semibold text-foreground/70">Colore</th>
-                      <th className="px-3 py-3 text-left font-semibold text-foreground/70">Cod. Colore</th>
-                      <th className="px-3 py-3 text-left font-semibold text-foreground/70">Brand</th>
-                      <th className="px-3 py-3 text-left font-semibold text-foreground/70">Categoria</th>
-                      <th className="px-3 py-3 text-left font-semibold text-foreground/70 w-10"></th>
+                    <tr className="bg-surface/30 border-b border-surface/20">
+                      <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-foreground/50 w-8">#</th>
+                      <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-foreground/50">Barcode</th>
+                      <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-foreground/50">SKU</th>
+                      <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-foreground/50">Nome *</th>
+                      <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-foreground/50">Taglia</th>
+                      <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-foreground/50">Colore</th>
+                      <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-foreground/50">Cod. Colore</th>
+                      <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-foreground/50">Brand</th>
+                      <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-foreground/50">Categoria</th>
+                      <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-foreground/50 w-10"></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -869,11 +877,11 @@ export default function ImportPage() {
                       <tr
                         key={row.id}
                         className={[
-                          'border-b border-surface-light transition-colors',
-                          row.hasError ? 'bg-yellow-50' : 'hover:bg-surface/40',
+                          'border-b border-surface/10 transition-colors',
+                          row.hasError ? 'bg-yellow-50/80' : idx % 2 === 1 ? 'bg-surface/10' : 'hover:bg-surface/20',
                         ].join(' ')}
                       >
-                        <td className="px-3 py-2 text-foreground/40 text-xs">{idx + 1}</td>
+                        <td className="px-3 py-2 text-foreground/30 text-xs">{idx + 1}</td>
                         {(['barcode', 'sku', 'name', 'size', 'color', 'color_code', 'brand', 'category'] as const).map((field) => (
                           <td key={field} className="px-1 py-1">
                             <input
@@ -882,12 +890,12 @@ export default function ImportPage() {
                               onChange={(e) => updateCell(row.id, field, e.target.value)}
                               aria-label={`${field} riga ${idx + 1}`}
                               className={[
-                                'w-full px-2 py-1.5 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-brand transition-colors',
+                                'w-full px-2 py-1.5 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-brand/15 transition-colors',
                                 !row[field].trim()
                                   ? 'bg-[#CCD0D5] text-black border-[#A0AAB5] placeholder-black/60 shadow-inner' // Campi incerti
                                   : field === 'name' && row.hasError
                                     ? 'bg-background border-yellow-400 ring-1 ring-yellow-300 text-foreground'
-                                    : 'bg-background text-foreground border-surface-light focus:border-brand',
+                                    : 'bg-background text-foreground border-surface/20 focus:border-brand',
                               ].join(' ')}
                             />
                           </td>
@@ -897,7 +905,7 @@ export default function ImportPage() {
                             type="button"
                             onClick={() => deleteRow(row.id)}
                             aria-label={`Elimina riga ${idx + 1}`}
-                            className="w-7 h-7 flex items-center justify-center rounded-full text-danger hover:bg-danger/10 transition-colors"
+                            className="w-7 h-7 flex items-center justify-center rounded-full text-danger/60 hover:text-danger hover:bg-danger/10 transition-colors"
                             title="Elimina riga"
                           >
                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -912,15 +920,15 @@ export default function ImportPage() {
               </div>
 
               {rows.length === 0 && (
-                <p className="mt-4 text-center text-foreground/50 py-8">
+                <p className="mt-4 text-center text-foreground/40 py-8">
                   Nessuna riga da visualizzare. Torna al passo precedente.
                 </p>
               )}
-            </Card>
+            </div>
 
             {/* Errors */}
             {saveError && (
-              <div className="p-4 bg-danger/10 border border-danger/30 rounded-xl text-sm text-danger font-medium" role="alert">
+              <div className="p-4 bg-danger/10 border border-danger/20 rounded-2xl text-sm text-danger font-medium" role="alert">
                 {saveError}
               </div>
             )}
@@ -952,15 +960,15 @@ export default function ImportPage() {
         {/* STEP DONE                                                         */}
         {/* ================================================================ */}
         {step === 'done' && (
-          <div className="flex flex-col items-center justify-center py-20 gap-6 text-center">
-            <div className="w-24 h-24 rounded-full bg-success/15 flex items-center justify-center">
+          <div className="flex flex-col items-center justify-center py-20 gap-6 text-center animate-fade-in">
+            <div className="w-24 h-24 rounded-full bg-success/10 flex items-center justify-center ring-1 ring-success/20">
               <svg className="w-12 h-12 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
               </svg>
             </div>
             <div>
-              <h2 className="text-3xl font-bold text-foreground">Importazione completata!</h2>
-              <p className="text-foreground/60 mt-2 text-lg">
+              <h2 className="text-3xl font-bold text-foreground tracking-tight">Importazione completata!</h2>
+              <p className="text-foreground/50 mt-2 text-lg">
                 {savedCount} prodott{savedCount === 1 ? 'o importato' : 'i importati'} con successo nell&apos;anagrafica.
               </p>
             </div>
@@ -1157,7 +1165,7 @@ export default function ImportPage() {
         size="sm"
       >
         <div className="space-y-5">
-          <div className="flex items-start gap-3 p-4 bg-danger/10 rounded-xl">
+          <div className="flex items-start gap-3 p-4 bg-danger/10 rounded-xl ring-1 ring-danger/20">
             <Trash2 className="w-5 h-5 text-danger shrink-0 mt-0.5" />
             <div>
               <p className="text-sm font-semibold text-foreground">
@@ -1166,7 +1174,7 @@ export default function ImportPage() {
                   &quot;{suppliers.find((s) => s.id === selectedSupplierId)?.name}&quot;
                 </span>?
               </p>
-              <p className="text-xs text-foreground/60 mt-1">
+              <p className="text-xs text-foreground/50 mt-1">
                 Questa azione è irreversibile. I prodotti e le importazioni collegate non verranno eliminati,
                 ma perderanno il riferimento al fornitore.
               </p>

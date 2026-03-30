@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import AppShell from '@/components/layout/AppShell'
-import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'
 import { createClient } from '@/lib/supabase/client'
@@ -427,7 +426,7 @@ export default function ImportHistoryPage() {
           <div
             key={t.id}
             className={cn(
-              'pointer-events-auto flex items-center gap-2 px-5 py-3 rounded-xl shadow-xl text-sm font-semibold animate-fade-in',
+              'pointer-events-auto flex items-center gap-2 px-5 py-3 rounded-xl shadow-lg text-sm font-medium animate-toast-in backdrop-blur-sm',
               t.type === 'success' && 'bg-success text-white',
               t.type === 'error' && 'bg-danger text-white',
               t.type === 'warning' && 'bg-yellow-500 text-white',
@@ -441,7 +440,7 @@ export default function ImportHistoryPage() {
         ))}
       </div>
 
-      <div className="max-w-7xl mx-auto space-y-6">
+      <div className="max-w-7xl mx-auto space-y-6 animate-fade-in">
         {/* ---- Header ---- */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
@@ -462,27 +461,31 @@ export default function ImportHistoryPage() {
               placeholder="Cerca per file o fornitore..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border border-surface-light bg-white focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-all"
+              className={cn(
+                'w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border border-surface/80 bg-white shadow-sm',
+                'focus:outline-none focus:border-brand focus:ring-4 focus:ring-brand/15 focus:shadow-md',
+                'placeholder:text-gray-400 transition-all duration-200'
+              )}
             />
           </div>
         </div>
 
         {/* ---- Table ---- */}
-        <Card className="p-0 overflow-hidden">
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
-              <thead className="bg-surface border-b border-surface-light">
-                <tr>
-                  <th className="px-5 py-3.5 font-semibold text-foreground/70">Data</th>
-                  <th className="px-5 py-3.5 font-semibold text-foreground/70">Fornitore</th>
-                  <th className="px-5 py-3.5 font-semibold text-foreground/70">File</th>
-                  <th className="px-5 py-3.5 font-semibold text-foreground/70">Brand</th>
-                  <th className="px-5 py-3.5 font-semibold text-foreground/70 text-center">Articoli</th>
-                  <th className="px-5 py-3.5 font-semibold text-foreground/70 text-center">Stato</th>
-                  <th className="px-5 py-3.5 font-semibold text-foreground/70 text-right">Azioni</th>
+              <thead>
+                <tr className="border-b border-surface/30">
+                  <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-foreground/50">Data</th>
+                  <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-foreground/50">Fornitore</th>
+                  <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-foreground/50">File</th>
+                  <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-foreground/50">Brand</th>
+                  <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-foreground/50 text-center">Articoli</th>
+                  <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-foreground/50 text-center">Stato</th>
+                  <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-foreground/50 text-right">Azioni</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-surface-light">
+              <tbody>
                 {loading ? (
                   <tr>
                     <td colSpan={7} className="py-16 text-center text-foreground/40 text-base">
@@ -497,8 +500,8 @@ export default function ImportHistoryPage() {
                     </td>
                   </tr>
                 ) : (
-                  filtered.map((log) => (
-                    <tr key={log.id} className="hover:bg-surface/30 transition-colors">
+                  filtered.map((log, index) => (
+                    <tr key={log.id} className={cn('hover:bg-brand/[0.03] transition-colors', index !== filtered.length - 1 && 'border-b border-surface/20')}>
                       <td className="px-5 py-3.5 whitespace-nowrap font-mono text-xs">
                         {new Date(log.created_at).toLocaleString('it-IT', {
                           day: '2-digit', month: '2-digit', year: 'numeric',
@@ -609,7 +612,7 @@ export default function ImportHistoryPage() {
               </tbody>
             </table>
           </div>
-        </Card>
+        </div>
       </div>
 
       {/* ================================================================ */}

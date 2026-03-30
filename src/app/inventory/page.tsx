@@ -958,7 +958,7 @@ export default function InventoryPage() {
         </button>
       ) as unknown as string,
       render: (row: InventoryItem) => (
-        <span className="font-mono text-xs text-foreground/60">
+        <span className="font-mono text-xs text-foreground/50">
           {row.product_registry.barcode}
         </span>
       ),
@@ -988,8 +988,8 @@ export default function InventoryPage() {
         </button>
       ) as unknown as string,
       render: (row: InventoryItem) => (
-        <span className="text-sm font-medium text-foreground/80">
-          {row.product_registry.brand || '—'}
+        <span className="text-sm font-medium text-foreground/70">
+          {row.product_registry.brand || '\u2014'}
         </span>
       ),
     },
@@ -1004,7 +1004,7 @@ export default function InventoryPage() {
         </button>
       ) as unknown as string,
       render: (row: InventoryItem) => (
-        <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-surface text-xs font-semibold">
+        <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-surface/40 ring-1 ring-surface/60 text-xs font-semibold">
           {row.product_registry.size}
         </span>
       ),
@@ -1040,8 +1040,8 @@ export default function InventoryPage() {
           <span
             className={cn(
               'inline-flex items-center gap-1 font-bold px-2.5 py-0.5 rounded-lg text-sm',
-              isOut && 'bg-danger/10 text-danger',
-              isLow && !isOut && 'bg-yellow-100 text-yellow-700',
+              isOut && 'bg-red-50 text-danger ring-1 ring-red-200',
+              isLow && !isOut && 'bg-yellow-50 text-yellow-600 ring-1 ring-yellow-200',
               !isOut && !isLow && 'text-foreground'
             )}
           >
@@ -1063,7 +1063,7 @@ export default function InventoryPage() {
         </button>
       ) as unknown as string,
       render: (row: InventoryItem) => (
-        <span className="text-foreground/70">{formatCurrency(row.purchase_price)}</span>
+        <span className="text-foreground/60">{formatCurrency(row.purchase_price)}</span>
       ),
     },
     {
@@ -1092,9 +1092,9 @@ export default function InventoryPage() {
       ) as unknown as string,
       render: (row: InventoryItem) =>
         row.location ? (
-          <span className="text-sm text-foreground/60">{row.location}</span>
+          <span className="text-sm text-foreground/50">{row.location}</span>
         ) : (
-          <span className="text-sm text-foreground/30">—</span>
+          <span className="text-sm text-foreground/20">\u2014</span>
         ),
     },
     {
@@ -1108,7 +1108,7 @@ export default function InventoryPage() {
               e.stopPropagation()
               openEdit(row)
             }}
-            className="p-1.5 rounded-lg hover:bg-brand/10 text-foreground/50 hover:text-brand transition-colors"
+            className="p-1.5 rounded-lg hover:bg-brand/[0.08] text-foreground/40 hover:text-brand transition-colors"
             aria-label="Modifica"
           >
             <Pencil className="w-4 h-4" />
@@ -1118,7 +1118,7 @@ export default function InventoryPage() {
               e.stopPropagation()
               setDeleteItem(row)
             }}
-            className="p-1.5 rounded-lg hover:bg-danger/10 text-foreground/50 hover:text-danger transition-colors"
+            className="p-1.5 rounded-lg hover:bg-danger/[0.08] text-foreground/40 hover:text-danger transition-colors"
             aria-label="Elimina"
           >
             <Trash2 className="w-4 h-4" />
@@ -1145,8 +1145,7 @@ export default function InventoryPage() {
           <div
             key={toast.id}
             className={cn(
-              'flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg text-sm font-medium',
-              'animate-in slide-in-from-right-4 fade-in duration-200',
+              'flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg text-sm font-medium animate-toast-in',
               toast.type === 'success' && 'bg-success text-white',
               toast.type === 'error' && 'bg-danger text-white',
               toast.type === 'warning' && 'bg-yellow-500 text-white'
@@ -1160,7 +1159,7 @@ export default function InventoryPage() {
         ))}
       </div>
 
-      <div className="space-y-6 max-w-7xl mx-auto">
+      <div className="space-y-6 max-w-7xl mx-auto animate-fade-in">
         {/* ------------------------------------------------------------------ */}
         {/* Indicator Scanner                                                  */}
         {/* ------------------------------------------------------------------ */}
@@ -1174,7 +1173,7 @@ export default function InventoryPage() {
         {/* ---------------------------------------------------------------- */}
         {/* Barcode scanner section                                           */}
         {/* ---------------------------------------------------------------- */}
-        <Card>
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 p-5">
           <form onSubmit={handleBarcodeScan}>
             <div className="flex flex-col sm:flex-row gap-3 items-end">
               <div className="flex-1 relative">
@@ -1192,12 +1191,12 @@ export default function InventoryPage() {
                   }}
                   placeholder="Spara il barcode o digita..."
                   className={cn(
-                    'w-full pl-12 pr-4 py-4 text-xl font-mono rounded-xl border-2 bg-white',
+                    'w-full pl-12 pr-4 py-4 text-xl font-mono rounded-xl border bg-white',
                     'focus:outline-none focus:ring-4 transition-all duration-200',
                     'placeholder:text-gray-300 placeholder:font-sans placeholder:text-base',
                     scanError
-                      ? 'border-danger focus:border-danger focus:ring-danger/20'
-                      : 'border-surface focus:border-brand focus:ring-brand/20'
+                      ? 'border-danger focus:border-danger focus:ring-danger/15'
+                      : 'border-surface/80 focus:border-brand focus:ring-brand/15 focus:shadow-md'
                   )}
                   autoComplete="off"
                   spellCheck={false}
@@ -1229,7 +1228,7 @@ export default function InventoryPage() {
 
           {/* Scan error: product not found */}
           {scanError && (
-            <div className="mt-4 flex items-start gap-3 p-4 rounded-xl bg-yellow-50 border border-yellow-200">
+            <div className="mt-4 flex items-start gap-3 p-4 rounded-xl bg-yellow-50 border border-yellow-200/60 ring-1 ring-yellow-200">
               <AlertTriangle className="w-5 h-5 text-yellow-600 shrink-0 mt-0.5" />
               <div className="text-sm">
                 <p className="font-semibold text-yellow-800">
@@ -1243,7 +1242,7 @@ export default function InventoryPage() {
                   href="/import"
                   className="inline-block mt-2 text-brand font-semibold hover:underline"
                 >
-                  Vai alla pagina di importazione →
+                  Vai alla pagina di importazione &rarr;
                 </a>
               </div>
             </div>
@@ -1251,46 +1250,46 @@ export default function InventoryPage() {
 
           {/* Add-to-inventory form, shown after successful scan */}
           {scannedProduct && (
-            <div className="mt-5 pt-5 border-t border-surface/50">
+            <div className="mt-5 pt-5 border-t border-surface/20">
               <div className="flex items-center gap-2 mb-4">
                 <CheckCircle2 className="w-5 h-5 text-success" />
                 <h3 className="text-base font-bold text-foreground">
-                  Prodotto trovato — aggiungi al magazzino
+                  Prodotto trovato &mdash; aggiungi al magazzino
                 </h3>
               </div>
 
               {/* Read-only product info strip */}
               <div className="flex flex-wrap gap-3 mb-5">
-                <div className="flex-1 min-w-[160px] p-3 rounded-xl bg-surface-light/50 border border-surface/40">
-                  <p className="text-xs font-semibold text-foreground/50 uppercase tracking-wide mb-0.5">
+                <div className="flex-1 min-w-[160px] p-3 rounded-xl bg-surface-light/30 border border-surface/20">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50 mb-0.5">
                     Nome
                   </p>
                   <p className="font-bold text-foreground">{scannedProduct.name}</p>
                 </div>
                 {scannedProduct.sku && (
-                  <div className="p-3 rounded-xl bg-surface-light/50 border border-surface/40 min-w-[80px]">
-                    <p className="text-xs font-semibold text-foreground/50 uppercase tracking-wide mb-0.5">
+                  <div className="p-3 rounded-xl bg-surface-light/30 border border-surface/20 min-w-[80px]">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50 mb-0.5">
                       SKU
                     </p>
                     <p className="font-mono text-sm text-foreground">{scannedProduct.sku}</p>
                   </div>
                 )}
                 {scannedProduct.brand && (
-                  <div className="p-3 rounded-xl bg-surface-light/50 border border-surface/40 min-w-[80px]">
-                    <p className="text-xs font-semibold text-foreground/50 uppercase tracking-wide mb-0.5">
+                  <div className="p-3 rounded-xl bg-surface-light/30 border border-surface/20 min-w-[80px]">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50 mb-0.5">
                       Brand
                     </p>
                     <p className="font-bold text-foreground">{scannedProduct.brand}</p>
                   </div>
                 )}
-                <div className="p-3 rounded-xl bg-surface-light/50 border border-surface/40 min-w-[80px]">
-                  <p className="text-xs font-semibold text-foreground/50 uppercase tracking-wide mb-0.5">
+                <div className="p-3 rounded-xl bg-surface-light/30 border border-surface/20 min-w-[80px]">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50 mb-0.5">
                     Taglia
                   </p>
-                  <p className="font-bold text-foreground">{scannedProduct.size || '—'}</p>
+                  <p className="font-bold text-foreground">{scannedProduct.size || '\u2014'}</p>
                 </div>
-                <div className="p-3 rounded-xl bg-surface-light/50 border border-surface/40 min-w-[100px]">
-                  <p className="text-xs font-semibold text-foreground/50 uppercase tracking-wide mb-0.5">
+                <div className="p-3 rounded-xl bg-surface-light/30 border border-surface/20 min-w-[100px]">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50 mb-0.5">
                     Colore
                   </p>
                   <p className="font-bold text-foreground">
@@ -1301,14 +1300,14 @@ export default function InventoryPage() {
                           )}
                           {scannedProduct.color}
                         </span>
-                      : '—'}
+                      : '\u2014'}
                   </p>
                 </div>
-                <div className="p-3 rounded-xl bg-surface-light/50 border border-surface/40 min-w-[120px]">
-                  <p className="text-xs font-semibold text-foreground/50 uppercase tracking-wide mb-0.5">
+                <div className="p-3 rounded-xl bg-surface-light/30 border border-surface/20 min-w-[120px]">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50 mb-0.5">
                     Barcode
                   </p>
-                  <p className="font-mono text-sm text-foreground/70">
+                  <p className="font-mono text-sm text-foreground/60">
                     {scannedProduct.barcode}
                   </p>
                 </div>
@@ -1319,7 +1318,7 @@ export default function InventoryPage() {
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
                   <Input
                     ref={firstFormFieldRef}
-                    label="Prezzo Acquisto (€)"
+                    label="Prezzo Acquisto (&euro;)"
                     type="number"
                     min="0"
                     step="0.01"
@@ -1330,7 +1329,7 @@ export default function InventoryPage() {
                     }
                   />
                   <Input
-                    label="Prezzo Vendita (€)"
+                    label="Prezzo Vendita (&euro;)"
                     type="number"
                     min="0"
                     step="0.01"
@@ -1390,30 +1389,30 @@ export default function InventoryPage() {
               </form>
             </div>
           )}
-        </Card>
+        </div>
 
         {/* ---------------------------------------------------------------- */}
         {/* Stats bar                                                          */}
         {/* ---------------------------------------------------------------- */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <div className="bg-card rounded-2xl border border-surface/50 p-4 flex items-center gap-3 shadow-sm">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-white/60 p-4 flex items-center gap-3 shadow-sm shadow-black/[0.04]">
             <div className="w-10 h-10 rounded-xl bg-brand/10 flex items-center justify-center shrink-0">
               <Package className="w-5 h-5 text-brand" />
             </div>
             <div>
-              <p className="text-xs font-semibold text-foreground/50 uppercase tracking-wide">
+              <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50">
                 Articoli
               </p>
               <p className="text-2xl font-bold text-foreground">{totalArticoli}</p>
             </div>
           </div>
 
-          <div className="bg-card rounded-2xl border border-surface/50 p-4 flex items-center gap-3 shadow-sm">
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-white/60 p-4 flex items-center gap-3 shadow-sm shadow-black/[0.04]">
             <div className="w-10 h-10 rounded-xl bg-brand/10 flex items-center justify-center shrink-0">
               <TrendingUp className="w-5 h-5 text-brand" />
             </div>
             <div>
-              <p className="text-xs font-semibold text-foreground/50 uppercase tracking-wide">
+              <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50">
                 Valore Magazzino
               </p>
               <p className="text-xl font-bold text-foreground">
@@ -1422,24 +1421,24 @@ export default function InventoryPage() {
             </div>
           </div>
 
-          <div className="bg-card rounded-2xl border border-surface/50 p-4 flex items-center gap-3 shadow-sm">
-            <div className="w-10 h-10 rounded-xl bg-yellow-100 flex items-center justify-center shrink-0">
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-white/60 p-4 flex items-center gap-3 shadow-sm shadow-black/[0.04]">
+            <div className="w-10 h-10 rounded-xl bg-yellow-50 flex items-center justify-center shrink-0">
               <AlertTriangle className="w-5 h-5 text-yellow-600" />
             </div>
             <div>
-              <p className="text-xs font-semibold text-foreground/50 uppercase tracking-wide">
+              <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50">
                 Scorte Basse
               </p>
               <p className="text-2xl font-bold text-yellow-600">{lowStockCount}</p>
             </div>
           </div>
 
-          <div className="bg-card rounded-2xl border border-surface/50 p-4 flex items-center gap-3 shadow-sm">
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-white/60 p-4 flex items-center gap-3 shadow-sm shadow-black/[0.04]">
             <div className="w-10 h-10 rounded-xl bg-danger/10 flex items-center justify-center shrink-0">
               <AlertTriangle className="w-5 h-5 text-danger" />
             </div>
             <div>
-              <p className="text-xs font-semibold text-foreground/50 uppercase tracking-wide">
+              <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50">
                 Esauriti
               </p>
               <p className="text-2xl font-bold text-danger">{outOfStockCount}</p>
@@ -1450,15 +1449,16 @@ export default function InventoryPage() {
         {/* ---------------------------------------------------------------- */}
         {/* Inventory table                                                    */}
         {/* ---------------------------------------------------------------- */}
-        <Card
-          title="Inventario"
-          action={
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 p-5">
+          {/* Card header */}
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-lg font-bold text-foreground">Inventario</h2>
             <Button variant="secondary" size="sm" onClick={handleExportPDF}>
               <FileDown className="w-4 h-4 mr-1.5" />
               Esporta PDF
             </Button>
-          }
-        >
+          </div>
+
           {/* Search bar */}
           <div className="relative mb-4">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/40 pointer-events-none" />
@@ -1468,8 +1468,8 @@ export default function InventoryPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className={cn(
-                'w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border-2 border-surface bg-white',
-                'focus:outline-none focus:border-brand focus:ring-4 focus:ring-brand/20',
+                'w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border border-surface/80 bg-white shadow-sm',
+                'focus:outline-none focus:border-brand focus:ring-4 focus:ring-brand/15 focus:shadow-md',
                 'placeholder:text-gray-400 transition-all duration-200'
               )}
             />
@@ -1495,13 +1495,13 @@ export default function InventoryPage() {
 
           {/* Legend */}
           <div className="flex flex-wrap gap-3 mb-4 text-xs">
-            <span className="flex items-center gap-1.5 text-yellow-700">
-              <span className="w-3 h-3 rounded-sm bg-yellow-100 border border-yellow-300 inline-block" />
-              Scorta bassa (≤5)
+            <span className="flex items-center gap-1.5 text-yellow-600">
+              <span className="w-3 h-3 rounded-sm bg-yellow-50 ring-1 ring-yellow-200 inline-block" />
+              Scorta bassa (&le;5)
             </span>
             <span className="flex items-center gap-1.5 text-danger">
-              <span className="w-3 h-3 rounded-sm bg-danger/10 border border-danger/30 inline-block" />
-              Esaurito (≤0)
+              <span className="w-3 h-3 rounded-sm bg-red-50 ring-1 ring-red-200 inline-block" />
+              Esaurito (&le;0)
             </span>
           </div>
 
@@ -1521,7 +1521,7 @@ export default function InventoryPage() {
               }
             />
           )}
-        </Card>
+        </div>
       </div>
 
       {/* ------------------------------------------------------------------ */}
@@ -1530,20 +1530,20 @@ export default function InventoryPage() {
       <Modal
         open={!!editItem}
         onClose={() => setEditItem(null)}
-        title={`Modifica — ${editItem?.product_registry.name ?? ''}`}
+        title={`Modifica \u2014 ${editItem?.product_registry.name ?? ''}`}
         size="md"
       >
         {editItem && (
           <div className="space-y-4">
             {/* Product info strip */}
             <div className="flex gap-2 text-sm mb-2">
-              <span className="px-2.5 py-1 rounded-lg bg-surface font-mono text-xs">
+              <span className="px-2.5 py-1 rounded-lg bg-surface/40 ring-1 ring-surface/60 font-mono text-xs">
                 {editItem.product_registry.barcode}
               </span>
-              <span className="px-2.5 py-1 rounded-lg bg-surface font-medium">
+              <span className="px-2.5 py-1 rounded-lg bg-surface/40 ring-1 ring-surface/60 font-medium">
                 {editItem.product_registry.size}
               </span>
-              <span className="px-2.5 py-1 rounded-lg bg-surface">
+              <span className="px-2.5 py-1 rounded-lg bg-surface/40 ring-1 ring-surface/60">
                 {editItem.product_registry.color}
               </span>
             </div>
@@ -1569,7 +1569,7 @@ export default function InventoryPage() {
                 }
               />
               <Input
-                label="Prezzo Acquisto (€)"
+                label="Prezzo Acquisto (&euro;)"
                 type="number"
                 min="0"
                 step="0.01"
@@ -1582,7 +1582,7 @@ export default function InventoryPage() {
                 }
               />
               <Input
-                label="Prezzo Vendita (€)"
+                label="Prezzo Vendita (&euro;)"
                 type="number"
                 min="0"
                 step="0.01"
@@ -1630,16 +1630,16 @@ export default function InventoryPage() {
       >
         {deleteItem && (
           <div className="space-y-4">
-            <p className="text-foreground/70">
+            <p className="text-foreground/60">
               Sei sicuro di voler rimuovere{' '}
               <span className="font-bold text-foreground">
                 {deleteItem.product_registry.name}
               </span>{' '}
-              ({deleteItem.product_registry.size} —{' '}
+              ({deleteItem.product_registry.size} &mdash;{' '}
               {deleteItem.product_registry.color}) dal magazzino?
             </p>
             <p className="text-sm text-danger font-medium">
-              Quantità attuale: {deleteItem.quantity} pz — questa operazione è irreversibile.
+              Quantità attuale: {deleteItem.quantity} pz &mdash; questa operazione è irreversibile.
             </p>
             <div className="flex gap-3 pt-1">
               <Button
@@ -1682,7 +1682,7 @@ export default function InventoryPage() {
         size="lg"
       >
         <div className="space-y-4">
-          <p className="text-sm text-foreground/60">
+          <p className="text-sm text-foreground/50">
             Spara il barcode o digitalo: i campi si compileranno dall&apos;anagrafica.
           </p>
 
@@ -1712,12 +1712,12 @@ export default function InventoryPage() {
             </div>
             {/* Barcode typeahead suggestions */}
             {suggestField === 'barcode' && productSuggestions.length > 0 && (
-              <div className="absolute z-50 left-0 right-0 top-full mt-1 bg-white border border-[#CCD0D5] rounded-xl shadow-xl max-h-56 overflow-y-auto">
+              <div className="absolute z-50 left-0 right-0 top-full mt-1 bg-white border border-surface/30 rounded-xl shadow-xl max-h-56 overflow-y-auto">
                 {productSuggestions.map((p) => (
                   <button
                     key={p.id}
                     type="button"
-                    className="w-full text-left px-3 py-2.5 hover:bg-[#7BB35F]/10 transition-colors first:rounded-t-xl last:rounded-b-xl border-b border-surface-light last:border-0"
+                    className="w-full text-left px-3 py-2.5 hover:bg-brand/[0.06] transition-colors first:rounded-t-xl last:rounded-b-xl border-b border-surface/20 last:border-0"
                     onMouseDown={(e) => { e.preventDefault(); pickSuggestion(p) }}
                   >
                     <span className="text-sm font-mono font-semibold text-foreground">{p.barcode}</span>
@@ -1735,19 +1735,19 @@ export default function InventoryPage() {
 
           {/* Import badge */}
           {lookupImportName && (
-            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#7BB35F]/10 border border-[#7BB35F]/30 text-sm">
-              <CheckCircle2 className="w-4 h-4 text-[#7BB35F] shrink-0" />
-              <span className="text-foreground/70">
-                Dati caricati da Import: <strong className="text-[#7BB35F]">{lookupImportName}</strong>
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-50 ring-1 ring-emerald-200 text-sm">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span className="text-foreground/60">
+                Dati caricati da Import: <strong className="text-emerald-600">{lookupImportName}</strong>
               </span>
             </div>
           )}
 
           {lookupMatch === true && (
-            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#7BB35F]/10 border border-[#7BB35F]/30 text-sm">
-              <CheckCircle2 className="w-4 h-4 text-[#7BB35F] shrink-0" />
-              <span className="text-foreground/70">
-                Prodotto trovato in anagrafica — campi compilati automaticamente.
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-50 ring-1 ring-emerald-200 text-sm">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span className="text-foreground/60">
+                Prodotto trovato in anagrafica &mdash; campi compilati automaticamente.
               </span>
             </div>
           )}
@@ -1769,12 +1769,12 @@ export default function InventoryPage() {
                 required
               />
               {suggestField === 'name' && productSuggestions.length > 0 && (
-                <div className="absolute z-50 left-0 right-0 top-full mt-1 bg-white border border-[#CCD0D5] rounded-xl shadow-xl max-h-56 overflow-y-auto">
+                <div className="absolute z-50 left-0 right-0 top-full mt-1 bg-white border border-surface/30 rounded-xl shadow-xl max-h-56 overflow-y-auto">
                   {productSuggestions.map((p) => (
                     <button
                       key={p.id}
                       type="button"
-                      className="w-full text-left px-3 py-2.5 hover:bg-[#7BB35F]/10 transition-colors first:rounded-t-xl last:rounded-b-xl border-b border-surface-light last:border-0"
+                      className="w-full text-left px-3 py-2.5 hover:bg-brand/[0.06] transition-colors first:rounded-t-xl last:rounded-b-xl border-b border-surface/20 last:border-0"
                       onMouseDown={(e) => { e.preventDefault(); pickSuggestion(p) }}
                     >
                       <span className="text-sm font-semibold text-foreground">{p.name}</span>
@@ -1810,12 +1810,12 @@ export default function InventoryPage() {
                 onBlur={closeSuggestions}
               />
               {suggestField === 'size' && productSuggestions.length > 0 && (
-                <div className="absolute z-50 left-0 right-0 top-full mt-1 bg-white border border-[#CCD0D5] rounded-xl shadow-xl max-h-56 overflow-y-auto">
+                <div className="absolute z-50 left-0 right-0 top-full mt-1 bg-white border border-surface/30 rounded-xl shadow-xl max-h-56 overflow-y-auto">
                   {productSuggestions.map((p) => (
                     <button
                       key={p.id}
                       type="button"
-                      className="w-full text-left px-3 py-2.5 hover:bg-[#7BB35F]/10 transition-colors first:rounded-t-xl last:rounded-b-xl border-b border-surface-light last:border-0"
+                      className="w-full text-left px-3 py-2.5 hover:bg-brand/[0.06] transition-colors first:rounded-t-xl last:rounded-b-xl border-b border-surface/20 last:border-0"
                       onMouseDown={(e) => { e.preventDefault(); pickSuggestion(p) }}
                     >
                       <span className="text-sm font-semibold text-foreground">{p.name}</span>
@@ -1843,12 +1843,12 @@ export default function InventoryPage() {
                 onBlur={closeSuggestions}
               />
               {suggestField === 'color' && productSuggestions.length > 0 && (
-                <div className="absolute z-50 left-0 right-0 top-full mt-1 bg-white border border-[#CCD0D5] rounded-xl shadow-xl max-h-56 overflow-y-auto">
+                <div className="absolute z-50 left-0 right-0 top-full mt-1 bg-white border border-surface/30 rounded-xl shadow-xl max-h-56 overflow-y-auto">
                   {productSuggestions.map((p) => (
                     <button
                       key={p.id}
                       type="button"
-                      className="w-full text-left px-3 py-2.5 hover:bg-[#7BB35F]/10 transition-colors first:rounded-t-xl last:rounded-b-xl border-b border-surface-light last:border-0"
+                      className="w-full text-left px-3 py-2.5 hover:bg-brand/[0.06] transition-colors first:rounded-t-xl last:rounded-b-xl border-b border-surface/20 last:border-0"
                       onMouseDown={(e) => { e.preventDefault(); pickSuggestion(p) }}
                     >
                       <span className="text-sm font-semibold text-foreground">{p.name}</span>
@@ -1884,12 +1884,12 @@ export default function InventoryPage() {
                 onBlur={closeSuggestions}
               />
               {suggestField === 'brand' && productSuggestions.length > 0 && (
-                <div className="absolute z-50 left-0 right-0 top-full mt-1 bg-white border border-[#CCD0D5] rounded-xl shadow-xl max-h-56 overflow-y-auto">
+                <div className="absolute z-50 left-0 right-0 top-full mt-1 bg-white border border-surface/30 rounded-xl shadow-xl max-h-56 overflow-y-auto">
                   {productSuggestions.map((p) => (
                     <button
                       key={p.id}
                       type="button"
-                      className="w-full text-left px-3 py-2.5 hover:bg-[#7BB35F]/10 transition-colors first:rounded-t-xl last:rounded-b-xl border-b border-surface-light last:border-0"
+                      className="w-full text-left px-3 py-2.5 hover:bg-brand/[0.06] transition-colors first:rounded-t-xl last:rounded-b-xl border-b border-surface/20 last:border-0"
                       onMouseDown={(e) => { e.preventDefault(); pickSuggestion(p) }}
                     >
                       <span className="text-sm font-semibold text-foreground">{p.name}</span>
@@ -1913,14 +1913,14 @@ export default function InventoryPage() {
           </div>
 
           {/* Inventory details */}
-          <div className="pt-2 border-t border-surface/50">
-            <p className="text-xs font-semibold text-foreground/50 uppercase tracking-wide mb-3">
+          <div className="pt-2 border-t border-surface/20">
+            <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50 mb-3">
               Dettagli Magazzino
             </p>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <Input
                 ref={purchasePriceRef}
-                label="Prezzo Acquisto (€)"
+                label="Prezzo Acquisto (&euro;)"
                 type="number"
                 min="0"
                 step="0.01"
@@ -1929,7 +1929,7 @@ export default function InventoryPage() {
                 onChange={(e) => setManualForm((f) => ({ ...f, purchase_price: e.target.value }))}
               />
               <Input
-                label="Prezzo Vendita (€)"
+                label="Prezzo Vendita (&euro;)"
                 type="number"
                 min="0"
                 step="0.01"

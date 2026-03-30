@@ -19,19 +19,24 @@ export function Button({
   disabled,
   ...props
 }: ButtonProps) {
-  const baseStyles = 'inline-flex items-center justify-center font-semibold rounded-xl transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-brand/30 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer'
+  const baseStyles =
+    'inline-flex items-center justify-center font-semibold rounded-2xl focus:outline-none focus:ring-4 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer select-none'
 
   const variants = {
-    primary: 'bg-brand text-white hover:bg-brand-dark active:scale-[0.98] shadow-md hover:shadow-lg',
-    secondary: 'bg-surface text-foreground hover:bg-surface-light border border-surface',
-    danger: 'bg-danger text-white hover:bg-red-600 active:scale-[0.98]',
-    ghost: 'bg-transparent text-foreground hover:bg-surface-light',
+    primary:
+      'bg-gradient-to-b from-brand to-brand-dark text-white shadow-lg shadow-brand/25 hover:shadow-xl hover:shadow-brand/30 hover:brightness-110 active:scale-[0.97] focus:ring-brand/30',
+    secondary:
+      'bg-white text-foreground border border-surface hover:bg-surface-light hover:border-surface active:scale-[0.98] shadow-sm focus:ring-surface/40',
+    danger:
+      'bg-gradient-to-b from-danger to-red-600 text-white shadow-lg shadow-danger/25 hover:shadow-xl hover:shadow-danger/30 hover:brightness-110 active:scale-[0.97] focus:ring-danger/30',
+    ghost:
+      'bg-transparent text-foreground hover:bg-surface-light/80 active:scale-[0.98] focus:ring-surface/30',
   }
 
   const sizes = {
-    sm: 'px-4 py-2 text-sm',
-    md: 'px-6 py-3 text-base',
-    lg: 'px-8 py-4 text-lg',
+    sm: 'px-4 py-2 text-sm gap-1.5',
+    md: 'px-5 py-2.5 text-base gap-2',
+    lg: 'px-7 py-3.5 text-lg gap-2',
   }
 
   return (
@@ -40,7 +45,7 @@ export function Button({
       disabled={disabled || loading}
       {...props}
     >
-      {loading && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
+      {loading && <Loader2 className="h-5 w-5 animate-spin" />}
       {children}
     </button>
   )

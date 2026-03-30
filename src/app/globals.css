@@ -6,16 +6,70 @@
   --color-brand-light: #a3d48a;
   --color-surface: #CCD0D5;
   --color-surface-light: #e8eaed;
-  --color-background: #f5f6f7;
+  --color-background: #f0f2f5;
   --color-foreground: #1a1a1a;
   --color-card: #ffffff;
-  --color-sidebar: #1e293b;
-  --color-sidebar-hover: #334155;
+  --color-sidebar: #0f172a;
+  --color-sidebar-hover: #1e293b;
   --color-danger: #ef4444;
   --color-warning: #f59e0b;
   --color-success: #7BB35F;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* Animation durations */
+  --animate-fade-in: fade-in 0.4s ease-out both;
+  --animate-slide-up: slide-up 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-slide-down: slide-down 0.3s ease-out both;
+  --animate-scale-in: scale-in 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-shimmer: shimmer 1.5s ease-in-out infinite;
+  --animate-stagger-1: fade-in 0.4s ease-out 0.05s both;
+  --animate-stagger-2: fade-in 0.4s ease-out 0.1s both;
+  --animate-stagger-3: fade-in 0.4s ease-out 0.15s both;
+  --animate-stagger-4: fade-in 0.4s ease-out 0.2s both;
+  --animate-toast-in: toast-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ------------------------------------------------------------------ */
+/* Keyframes                                                           */
+/* ------------------------------------------------------------------ */
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(24px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes slide-down {
+  from { opacity: 0; transform: translateY(-12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(40px) scale(0.95); }
+  to   { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+/* ------------------------------------------------------------------ */
+/* Global base styles                                                  */
+/* ------------------------------------------------------------------ */
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
@@ -24,17 +78,72 @@ body {
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
 
-/* Scrollbar stilizzata */
+/* Global transitions on interactive elements */
+button, a, input, select, textarea {
+  transition-property: color, background-color, border-color, box-shadow, transform, opacity;
+  transition-duration: 200ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ------------------------------------------------------------------ */
+/* Skeleton / Shimmer placeholder                                      */
+/* ------------------------------------------------------------------ */
+
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--color-surface-light) 25%,
+    #dfe1e5 37%,
+    var(--color-surface-light) 63%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: 0.75rem;
+}
+
+/* ------------------------------------------------------------------ */
+/* Glassmorphism utility                                               */
+/* ------------------------------------------------------------------ */
+
+.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.glass-dark {
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ------------------------------------------------------------------ */
+/* Scrollbar                                                           */
+/* ------------------------------------------------------------------ */
+
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--color-surface-light);
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
   background: var(--color-surface);
-  border-radius: 4px;
+  border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #a0a4a8;
+}
+
+/* ------------------------------------------------------------------ */
+/* Focus ring override — consistent brand ring                         */
+/* ------------------------------------------------------------------ */
+
+*:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(123, 179, 95, 0.35);
+  border-radius: inherit;
 }

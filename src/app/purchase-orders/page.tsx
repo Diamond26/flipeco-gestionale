@@ -94,9 +94,9 @@ const STATUS_LABELS: Record<OrderStatus, string> = {
 }
 
 const STATUS_BADGE: Record<OrderStatus, string> = {
-  ordered: 'bg-blue-100 text-blue-700 border border-blue-200',
-  shipped: 'bg-yellow-100 text-yellow-700 border border-yellow-200',
-  arrived: 'bg-success/15 text-green-700 border border-green-200',
+  ordered: 'bg-blue-50 text-blue-600 ring-1 ring-blue-200',
+  shipped: 'bg-amber-50 text-amber-600 ring-1 ring-amber-200',
+  arrived: 'bg-emerald-50 text-emerald-600 ring-1 ring-emerald-200',
 }
 
 function StatusBadge({ status }: { status: OrderStatus }) {
@@ -545,7 +545,7 @@ export default function PurchaseOrdersPage() {
             key={toast.id}
             className={cn(
               'flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg text-sm font-medium pointer-events-auto',
-              'animate-in slide-in-from-right-4 fade-in duration-200',
+              'animate-toast-in',
               toast.type === 'success' && 'bg-success text-white',
               toast.type === 'error' && 'bg-danger text-white',
               toast.type === 'warning' && 'bg-yellow-500 text-white'
@@ -559,56 +559,56 @@ export default function PurchaseOrdersPage() {
         ))}
       </div>
 
-      <div className="space-y-6 max-w-7xl mx-auto">
+      <div className="animate-fade-in space-y-5 max-w-7xl mx-auto">
         {/* ---------------------------------------------------------------- */}
         {/* Stats bar                                                          */}
         {/* ---------------------------------------------------------------- */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <div className="bg-card rounded-2xl border border-surface/50 p-4 flex items-center gap-3 shadow-sm">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 p-4 flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-brand/10 flex items-center justify-center shrink-0">
               <ClipboardList className="w-5 h-5 text-brand" />
             </div>
             <div>
-              <p className="text-xs font-semibold text-foreground/50 uppercase tracking-wide">
+              <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50">
                 Totale Ordini
               </p>
               <p className="text-2xl font-bold text-foreground">{totalOrders}</p>
             </div>
           </div>
 
-          <div className="bg-card rounded-2xl border border-surface/50 p-4 flex items-center gap-3 shadow-sm">
-            <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center shrink-0">
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 p-4 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
               <ShoppingCart className="w-5 h-5 text-blue-600" />
             </div>
             <div>
-              <p className="text-xs font-semibold text-foreground/50 uppercase tracking-wide">
+              <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50">
                 Ordinati
               </p>
               <p className="text-2xl font-bold text-blue-600">{orderedCount}</p>
             </div>
           </div>
 
-          <div className="bg-card rounded-2xl border border-surface/50 p-4 flex items-center gap-3 shadow-sm">
-            <div className="w-10 h-10 rounded-xl bg-yellow-100 flex items-center justify-center shrink-0">
-              <Truck className="w-5 h-5 text-yellow-600" />
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 p-4 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center shrink-0">
+              <Truck className="w-5 h-5 text-amber-600" />
             </div>
             <div>
-              <p className="text-xs font-semibold text-foreground/50 uppercase tracking-wide">
+              <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50">
                 In Transito
               </p>
-              <p className="text-2xl font-bold text-yellow-600">{shippedCount}</p>
+              <p className="text-2xl font-bold text-amber-600">{shippedCount}</p>
             </div>
           </div>
 
-          <div className="bg-card rounded-2xl border border-surface/50 p-4 flex items-center gap-3 shadow-sm">
-            <div className="w-10 h-10 rounded-xl bg-success/15 flex items-center justify-center shrink-0">
-              <CheckCircle2 className="w-5 h-5 text-green-600" />
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 p-4 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center shrink-0">
+              <CheckCircle2 className="w-5 h-5 text-emerald-600" />
             </div>
             <div>
-              <p className="text-xs font-semibold text-foreground/50 uppercase tracking-wide">
+              <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50">
                 Arrivati
               </p>
-              <p className="text-2xl font-bold text-green-600">{arrivedCount}</p>
+              <p className="text-2xl font-bold text-emerald-600">{arrivedCount}</p>
             </div>
           </div>
         </div>
@@ -641,8 +641,8 @@ export default function PurchaseOrdersPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className={cn(
-                  'w-full pl-10 pr-9 py-2.5 text-sm rounded-xl border-2 border-surface bg-white',
-                  'focus:outline-none focus:border-brand focus:ring-4 focus:ring-brand/20',
+                  'w-full pl-10 pr-9 py-2.5 text-sm rounded-xl border border-surface/80 bg-white shadow-sm',
+                  'focus:outline-none focus:border-brand focus:ring-4 focus:ring-brand/15',
                   'placeholder:text-gray-400 transition-all duration-200'
                 )}
               />
@@ -667,7 +667,7 @@ export default function PurchaseOrdersPage() {
                     'px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-150 border',
                     statusFilter === opt.value
                       ? 'bg-brand text-white border-brand shadow-sm'
-                      : 'bg-white text-foreground/60 border-surface hover:border-brand/40 hover:text-foreground'
+                      : 'bg-white text-foreground/60 border-surface/30 hover:border-brand/40 hover:text-foreground'
                   )}
                 >
                   {opt.label}
@@ -685,9 +685,15 @@ export default function PurchaseOrdersPage() {
           )}
 
           {tableLoading ? (
-            <div className="flex items-center justify-center py-16 text-foreground/40">
-              <div className="w-8 h-8 border-4 border-brand/20 border-t-brand rounded-full animate-spin mr-3" />
-              Caricamento ordini...
+            <div className="flex flex-col items-center justify-center py-16 gap-4">
+              <div className="w-full max-w-2xl space-y-3">
+                <div className="h-10 rounded-xl skeleton-shimmer" />
+                <div className="h-10 rounded-xl skeleton-shimmer" />
+                <div className="h-10 rounded-xl skeleton-shimmer" />
+                <div className="h-10 rounded-xl skeleton-shimmer" />
+                <div className="h-10 rounded-xl skeleton-shimmer" />
+              </div>
+              <p className="text-sm text-foreground/40">Caricamento ordini...</p>
             </div>
           ) : (
             <Table
@@ -713,10 +719,10 @@ export default function PurchaseOrdersPage() {
         title="Nuovo Ordine Acquisto"
         size="xl"
       >
-        <div className="space-y-6">
+        <div className="space-y-5">
           {/* Supplier selection */}
           <div>
-            <h4 className="text-sm font-bold text-foreground/60 uppercase tracking-wide mb-3">
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-foreground/50 mb-3">
               1. Fornitore
             </h4>
             {suppliersLoading ? (
@@ -737,7 +743,7 @@ export default function PurchaseOrdersPage() {
 
           {/* Product selection row */}
           <div>
-            <h4 className="text-sm font-bold text-foreground/60 uppercase tracking-wide mb-3">
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-foreground/50 mb-3">
               2. Aggiungi Prodotti
             </h4>
 
@@ -794,29 +800,29 @@ export default function PurchaseOrdersPage() {
           {/* Draft items table */}
           {draftItems.length > 0 && (
             <div>
-              <h4 className="text-sm font-bold text-foreground/60 uppercase tracking-wide mb-3">
+              <h4 className="text-xs font-semibold uppercase tracking-wider text-foreground/50 mb-3">
                 3. Riepilogo Articoli
               </h4>
-              <div className="overflow-x-auto rounded-xl border border-surface/50">
+              <div className="overflow-x-auto rounded-2xl border border-surface/20">
                 <table className="w-full">
                   <thead>
-                    <tr className="bg-surface/30">
-                      <th className="px-4 py-3 text-left text-sm font-semibold text-foreground/70">
+                    <tr className="bg-surface/20">
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-foreground/50">
                         Prodotto
                       </th>
-                      <th className="px-4 py-3 text-left text-sm font-semibold text-foreground/70 w-20">
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-foreground/50 w-20">
                         Taglia
                       </th>
-                      <th className="px-4 py-3 text-left text-sm font-semibold text-foreground/70 w-24">
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-foreground/50 w-24">
                         Colore
                       </th>
-                      <th className="px-4 py-3 text-left text-sm font-semibold text-foreground/70 w-28">
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-foreground/50 w-28">
                         Qtà
                       </th>
-                      <th className="px-4 py-3 text-left text-sm font-semibold text-foreground/70 w-32">
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-foreground/50 w-32">
                         Prezzo Unit.
                       </th>
-                      <th className="px-4 py-3 text-right text-sm font-semibold text-foreground/70 w-28">
+                      <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-foreground/50 w-28">
                         Totale
                       </th>
                       <th className="px-4 py-3 w-12" />
@@ -827,8 +833,8 @@ export default function PurchaseOrdersPage() {
                       <tr
                         key={item.id}
                         className={cn(
-                          'border-t border-surface/30',
-                          i % 2 === 0 ? 'bg-white' : 'bg-surface-light/30'
+                          'border-t border-surface/20 hover:bg-brand/[0.04] transition-colors',
+                          i % 2 === 0 ? 'bg-transparent' : 'bg-surface-light/20'
                         )}
                       >
                         <td className="px-4 py-3 text-sm font-medium text-foreground">
@@ -850,8 +856,8 @@ export default function PurchaseOrdersPage() {
                             value={item.quantity}
                             onChange={(e) => handleDraftQtyChange(item.id, e.target.value)}
                             className={cn(
-                              'w-20 px-2 py-1.5 text-sm rounded-lg border-2 border-surface bg-white',
-                              'focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/20',
+                              'w-20 px-2 py-1.5 text-sm rounded-lg border border-surface/80 bg-white shadow-sm',
+                              'focus:outline-none focus:border-brand focus:ring-4 focus:ring-brand/15',
                               'text-center font-semibold transition-all duration-150'
                             )}
                           />
@@ -867,8 +873,8 @@ export default function PurchaseOrdersPage() {
                               placeholder="0.00"
                               onChange={(e) => handleDraftPriceChange(item.id, e.target.value)}
                               className={cn(
-                                'w-24 px-2 py-1.5 text-sm rounded-lg border-2 border-surface bg-white',
-                                'focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/20',
+                                'w-24 px-2 py-1.5 text-sm rounded-lg border border-surface/80 bg-white shadow-sm',
+                                'focus:outline-none focus:border-brand focus:ring-4 focus:ring-brand/15',
                                 'transition-all duration-150'
                               )}
                             />
@@ -892,7 +898,7 @@ export default function PurchaseOrdersPage() {
                     ))}
                   </tbody>
                   <tfoot>
-                    <tr className="border-t-2 border-surface bg-surface/20">
+                    <tr className="border-t-2 border-surface/20 bg-surface/10">
                       <td
                         colSpan={5}
                         className="px-4 py-3 text-right text-sm font-bold text-foreground"
@@ -923,15 +929,15 @@ export default function PurchaseOrdersPage() {
               placeholder="Istruzioni di consegna, riferimenti interni, ecc."
               rows={3}
               className={cn(
-                'w-full px-4 py-3 text-sm rounded-xl border-2 border-surface bg-white',
-                'focus:outline-none focus:border-brand focus:ring-4 focus:ring-brand/20',
+                'w-full px-4 py-3 text-sm rounded-xl border border-surface/80 bg-white shadow-sm',
+                'focus:outline-none focus:border-brand focus:ring-4 focus:ring-brand/15',
                 'placeholder:text-gray-400 transition-all duration-200 resize-none'
               )}
             />
           </div>
 
           {/* Submit */}
-          <div className="flex items-center gap-3 pt-2 border-t border-surface/50">
+          <div className="flex items-center gap-3 pt-2 border-t border-surface/20">
             <Button
               variant="primary"
               size="lg"
@@ -967,8 +973,8 @@ export default function PurchaseOrdersPage() {
           <div className="space-y-5">
             {/* Header info strip */}
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              <div className="p-3 rounded-xl bg-surface-light/50 border border-surface/40">
-                <p className="text-xs font-semibold text-foreground/50 uppercase tracking-wide mb-1">
+              <div className="p-3 rounded-xl bg-white/80 backdrop-blur-sm border border-white/60 shadow-sm shadow-black/[0.04]">
+                <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50 mb-1">
                   Fornitore
                 </p>
                 <p className="font-bold text-foreground">{selectedOrder.suppliers?.name ?? '—'}</p>
@@ -979,15 +985,15 @@ export default function PurchaseOrdersPage() {
                 )}
               </div>
 
-              <div className="p-3 rounded-xl bg-surface-light/50 border border-surface/40">
-                <p className="text-xs font-semibold text-foreground/50 uppercase tracking-wide mb-1">
+              <div className="p-3 rounded-xl bg-white/80 backdrop-blur-sm border border-white/60 shadow-sm shadow-black/[0.04]">
+                <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50 mb-1">
                   Stato
                 </p>
                 <StatusBadge status={selectedOrder.status} />
               </div>
 
-              <div className="p-3 rounded-xl bg-surface-light/50 border border-surface/40">
-                <p className="text-xs font-semibold text-foreground/50 uppercase tracking-wide mb-1">
+              <div className="p-3 rounded-xl bg-white/80 backdrop-blur-sm border border-white/60 shadow-sm shadow-black/[0.04]">
+                <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50 mb-1">
                   Data Ordine
                 </p>
                 <p className="font-medium text-foreground text-sm">
@@ -1015,7 +1021,7 @@ export default function PurchaseOrdersPage() {
                           'w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-all',
                           isCompleted && 'bg-brand border-brand text-white',
                           isCurrent && 'bg-white border-brand text-brand shadow-md',
-                          !isCompleted && !isCurrent && 'bg-surface border-surface text-foreground/30'
+                          !isCompleted && !isCurrent && 'bg-surface border-surface/30 text-foreground/30'
                         )}
                       >
                         {isCompleted ? (
@@ -1039,7 +1045,7 @@ export default function PurchaseOrdersPage() {
                       <div
                         className={cn(
                           'h-0.5 w-8 rounded-full mb-5',
-                          idx < currentIdx ? 'bg-brand' : 'bg-surface'
+                          idx < currentIdx ? 'bg-brand' : 'bg-surface/30'
                         )}
                       />
                     )}
@@ -1050,29 +1056,29 @@ export default function PurchaseOrdersPage() {
 
             {/* Items table */}
             <div>
-              <h4 className="text-sm font-bold text-foreground/60 uppercase tracking-wide mb-3">
+              <h4 className="text-xs font-semibold uppercase tracking-wider text-foreground/50 mb-3">
                 Articoli Ordinati
               </h4>
-              <div className="overflow-x-auto rounded-xl border border-surface/50">
+              <div className="overflow-x-auto rounded-2xl border border-surface/20">
                 <table className="w-full">
                   <thead>
-                    <tr className="bg-surface/30">
-                      <th className="px-4 py-3 text-left text-sm font-semibold text-foreground/70">
+                    <tr className="bg-surface/20">
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-foreground/50">
                         Prodotto
                       </th>
-                      <th className="px-4 py-3 text-left text-sm font-semibold text-foreground/70 w-20">
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-foreground/50 w-20">
                         Taglia
                       </th>
-                      <th className="px-4 py-3 text-left text-sm font-semibold text-foreground/70 w-24">
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-foreground/50 w-24">
                         Colore
                       </th>
-                      <th className="px-4 py-3 text-center text-sm font-semibold text-foreground/70 w-20">
+                      <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider text-foreground/50 w-20">
                         Qtà
                       </th>
-                      <th className="px-4 py-3 text-right text-sm font-semibold text-foreground/70 w-28">
+                      <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-foreground/50 w-28">
                         Prezzo Unit.
                       </th>
-                      <th className="px-4 py-3 text-right text-sm font-semibold text-foreground/70 w-28">
+                      <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-foreground/50 w-28">
                         Totale
                       </th>
                     </tr>
@@ -1089,8 +1095,8 @@ export default function PurchaseOrdersPage() {
                         <tr
                           key={item.id}
                           className={cn(
-                            'border-t border-surface/30',
-                            i % 2 === 0 ? 'bg-white' : 'bg-surface-light/30'
+                            'border-t border-surface/20 hover:bg-brand/[0.04] transition-colors',
+                            i % 2 === 0 ? 'bg-transparent' : 'bg-surface-light/20'
                           )}
                         >
                           <td className="px-4 py-3 text-sm font-medium text-foreground">
@@ -1122,7 +1128,7 @@ export default function PurchaseOrdersPage() {
                     )}
                   </tbody>
                   <tfoot>
-                    <tr className="border-t-2 border-surface bg-surface/20">
+                    <tr className="border-t-2 border-surface/20 bg-surface/10">
                       <td
                         colSpan={5}
                         className="px-4 py-3 text-right text-sm font-bold text-foreground"
@@ -1142,8 +1148,8 @@ export default function PurchaseOrdersPage() {
 
             {/* Notes */}
             {selectedOrder.notes && (
-              <div className="p-4 rounded-xl bg-surface-light/50 border border-surface/40">
-                <p className="text-xs font-semibold text-foreground/50 uppercase tracking-wide mb-1.5">
+              <div className="p-4 rounded-xl bg-white/80 backdrop-blur-sm border border-white/60 shadow-sm shadow-black/[0.04]">
+                <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50 mb-1.5">
                   Note
                 </p>
                 <p className="text-sm text-foreground/80">{selectedOrder.notes}</p>
@@ -1151,7 +1157,7 @@ export default function PurchaseOrdersPage() {
             )}
 
             {/* Action buttons — status flow */}
-            <div className="pt-2 border-t border-surface/50 space-y-3">
+            <div className="pt-2 border-t border-surface/20 space-y-3">
               {/* CRITICAL: Merce Arrivata — visible when ordered or shipped */}
               {(selectedOrder.status === 'ordered' || selectedOrder.status === 'shipped') && (
                 <button
@@ -1161,7 +1167,7 @@ export default function PurchaseOrdersPage() {
                     'w-full flex items-center justify-center gap-3 py-4 px-6 rounded-2xl',
                     'text-white text-lg font-bold tracking-wide',
                     'bg-success hover:bg-green-600 active:bg-green-700',
-                    'shadow-lg shadow-green-200 hover:shadow-green-300',
+                    'shadow-lg shadow-green-200/50 hover:shadow-green-300/50',
                     'transition-all duration-200 transform hover:-translate-y-0.5',
                     'focus:outline-none focus:ring-4 focus:ring-green-300',
                     'disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none'
@@ -1193,11 +1199,11 @@ export default function PurchaseOrdersPage() {
 
               {/* Arrived state — read-only info */}
               {selectedOrder.status === 'arrived' && (
-                <div className="flex items-center gap-3 p-4 rounded-xl bg-success/10 border border-green-200">
-                  <CheckCircle2 className="w-5 h-5 text-green-600 shrink-0" />
+                <div className="flex items-center gap-3 p-4 rounded-xl bg-emerald-50 border border-emerald-200/60">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
                   <div className="text-sm">
-                    <p className="font-bold text-green-700">Merce ricevuta</p>
-                    <p className="text-green-600 mt-0.5">
+                    <p className="font-bold text-emerald-700">Merce ricevuta</p>
+                    <p className="text-emerald-600 mt-0.5">
                       Le quantità in inventario sono state aggiornate automaticamente dal database.
                     </p>
                   </div>

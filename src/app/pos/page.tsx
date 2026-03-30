@@ -661,7 +661,7 @@ export default function POSPage() {
           <div
             key={toast.id}
             className={cn(
-              'flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg text-sm font-medium',
+              'animate-toast-in flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg text-sm font-medium backdrop-blur-sm',
               toast.type === 'success' && 'bg-success text-white',
               toast.type === 'error' && 'bg-danger text-white',
               toast.type === 'warning' && 'bg-warning text-white'
@@ -675,7 +675,7 @@ export default function POSPage() {
         ))}
       </div>
 
-      <div className="max-w-[1600px] mx-auto space-y-4">
+      <div className="max-w-[1600px] mx-auto space-y-5 animate-fade-in">
         {/* ------------------------------------------------------------------ */}
         {/* Indicator Scanner                                                  */}
         {/* ------------------------------------------------------------------ */}
@@ -689,15 +689,15 @@ export default function POSPage() {
         {/* ---------------------------------------------------------------- */}
         {/* Main two-column POS layout                                        */}
         {/* ---------------------------------------------------------------- */}
-        <div className="flex flex-col lg:flex-row gap-4 items-start">
+        <div className="flex flex-col lg:flex-row gap-5 items-start">
 
           {/* ============================================================== */}
           {/* LEFT — Product selection                                         */}
           {/* ============================================================== */}
-          <div className="flex-1 min-w-0 space-y-4">
+          <div className="flex-1 min-w-0 space-y-5">
 
             {/* Barcode scanner input */}
-            <div className="bg-card rounded-2xl border border-surface/50 shadow-sm p-4">
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 p-4">
               <form onSubmit={handleBarcodeScan}>
                 <div className="flex gap-3 items-center">
                   <div className="relative flex-1">
@@ -711,10 +711,11 @@ export default function POSPage() {
                       onChange={(e) => setBarcodeValue(e.target.value)}
                       placeholder="Scansiona barcode o digita..."
                       className={cn(
-                        'w-full pl-14 pr-4 py-4 text-2xl font-mono rounded-xl border-2 bg-white',
-                        'focus:outline-none focus:ring-4 transition-all duration-200',
-                        'placeholder:text-gray-300 placeholder:font-sans placeholder:text-lg',
-                        'border-surface focus:border-brand focus:ring-brand/20'
+                        'w-full pl-14 pr-4 py-4 text-2xl font-mono',
+                        'rounded-xl border border-surface/80 bg-white shadow-sm',
+                        'focus:outline-none focus:border-brand focus:ring-4 focus:ring-brand/15 focus:shadow-md',
+                        'transition-all duration-200',
+                        'placeholder:text-gray-300 placeholder:font-sans placeholder:text-lg'
                       )}
                       autoComplete="off"
                       spellCheck={false}
@@ -736,8 +737,8 @@ export default function POSPage() {
             </div>
 
             {/* Product grid header + search */}
-            <div className="bg-card rounded-2xl border border-surface/50 shadow-sm">
-              <div className="flex items-center gap-3 p-4 border-b border-surface/40">
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60">
+              <div className="flex items-center gap-3 p-4 border-b border-surface/20">
                 <div className="relative flex-1">
                   <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/40 pointer-events-none" />
                   <input
@@ -747,8 +748,9 @@ export default function POSPage() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className={cn(
-                      'w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border-2 border-surface bg-white',
-                      'focus:outline-none focus:border-brand focus:ring-4 focus:ring-brand/20',
+                      'w-full pl-10 pr-4 py-2.5 text-sm',
+                      'rounded-xl border border-surface/80 bg-white shadow-sm',
+                      'focus:outline-none focus:border-brand focus:ring-4 focus:ring-brand/15 focus:shadow-md',
                       'placeholder:text-gray-400 transition-all duration-200'
                     )}
                   />
@@ -796,25 +798,25 @@ export default function POSPage() {
                           key={product.id}
                           onClick={() => addToCart(product)}
                           className={cn(
-                            'relative text-left p-3 rounded-xl border-2 transition-all duration-150',
+                            'relative text-left p-3 rounded-xl border transition-all duration-200',
                             'hover:border-brand hover:shadow-md hover:scale-[1.02] active:scale-[0.98]',
-                            'focus:outline-none focus:ring-4 focus:ring-brand/30',
-                            'cursor-pointer bg-white',
+                            'focus:outline-none focus:ring-4 focus:ring-brand/15',
+                            'cursor-pointer bg-white/80 backdrop-blur-sm',
                             inCart
                               ? 'border-brand bg-brand/5 shadow-sm'
-                              : 'border-surface/60'
+                              : 'border-surface/30'
                           )}
                           aria-label={`Aggiungi ${pr.name} taglia ${pr.size} al carrello`}
                         >
                           {/* In-cart badge */}
                           {inCart && (
-                            <span className="absolute top-2 right-2 w-5 h-5 bg-brand text-white text-xs font-bold rounded-full flex items-center justify-center">
+                            <span className="absolute top-2 right-2 w-5 h-5 bg-brand text-white text-xs font-bold rounded-full flex items-center justify-center ring-2 ring-white">
                               {inCart.qty}
                             </span>
                           )}
 
-                          {/* Color swatch */}
-                          <div className="w-8 h-8 rounded-lg bg-surface-light flex items-center justify-center mb-2 shrink-0">
+                          {/* Size swatch */}
+                          <div className="w-8 h-8 rounded-lg bg-surface-light/50 flex items-center justify-center mb-2 shrink-0">
                             <span className="text-sm font-bold text-foreground/60">
                               {pr.size || '?'}
                             </span>
@@ -831,10 +833,10 @@ export default function POSPage() {
                             </span>
                             <span
                               className={cn(
-                                'text-xs px-1.5 py-0.5 rounded-md font-medium',
+                                'text-xs px-1.5 py-0.5 rounded-md font-medium ring-1',
                                 product.quantity <= 3
-                                  ? 'bg-yellow-100 text-yellow-700'
-                                  : 'bg-surface text-foreground/60'
+                                  ? 'bg-amber-50 text-amber-600 ring-amber-200'
+                                  : 'bg-surface/30 text-foreground/60 ring-surface/40'
                               )}
                             >
                               {product.quantity} pz
@@ -852,17 +854,17 @@ export default function POSPage() {
           {/* ============================================================== */}
           {/* RIGHT — Cart + Payment                                           */}
           {/* ============================================================== */}
-          <div className="w-full lg:w-[420px] xl:w-[460px] shrink-0 space-y-4 lg:sticky lg:top-4">
+          <div className="w-full lg:w-[420px] xl:w-[460px] shrink-0 space-y-5 lg:sticky lg:top-4">
 
             {/* Cart panel */}
-            <div className="bg-card rounded-2xl border border-surface/50 shadow-sm overflow-hidden">
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 overflow-hidden">
               {/* Cart header */}
-              <div className="flex items-center justify-between px-5 py-4 border-b border-surface/40 bg-surface-light/40">
+              <div className="flex items-center justify-between px-5 py-4 border-b border-surface/20 bg-surface-light/20">
                 <div className="flex items-center gap-2">
                   <ShoppingCart className="w-5 h-5 text-brand" />
                   <h2 className="font-bold text-lg">Carrello</h2>
                   {cartItemCount > 0 && (
-                    <span className="bg-brand text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                    <span className="bg-brand text-white text-xs font-bold px-2 py-0.5 rounded-full ring-2 ring-white/60">
                       {cartItemCount}
                     </span>
                   )}
@@ -870,7 +872,7 @@ export default function POSPage() {
                 {cart.length > 0 && (
                   <button
                     onClick={clearCart}
-                    className="flex items-center gap-1.5 text-xs text-foreground/40 hover:text-danger transition-colors px-2 py-1 rounded-lg hover:bg-danger/10"
+                    className="flex items-center gap-1.5 text-xs text-foreground/40 hover:text-danger transition-colors duration-200 px-2 py-1 rounded-lg hover:bg-danger/10"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                     Svuota
@@ -879,7 +881,7 @@ export default function POSPage() {
               </div>
 
               {/* Cart items */}
-              <div className="divide-y divide-surface/30 max-h-[380px] overflow-y-auto">
+              <div className="divide-y divide-surface/20 max-h-[380px] overflow-y-auto">
                 {cart.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-12 text-foreground/30 gap-3">
                     <ShoppingCart className="w-10 h-10 opacity-40" />
@@ -892,7 +894,7 @@ export default function POSPage() {
                   cart.map((item) => (
                     <div
                       key={item.inventoryId}
-                      className="flex items-center gap-3 px-4 py-3"
+                      className="flex items-center gap-3 px-4 py-3 bg-white/40 hover:bg-brand/[0.04] transition-colors duration-200"
                     >
                       {/* Info */}
                       <div className="flex-1 min-w-0">
@@ -911,7 +913,7 @@ export default function POSPage() {
                       <div className="flex items-center gap-1 shrink-0">
                         <button
                           onClick={() => decrementQty(item.inventoryId)}
-                          className="w-8 h-8 rounded-lg bg-surface-light hover:bg-surface flex items-center justify-center transition-colors"
+                          className="w-8 h-8 rounded-lg bg-surface-light/50 hover:bg-surface/60 flex items-center justify-center transition-colors duration-200"
                           aria-label="Diminuisci quantità"
                         >
                           <Minus className="w-3.5 h-3.5" />
@@ -923,10 +925,10 @@ export default function POSPage() {
                           onClick={() => incrementQty(item.inventoryId)}
                           disabled={item.qty >= item.maxQty}
                           className={cn(
-                            'w-8 h-8 rounded-lg flex items-center justify-center transition-colors',
+                            'w-8 h-8 rounded-lg flex items-center justify-center transition-colors duration-200',
                             item.qty >= item.maxQty
-                              ? 'bg-surface/40 text-foreground/20 cursor-not-allowed'
-                              : 'bg-surface-light hover:bg-surface'
+                              ? 'bg-surface/20 text-foreground/20 cursor-not-allowed'
+                              : 'bg-surface-light/50 hover:bg-surface/60'
                           )}
                           aria-label="Aumenta quantità"
                         >
@@ -944,7 +946,7 @@ export default function POSPage() {
                       {/* Remove */}
                       <button
                         onClick={() => removeFromCart(item.inventoryId)}
-                        className="w-7 h-7 rounded-lg text-foreground/30 hover:text-danger hover:bg-danger/10 flex items-center justify-center transition-colors shrink-0"
+                        className="w-7 h-7 rounded-lg text-foreground/30 hover:text-danger hover:bg-danger/10 flex items-center justify-center transition-colors duration-200 shrink-0"
                         aria-label={`Rimuovi ${item.name} dal carrello`}
                       >
                         <X className="w-4 h-4" />
@@ -955,9 +957,9 @@ export default function POSPage() {
               </div>
 
               {/* Total */}
-              <div className="px-5 py-4 border-t border-surface/40 bg-surface-light/30">
+              <div className="px-5 py-4 border-t border-surface/20 bg-surface-light/10">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-semibold text-foreground/60 uppercase tracking-wide">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-foreground/50">
                     Totale
                   </span>
                   <span
@@ -984,11 +986,11 @@ export default function POSPage() {
                 disabled={cart.length === 0}
                 className={cn(
                   'flex flex-col items-center justify-center gap-2 rounded-2xl py-7 px-4',
-                  'font-bold text-xl transition-all duration-150 select-none min-h-[50px]',
+                  'font-bold text-xl transition-all duration-200 select-none min-h-[50px]',
                   'focus:outline-none focus:ring-4 focus:ring-brand/30',
                   cart.length === 0
-                    ? 'bg-surface/40 text-foreground/25 cursor-not-allowed'
-                    : 'bg-brand text-white hover:bg-brand-dark active:scale-[0.97] shadow-lg hover:shadow-xl cursor-pointer'
+                    ? 'bg-surface/30 text-foreground/25 cursor-not-allowed'
+                    : 'bg-gradient-to-br from-brand to-brand-dark text-white hover:shadow-xl active:scale-[0.97] shadow-lg cursor-pointer'
                 )}
                 aria-label="Pagamento contanti"
               >
@@ -1001,11 +1003,11 @@ export default function POSPage() {
                 disabled={cart.length === 0}
                 className={cn(
                   'flex flex-col items-center justify-center gap-2 rounded-2xl py-7 px-4',
-                  'font-bold text-xl transition-all duration-150 select-none min-h-[50px]',
-                  'focus:outline-none focus:ring-4 focus:ring-blue-300',
+                  'font-bold text-xl transition-all duration-200 select-none min-h-[50px]',
+                  'focus:outline-none focus:ring-4 focus:ring-blue-300/30',
                   cart.length === 0
-                    ? 'bg-surface/40 text-foreground/25 cursor-not-allowed'
-                    : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-[0.97] shadow-lg hover:shadow-xl cursor-pointer'
+                    ? 'bg-surface/30 text-foreground/25 cursor-not-allowed'
+                    : 'bg-gradient-to-br from-blue-500 to-blue-700 text-white hover:shadow-xl active:scale-[0.97] shadow-lg cursor-pointer'
                 )}
                 aria-label="Pagamento POS / Carta"
               >
@@ -1019,9 +1021,9 @@ export default function POSPage() {
               onClick={openReturnModal}
               className={cn(
                 'w-full flex items-center justify-center gap-3 rounded-2xl py-4 px-4 min-h-[50px]',
-                'font-bold text-base transition-all duration-150 select-none',
-                'focus:outline-none focus:ring-4 focus:ring-yellow-300',
-                'bg-yellow-500 text-white hover:bg-yellow-600 active:scale-[0.98] shadow-md hover:shadow-lg cursor-pointer'
+                'font-bold text-base transition-all duration-200 select-none',
+                'focus:outline-none focus:ring-4 focus:ring-amber-300/30',
+                'bg-gradient-to-br from-amber-400 to-amber-600 text-white hover:shadow-lg active:scale-[0.98] shadow-md cursor-pointer'
               )}
               aria-label="Effettua reso"
             >
@@ -1034,13 +1036,13 @@ export default function POSPage() {
         {/* ---------------------------------------------------------------- */}
         {/* Sales history (collapsible)                                       */}
         {/* ---------------------------------------------------------------- */}
-        <div className="bg-card rounded-2xl border border-surface/50 shadow-sm overflow-hidden">
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 overflow-hidden">
           <button
             onClick={() => {
               setHistoryOpen((v) => !v)
               if (!historyOpen) fetchTodaySales()
             }}
-            className="w-full flex items-center justify-between px-5 py-4 hover:bg-surface-light/40 transition-colors"
+            className="w-full flex items-center justify-between px-5 py-4 hover:bg-surface-light/20 transition-colors duration-200"
             aria-expanded={historyOpen}
           >
             <div className="flex items-center gap-3">
@@ -1061,7 +1063,7 @@ export default function POSPage() {
           </button>
 
           {historyOpen && (
-            <div className="border-t border-surface/40">
+            <div className="border-t border-surface/20">
               {historyLoading ? (
                 <div className="flex items-center justify-center py-10 text-foreground/40">
                   <div className="w-6 h-6 border-3 border-brand/20 border-t-brand rounded-full animate-spin mr-3" />
@@ -1075,15 +1077,15 @@ export default function POSPage() {
               ) : (
                 <>
                   {/* Summary bar */}
-                  <div className="grid grid-cols-3 divide-x divide-surface/40 border-b border-surface/40">
+                  <div className="grid grid-cols-3 divide-x divide-surface/20 border-b border-surface/20">
                     <div className="p-4 text-center">
-                      <p className="text-xs font-semibold text-foreground/50 uppercase tracking-wide mb-1">
+                      <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50 mb-1">
                         Vendite
                       </p>
                       <p className="text-2xl font-bold">{todaySales.length}</p>
                     </div>
                     <div className="p-4 text-center">
-                      <p className="text-xs font-semibold text-foreground/50 uppercase tracking-wide mb-1">
+                      <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50 mb-1">
                         Articoli venduti
                       </p>
                       <p className="text-2xl font-bold">
@@ -1094,7 +1096,7 @@ export default function POSPage() {
                       </p>
                     </div>
                     <div className="p-4 text-center">
-                      <p className="text-xs font-semibold text-foreground/50 uppercase tracking-wide mb-1">
+                      <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50 mb-1">
                         Incasso totale
                       </p>
                       <p className="text-2xl font-bold text-brand">
@@ -1107,26 +1109,26 @@ export default function POSPage() {
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead>
-                        <tr className="border-b border-surface/40 bg-surface-light/30">
-                          <th className="text-left px-5 py-3 text-xs font-semibold text-foreground/50 uppercase tracking-wide">
+                        <tr className="border-b border-surface/20 bg-surface-light/10">
+                          <th className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider text-foreground/50">
                             Ora
                           </th>
-                          <th className="text-left px-5 py-3 text-xs font-semibold text-foreground/50 uppercase tracking-wide">
+                          <th className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider text-foreground/50">
                             Metodo
                           </th>
-                          <th className="text-left px-5 py-3 text-xs font-semibold text-foreground/50 uppercase tracking-wide">
+                          <th className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider text-foreground/50">
                             Articoli
                           </th>
-                          <th className="text-right px-5 py-3 text-xs font-semibold text-foreground/50 uppercase tracking-wide">
+                          <th className="text-right px-5 py-3 text-xs font-semibold uppercase tracking-wider text-foreground/50">
                             Totale
                           </th>
-                          <th className="text-right px-5 py-3 text-xs font-semibold text-foreground/50 uppercase tracking-wide">
+                          <th className="text-right px-5 py-3 text-xs font-semibold uppercase tracking-wider text-foreground/50">
                             Azioni
                           </th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-surface/20">
-                        {todaySales.map((sale) => {
+                        {todaySales.map((sale, index) => {
                           const itemCount = sale.sale_items.reduce(
                             (sum, i) => sum + i.quantity,
                             0
@@ -1134,7 +1136,10 @@ export default function POSPage() {
                           return (
                             <tr
                               key={sale.id}
-                              className="hover:bg-surface-light/30 transition-colors"
+                              className={cn(
+                                'hover:bg-brand/[0.04] transition-colors duration-200',
+                                index % 2 === 0 ? 'bg-transparent' : 'bg-surface-light/20'
+                              )}
                             >
                               <td className="px-5 py-3 font-mono text-foreground/70">
                                 {timeOnly(sale.created_at)}
@@ -1142,10 +1147,10 @@ export default function POSPage() {
                               <td className="px-5 py-3">
                                 <span
                                   className={cn(
-                                    'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold',
+                                    'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold ring-1',
                                     sale.payment_method === 'cash'
-                                      ? 'bg-brand/10 text-brand'
-                                      : 'bg-blue-100 text-blue-700'
+                                      ? 'bg-emerald-50 text-emerald-600 ring-emerald-200'
+                                      : 'bg-blue-50 text-blue-600 ring-blue-200'
                                   )}
                                 >
                                   {sale.payment_method === 'cash' ? (
@@ -1170,9 +1175,9 @@ export default function POSPage() {
                                   {sale.sale_items.map((si) => (
                                     <span
                                       key={si.id}
-                                      className="text-xs bg-surface rounded-md px-1.5 py-0.5 text-foreground/60"
+                                      className="text-xs bg-surface/30 rounded-md px-1.5 py-0.5 text-foreground/60 ring-1 ring-surface/20"
                                     >
-                                      {si.product_registry?.name} ×{si.quantity}
+                                      {si.product_registry?.name} x{si.quantity}
                                     </span>
                                   ))}
                                 </div>
@@ -1185,9 +1190,9 @@ export default function POSPage() {
                                   onClick={() => handleStornoSale(sale)}
                                   disabled={stornoLoading === sale.id}
                                   className={cn(
-                                    "text-xs flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg transition-colors ml-auto font-medium",
-                                    stornoLoading === sale.id 
-                                      ? "text-danger/50 bg-danger/5 cursor-not-allowed" 
+                                    "text-xs flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg transition-colors duration-200 ml-auto font-medium",
+                                    stornoLoading === sale.id
+                                      ? "text-danger/50 bg-danger/5 cursor-not-allowed"
                                       : "text-danger hover:bg-danger/10 cursor-pointer"
                                   )}
                                   title="Storna Pagamento"
@@ -1233,19 +1238,19 @@ export default function POSPage() {
               className={cn(
                 'flex items-center justify-center gap-3 p-5 rounded-2xl',
                 paymentMethod === 'cash'
-                  ? 'bg-brand/10'
-                  : 'bg-blue-50'
+                  ? 'bg-emerald-50 ring-1 ring-emerald-200'
+                  : 'bg-blue-50 ring-1 ring-blue-200'
               )}
             >
               {paymentMethod === 'cash' ? (
-                <Banknote className="w-10 h-10 text-brand" />
+                <Banknote className="w-10 h-10 text-emerald-600" />
               ) : (
                 <CreditCard className="w-10 h-10 text-blue-600" />
               )}
               <span
                 className={cn(
                   'text-3xl font-extrabold',
-                  paymentMethod === 'cash' ? 'text-brand' : 'text-blue-600'
+                  paymentMethod === 'cash' ? 'text-emerald-600' : 'text-blue-600'
                 )}
               >
                 {paymentMethod === 'cash' ? 'CONTANTI' : 'POS / CARTA'}
@@ -1253,7 +1258,7 @@ export default function POSPage() {
             </div>
 
             {/* Order summary */}
-            <div className="bg-surface-light/50 rounded-xl p-4 space-y-2">
+            <div className="bg-surface-light/30 rounded-xl p-4 space-y-2 border border-surface/20">
               <div className="flex justify-between text-sm">
                 <span className="text-foreground/60">Articoli nel carrello</span>
                 <span className="font-semibold">
@@ -1263,12 +1268,12 @@ export default function POSPage() {
               {cart.map((item) => (
                 <div
                   key={item.inventoryId}
-                  className="flex justify-between text-sm border-t border-surface/30 pt-2"
+                  className="flex justify-between text-sm border-t border-surface/20 pt-2"
                 >
                   <span className="text-foreground/70">
                     {item.name}{' '}
                     <span className="text-foreground/40">
-                      {item.size} &middot; {item.color} ×{item.qty}
+                      {item.size} &middot; {item.color} x{item.qty}
                     </span>
                   </span>
                   <span className="font-medium">
@@ -1327,8 +1332,8 @@ export default function POSPage() {
           <div className="space-y-5 text-center">
             {/* Big success icon */}
             <div className="flex justify-center">
-              <div className="w-20 h-20 rounded-full bg-success/10 flex items-center justify-center">
-                <CheckCircle2 className="w-12 h-12 text-success" />
+              <div className="w-20 h-20 rounded-full bg-emerald-50 ring-1 ring-emerald-200 flex items-center justify-center">
+                <CheckCircle2 className="w-12 h-12 text-emerald-500" />
               </div>
             </div>
 
@@ -1342,13 +1347,13 @@ export default function POSPage() {
               </p>
             </div>
 
-            <div className="bg-surface-light/50 rounded-xl p-4 space-y-2 text-sm text-left">
+            <div className="bg-surface-light/30 rounded-xl p-4 space-y-2 text-sm text-left border border-surface/20">
               <div className="flex justify-between">
                 <span className="text-foreground/60">Metodo</span>
                 <span
                   className={cn(
                     'inline-flex items-center gap-1.5 font-semibold',
-                    completedSale.method === 'cash' ? 'text-brand' : 'text-blue-600'
+                    completedSale.method === 'cash' ? 'text-emerald-600' : 'text-blue-600'
                   )}
                 >
                   {completedSale.method === 'cash' ? (
@@ -1400,20 +1405,20 @@ export default function POSPage() {
         size="md"
       >
         <div className="space-y-5">
-          <div className="flex items-center justify-center gap-3 p-5 rounded-2xl bg-yellow-50">
-            <RotateCcw className="w-10 h-10 text-yellow-600" />
-            <span className="text-2xl font-extrabold text-yellow-700">RESO</span>
+          <div className="flex items-center justify-center gap-3 p-5 rounded-2xl bg-amber-50 ring-1 ring-amber-200">
+            <RotateCcw className="w-10 h-10 text-amber-600" />
+            <span className="text-2xl font-extrabold text-amber-700">RESO</span>
           </div>
 
           <p className="text-sm text-foreground/60 text-center">
             Scansiona o digita il barcode del prodotto da rendere.
-            La giacenza verrà incrementata e un movimento di cassa negativo registrato.
+            La giacenza verra incrementata e un movimento di cassa negativo registrato.
           </p>
 
           <form onSubmit={handleReturn}>
             <div className="flex gap-3 items-center">
               <div className="relative flex-1">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none text-yellow-600">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none text-amber-600">
                   <Scan className="w-5 h-5" />
                 </div>
                 <input
@@ -1423,10 +1428,11 @@ export default function POSPage() {
                   onChange={(e) => setReturnBarcode(e.target.value)}
                   placeholder="Barcode prodotto..."
                   className={cn(
-                    'w-full pl-12 pr-4 py-4 text-xl font-mono rounded-xl border-2 bg-white',
-                    'focus:outline-none focus:ring-4 transition-all duration-200',
-                    'placeholder:text-gray-300 placeholder:font-sans placeholder:text-base',
-                    'border-yellow-300 focus:border-yellow-500 focus:ring-yellow-200'
+                    'w-full pl-12 pr-4 py-4 text-xl font-mono',
+                    'rounded-xl border border-amber-300/80 bg-white shadow-sm',
+                    'focus:outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-200/40 focus:shadow-md',
+                    'transition-all duration-200',
+                    'placeholder:text-gray-300 placeholder:font-sans placeholder:text-base'
                   )}
                   autoComplete="off"
                   spellCheck={false}
@@ -1442,7 +1448,7 @@ export default function POSPage() {
                 size="lg"
                 loading={returnLoading}
                 disabled={!returnBarcode.trim()}
-                className="flex-1 min-h-[50px] bg-yellow-500 hover:bg-yellow-600 focus:ring-yellow-300"
+                className="flex-1 min-h-[50px] bg-amber-500 hover:bg-amber-600 focus:ring-amber-300"
               >
                 <RotateCcw className="w-5 h-5 mr-2" />
                 Conferma Reso

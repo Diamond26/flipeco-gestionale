@@ -62,10 +62,10 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen bg-surface-light flex items-center justify-center px-4">
-      <div className="w-full max-w-md">
+    <main className="min-h-screen bg-gradient-to-br from-background via-surface-light to-background flex items-center justify-center px-4">
+      <div className="w-full max-w-md animate-slide-up">
         {/* Card */}
-        <div className="bg-card rounded-2xl shadow-xl border border-surface px-8 py-10">
+        <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-xl shadow-black/[0.08] border border-white/60 px-8 py-10">
 
           {/* Logo and brand header */}
           <div className="flex flex-col items-center gap-3 mb-8">
@@ -82,14 +82,14 @@ export default function LoginPage() {
               <h1 className="text-2xl font-bold text-foreground tracking-tight">
                 Flip<span className="text-brand">&</span>Co
               </h1>
-              <p className="text-sm font-medium text-surface mt-0.5 uppercase tracking-widest">
+              <p className="text-sm font-medium text-foreground/40 mt-0.5 uppercase tracking-widest">
                 Gestionale
               </p>
             </div>
           </div>
 
           {/* Divider */}
-          <div className="border-t border-surface mb-8" />
+          <div className="border-t border-surface/40 mb-8" />
 
           {/* Form */}
           <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
@@ -121,7 +121,7 @@ export default function LoginPage() {
             {errors.general && (
               <div
                 role="alert"
-                className="px-4 py-3 rounded-xl bg-danger/10 border border-danger/30 text-sm text-danger font-medium"
+                className="px-4 py-3 rounded-xl bg-danger/10 border border-danger/20 text-sm text-danger font-medium animate-slide-down"
               >
                 {errors.general}
               </div>
@@ -140,7 +140,7 @@ export default function LoginPage() {
         </div>
 
         {/* Footer note */}
-        <p className="text-center text-xs text-surface mt-6">
+        <p className="text-center text-xs text-foreground/35 mt-6">
           Accesso riservato al personale autorizzato
         </p>
       </div>
