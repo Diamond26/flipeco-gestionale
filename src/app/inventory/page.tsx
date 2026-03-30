@@ -487,20 +487,6 @@ export default function InventoryPage() {
     )
   }, [])
 
-  const toggleSelectAllVisible = useCallback(() => {
-    if (allVisibleSelected) {
-      setSelectedInventoryIds((prev) =>
-        prev.filter((id) => !filteredInventory.some((item) => item.id === id))
-      )
-      return
-    }
-    setSelectedInventoryIds((prev) => {
-      const next = new Set(prev)
-      filteredInventory.forEach((item) => next.add(item.id))
-      return Array.from(next)
-    })
-  }, [allVisibleSelected, filteredInventory])
-
   const handleBulkDelete = useCallback(async () => {
     if (selectedInventoryIds.length === 0 || bulkEditLoading) return
     const ok = window.confirm(
@@ -957,9 +943,9 @@ export default function InventoryPage() {
     () => filteredInventory.filter((item) => selectedInventoryIds.includes(item.id)).length,
     [filteredInventory, selectedInventoryIds]
   )
-  const allVisibleSelected =
-    filteredInventory.length > 0 && selectedVisibleCount === filteredInventory.length
-    .sort((a, b) => {
+
+  const sortedInventory = useMemo(() => {
+    return [...filteredInventory].sort((a, b) => {
       let aVal: string | number
       let bVal: string | number
 
@@ -1008,6 +994,24 @@ export default function InventoryPage() {
       if (aVal > bVal) return sortDir === 'asc' ? 1 : -1
       return 0
     })
+  }, [filteredInventory, sortField, sortDir])
+
+  const allVisibleSelected =
+    filteredInventory.length > 0 && selectedVisibleCount === filteredInventory.length
+
+  const toggleSelectAllVisible = useCallback(() => {
+    if (allVisibleSelected) {
+      setSelectedInventoryIds((prev) =>
+        prev.filter((id) => !filteredInventory.some((item) => item.id === id))
+      )
+      return
+    }
+    setSelectedInventoryIds((prev) => {
+      const next = new Set(prev)
+      filteredInventory.forEach((item) => next.add(item.id))
+      return Array.from(next)
+    })
+  }, [allVisibleSelected, filteredInventory])
 
   // ---------------------------------------------------------------------------
   // Stats
@@ -1039,7 +1043,7 @@ export default function InventoryPage() {
         'P. Vendita',
         'Ubicazione',
       ],
-      rows: filteredInventory.map((item) => [
+      rows: sortedInventory.map((item) => [
         item.product_registry.barcode ?? '',
         item.product_registry.name ?? '',
         item.product_registry.brand ?? '',
@@ -1052,7 +1056,7 @@ export default function InventoryPage() {
       ]),
       filename: `magazzino_${new Date().toISOString().slice(0, 10)}`,
     })
-  }, [filteredInventory])
+  }, [sortedInventory])
 
   // ---------------------------------------------------------------------------
   // Sort icon helper
@@ -1688,7 +1692,7 @@ export default function InventoryPage() {
           ) : (
             <Table
               columns={columns}
-              data={filteredInventory}
+              data={sortedInventory}
               emptyMessage={
                 searchQuery
                   ? `Nessun articolo trovato per "${searchQuery}"`
