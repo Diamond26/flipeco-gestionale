@@ -76,6 +76,10 @@ export default function ImportHistoryPage() {
   // --- Move to inventory ---
   const [movingAll, setMovingAll] = useState<string | null>(null)
   const [movingRow, setMovingRow] = useState<string | null>(null)
+  const [pendingMoveAllId, setPendingMoveAllId] = useState<string | null>(null)
+  const [pendingMoveSingle, setPendingMoveSingle] = useState<{ id: string; name: string } | null>(null)
+  const [confirmSaveProducts, setConfirmSaveProducts] = useState(false)
+  const [confirmSaveBrand, setConfirmSaveBrand] = useState(false)
 
   // --- Toast ---
   const [toasts, setToasts] = useState<{ id: number; msg: string; type: 'success' | 'error' | 'warning' }[]>([])
@@ -568,7 +572,7 @@ export default function ImportHistoryPage() {
                           </button>
                           <button
                             title="Sposta tutti in Magazzino"
-                            onClick={() => moveAllToInventory(log.id)}
+                            onClick={() => setPendingMoveAllId(log.id)}
                             disabled={movingAll === log.id}
                             className="p-2 rounded-lg text-success hover:bg-success/10 transition-colors disabled:opacity-40"
                           >
@@ -690,7 +694,7 @@ export default function ImportHistoryPage() {
                           <div className="flex items-center gap-0.5">
                             <button
                               type="button"
-                              onClick={() => moveSingleToInventory(row.id, row.name)}
+                              onClick={() => setPendingMoveSingle({ id: row.id, name: row.name })}
                               disabled={movingRow === row.id}
                               aria-label={`Sposta in magazzino riga ${idx + 1}`}
                               className="w-7 h-7 flex items-center justify-center rounded-full text-success hover:bg-success/10 transition-colors disabled:opacity-40"
@@ -738,7 +742,7 @@ export default function ImportHistoryPage() {
               <Button
                 variant="primary"
                 size="md"
-                onClick={saveProducts}
+                onClick={() => setConfirmSaveProducts(true)}
                 loading={savingRows}
                 disabled={editRows.length === 0 || savingRows}
               >
@@ -771,7 +775,7 @@ export default function ImportHistoryPage() {
               type="text"
               value={brandInput}
               onChange={(e) => setBrandInput(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); saveBrand() } }}
+              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); setConfirmSaveBrand(true) } }}
               placeholder="Es. Nike, Adidas, Levi's..."
               className="w-full px-4 py-2.5 rounded-xl border border-surface-light bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-all"
               autoFocus
@@ -797,7 +801,7 @@ export default function ImportHistoryPage() {
             <Button
               variant="primary"
               size="md"
-              onClick={saveBrand}
+              onClick={() => setConfirmSaveBrand(true)}
               loading={savingBrand}
               disabled={savingBrand}
             >
@@ -820,6 +824,60 @@ export default function ImportHistoryPage() {
         confirmLabel="Elimina"
         variant="danger"
         loading={deleteLoading !== null}
+      />
+      <ConfirmBanner
+        open={pendingMoveAllId !== null}
+        onCancel={() => setPendingMoveAllId(null)}
+        onConfirm={async () => {
+          if (pendingMoveAllId) {
+            const id = pendingMoveAllId
+            setPendingMoveAllId(null)
+            await moveAllToInventory(id)
+          }
+        }}
+        message="Tutti i prodotti di questa importazione verranno spostati in magazzino."
+        confirmLabel="Sposta tutti"
+        variant="warning"
+        loading={movingAll !== null}
+      />
+      <ConfirmBanner
+        open={pendingMoveSingle !== null}
+        onCancel={() => setPendingMoveSingle(null)}
+        onConfirm={async () => {
+          if (pendingMoveSingle) {
+            const { id, name } = pendingMoveSingle
+            setPendingMoveSingle(null)
+            await moveSingleToInventory(id, name)
+          }
+        }}
+        message={pendingMoveSingle ? `Spostare "${pendingMoveSingle.name}" in magazzino?` : ''}
+        confirmLabel="Sposta"
+        variant="default"
+        loading={movingRow !== null}
+      />
+      <ConfirmBanner
+        open={confirmSaveProducts}
+        onCancel={() => setConfirmSaveProducts(false)}
+        onConfirm={async () => {
+          setConfirmSaveProducts(false)
+          await saveProducts()
+        }}
+        message="Le modifiche ai prodotti verranno salvate definitivamente."
+        confirmLabel="Salva"
+        variant="warning"
+        loading={savingRows}
+      />
+      <ConfirmBanner
+        open={confirmSaveBrand}
+        onCancel={() => setConfirmSaveBrand(false)}
+        onConfirm={async () => {
+          setConfirmSaveBrand(false)
+          await saveBrand()
+        }}
+        message={brandInput.trim() ? `Il brand "${brandInput.trim()}" verrà assegnato a tutti i prodotti dell'importazione.` : 'Il brand verrà rimosso da tutti i prodotti dell\'importazione.'}
+        confirmLabel="Salva Brand"
+        variant="warning"
+        loading={savingBrand}
       />
     </AppShell>
   )
