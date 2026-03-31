@@ -4,6 +4,7 @@ import { Fragment, useEffect, useRef, useState, useCallback, useMemo } from 'rea
 import AppShell from '@/components/layout/AppShell'
 import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'
+import { ConfirmBanner } from '@/components/ui/ConfirmBanner'
 import { createClient } from '@/lib/supabase/client'
 import { formatCurrency, cn } from '@/lib/utils'
 import {
@@ -187,6 +188,8 @@ export default function POSPage() {
   })
   const [historyLoading, setHistoryLoading] = useState(false)
   const [stornoLoading, setStornoLoading] = useState<string | null>(null)
+  const [bulkDeleteConfirmOpen, setBulkDeleteConfirmOpen] = useState(false)
+  const [pendingStornoSale, setPendingStornoSale] = useState<Sale | null>(null)
   const [expandedSales, setExpandedSales] = useState<Record<string, boolean>>({})
 
   // --- Return (reso) modal state ---
@@ -497,8 +500,6 @@ export default function POSPage() {
 
   const handleBulkDeleteProducts = useCallback(async () => {
     if (selectedMenuProductIds.length === 0 || bulkActionLoading) return
-    const ok = window.confirm(`Eliminare ${selectedMenuProductIds.length} articoli selezionati dal magazzino?`)
-    if (!ok) return
 
     setBulkActionLoading(true)
     const { error } = await supabase.from('inventory').delete().in('id', selectedMenuProductIds)
@@ -798,10 +799,6 @@ export default function POSPage() {
   // Storno Sale
   // ---------------------------------------------------------------------------
   const handleStornoSale = useCallback(async (sale: Sale) => {
-    if (!window.confirm(`Sei sicuro di voler stornare questa vendita da ${formatCurrency(sale.total)}?\nI prodotti verranno rimessi in giacenza.`)) {
-      return
-    }
-
     setStornoLoading(sale.id)
 
     // 1. Ripristina quantità giacenze (nessun trigger AFTER DELETE presente)
@@ -1500,7 +1497,7 @@ export default function POSPage() {
                                 </td>
                                 <td className="px-5 py-3 text-right">
                                   <button
-                                    onClick={() => handleStornoSale(sale)}
+                                    onClick={() => setPendingStornoSale(sale)}
                                     disabled={stornoLoading === sale.id}
                                     className={cn(
                                       'text-xs flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg transition-colors duration-200 ml-auto font-medium',
@@ -1641,7 +1638,7 @@ export default function POSPage() {
             </button>
             <button
               type="button"
-              onClick={handleBulkDeleteProducts}
+              onClick={() => setBulkDeleteConfirmOpen(true)}
               disabled={selectedInMenuCount === 0 || bulkActionLoading}
               className={cn(
                 'px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors',
@@ -2043,6 +2040,32 @@ export default function POSPage() {
           border-color: rgba(100, 116, 139, 0.5) !important;
         }
       `}</style>
+      <ConfirmBanner
+        open={bulkDeleteConfirmOpen}
+        onCancel={() => setBulkDeleteConfirmOpen(false)}
+        onConfirm={async () => {
+          setBulkDeleteConfirmOpen(false)
+          await handleBulkDeleteProducts()
+        }}
+        message={`Eliminare ${selectedMenuProductIds.length} articoli selezionati dal magazzino?`}
+        confirmLabel="Elimina"
+        variant="danger"
+        loading={bulkActionLoading}
+      />
+      <ConfirmBanner
+        open={pendingStornoSale !== null}
+        onCancel={() => setPendingStornoSale(null)}
+        onConfirm={async () => {
+          if (pendingStornoSale) {
+            await handleStornoSale(pendingStornoSale)
+            setPendingStornoSale(null)
+          }
+        }}
+        message={pendingStornoSale ? `Sei sicuro di voler stornare questa vendita da ${formatCurrency(pendingStornoSale.total)}?\nI prodotti verranno rimessi in giacenza.` : ''}
+        confirmLabel="Storna"
+        variant="danger"
+        loading={stornoLoading !== null}
+      />
     </AppShell>
   )
 }

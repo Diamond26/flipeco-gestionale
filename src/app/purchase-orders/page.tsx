@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Table } from '@/components/ui/Table'
 import { Modal } from '@/components/ui/Modal'
+import { ConfirmBanner } from '@/components/ui/ConfirmBanner'
 import { Select } from '@/components/ui/Select'
 import { createClient } from '@/lib/supabase/client'
 import { formatCurrency, formatDate, cn } from '@/lib/utils'
@@ -131,6 +132,7 @@ export default function PurchaseOrdersPage() {
   // --- Detail modal state ---
   const [selectedOrder, setSelectedOrder] = useState<PurchaseOrder | null>(null)
   const [statusUpdating, setStatusUpdating] = useState(false)
+  const [pendingAction, setPendingAction] = useState<'shipped' | 'arrived' | 'create' | null>(null)
 
   // --- New order modal state ---
   const [newOrderOpen, setNewOrderOpen] = useState(false)
@@ -942,7 +944,7 @@ export default function PurchaseOrdersPage() {
               variant="primary"
               size="lg"
               loading={createLoading}
-              onClick={handleCreateOrder}
+              onClick={() => setPendingAction('create')}
               className="flex-1"
             >
               <ClipboardList className="w-5 h-5 mr-2" />
@@ -1161,7 +1163,7 @@ export default function PurchaseOrdersPage() {
               {/* CRITICAL: Merce Arrivata — visible when ordered or shipped */}
               {(selectedOrder.status === 'ordered' || selectedOrder.status === 'shipped') && (
                 <button
-                  onClick={handleMarkArrived}
+                  onClick={() => setPendingAction('arrived')}
                   disabled={statusUpdating}
                   className={cn(
                     'w-full flex items-center justify-center gap-3 py-4 px-6 rounded-2xl',
@@ -1189,7 +1191,7 @@ export default function PurchaseOrdersPage() {
                   variant="secondary"
                   size="md"
                   loading={statusUpdating}
-                  onClick={handleMarkShipped}
+                  onClick={() => setPendingAction('shipped')}
                   className="w-full"
                 >
                   <Truck className="w-4 h-4 mr-2" />
@@ -1222,6 +1224,35 @@ export default function PurchaseOrdersPage() {
           </div>
         )}
       </Modal>
+
+      {/* Confirm banner — purchase order actions */}
+      <ConfirmBanner
+        open={!!pendingAction}
+        variant={pendingAction === 'arrived' ? 'warning' : 'default'}
+        message={
+          pendingAction === 'create'
+            ? 'Confermi la creazione di questo ordine di acquisto?'
+            : pendingAction === 'shipped'
+              ? 'Segnare questo ordine come spedito?'
+              : 'Confermi l\'arrivo della merce? L\'inventario verrà aggiornato automaticamente.'
+        }
+        confirmLabel={
+          pendingAction === 'create'
+            ? 'Crea Ordine'
+            : pendingAction === 'shipped'
+              ? 'Segna Spedito'
+              : 'Merce Arrivata'
+        }
+        loading={pendingAction === 'create' ? createLoading : statusUpdating}
+        onConfirm={() => {
+          const action = pendingAction
+          setPendingAction(null)
+          if (action === 'create') handleCreateOrder()
+          else if (action === 'shipped') handleMarkShipped()
+          else if (action === 'arrived') handleMarkArrived()
+        }}
+        onCancel={() => setPendingAction(null)}
+      />
     </AppShell>
   )
 }

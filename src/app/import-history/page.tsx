@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import AppShell from '@/components/layout/AppShell'
 import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'
+import { ConfirmBanner } from '@/components/ui/ConfirmBanner'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
 import { exportToPDF } from '@/lib/pdf-export'
@@ -65,6 +66,7 @@ export default function ImportHistoryPage() {
   const [editRows, setEditRows] = useState<ProductRow[]>([])
   const [savingRows, setSavingRows] = useState(false)
   const [deleteLoading, setDeleteLoading] = useState<string | null>(null)
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
 
   // --- Brand modal ---
   const [brandModalLog, setBrandModalLog] = useState<ImportLog | null>(null)
@@ -260,8 +262,6 @@ export default function ImportHistoryPage() {
   // ---------------------------------------------------------------------------
 
   const handleDeleteImport = async (id: string) => {
-    if (!window.confirm('Confermi? L\'importazione e TUTTI i prodotti associati verranno eliminati definitivamente.')) return
-
     setDeleteLoading(id)
     const { error } = await supabase.from('import_logs').delete().eq('id', id)
     setDeleteLoading(null)
@@ -594,7 +594,7 @@ export default function ImportHistoryPage() {
                           </button>
                           <button
                             title="Elimina Import"
-                            onClick={() => handleDeleteImport(log.id)}
+                            onClick={() => setPendingDeleteId(log.id)}
                             disabled={deleteLoading === log.id}
                             className="p-2 rounded-lg text-danger hover:bg-danger/10 transition-colors disabled:opacity-40"
                           >
@@ -807,6 +807,20 @@ export default function ImportHistoryPage() {
           </div>
         </div>
       </Modal>
+      <ConfirmBanner
+        open={pendingDeleteId !== null}
+        onCancel={() => setPendingDeleteId(null)}
+        onConfirm={async () => {
+          if (pendingDeleteId) {
+            await handleDeleteImport(pendingDeleteId)
+            setPendingDeleteId(null)
+          }
+        }}
+        message="L'importazione e TUTTI i prodotti associati verranno eliminati definitivamente."
+        confirmLabel="Elimina"
+        variant="danger"
+        loading={deleteLoading !== null}
+      />
     </AppShell>
   )
 }

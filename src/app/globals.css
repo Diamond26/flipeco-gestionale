@@ -28,6 +28,7 @@
   --animate-stagger-3: fade-in 0.4s ease-out 0.15s both;
   --animate-stagger-4: fade-in 0.4s ease-out 0.2s both;
   --animate-toast-in: toast-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-banner-in: banner-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 /* ------------------------------------------------------------------ */
@@ -62,6 +63,11 @@
 @keyframes toast-in {
   from { opacity: 0; transform: translateX(40px) scale(0.95); }
   to   { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+@keyframes banner-in {
+  from { opacity: 0; transform: translateY(-20px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 /* ------------------------------------------------------------------ */
@@ -146,4 +152,12 @@ button, a, input, select, textarea {
   outline: none;
   box-shadow: 0 0 0 3px rgba(123, 179, 95, 0.35);
   border-radius: inherit;
+}
+
+/* ------------------------------------------------------------------ */
+/* Confirm Banner                                                      */
+/* ------------------------------------------------------------------ */
+
+.confirm-banner {
+  animation: banner-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
 }

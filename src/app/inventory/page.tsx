@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Table } from '@/components/ui/Table'
 import { Modal } from '@/components/ui/Modal'
+import { ConfirmBanner } from '@/components/ui/ConfirmBanner'
 import { createClient } from '@/lib/supabase/client'
 import { formatCurrency, cn } from '@/lib/utils'
 import { exportToPDF } from '@/lib/pdf-export'
@@ -146,6 +147,7 @@ export default function InventoryPage() {
   // --- Delete confirm state ---
   const [deleteItem, setDeleteItem] = useState<InventoryItem | null>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
+  const [bulkDeleteConfirmOpen, setBulkDeleteConfirmOpen] = useState(false)
 
   // --- Manual add modal state ---
   const [manualAddOpen, setManualAddOpen] = useState(false)
@@ -489,10 +491,6 @@ export default function InventoryPage() {
 
   const handleBulkDelete = useCallback(async () => {
     if (selectedInventoryIds.length === 0 || bulkEditLoading) return
-    const ok = window.confirm(
-      `Sei sicuro di voler eliminare ${selectedInventoryIds.length} articoli selezionati?`
-    )
-    if (!ok) return
 
     setBulkEditLoading(true)
     const { error } = await supabase.from('inventory').delete().in('id', selectedInventoryIds)
@@ -1664,7 +1662,7 @@ export default function InventoryPage() {
             <Button
               variant="danger"
               size="sm"
-              onClick={handleBulkDelete}
+              onClick={() => setBulkDeleteConfirmOpen(true)}
               disabled={selectedVisibleCount === 0 || bulkEditLoading}
             >
               <Trash2 className="w-4 h-4 mr-1.5" />
@@ -2238,6 +2236,19 @@ export default function InventoryPage() {
           </div>
         </div>
       </Modal>
+      {/* Confirm banner — bulk delete */}
+      <ConfirmBanner
+        open={bulkDeleteConfirmOpen}
+        variant="danger"
+        message={`Sei sicuro di voler eliminare ${selectedInventoryIds.length} articoli selezionati? Questa azione è irreversibile.`}
+        confirmLabel="Elimina"
+        loading={bulkEditLoading}
+        onConfirm={() => {
+          setBulkDeleteConfirmOpen(false)
+          handleBulkDelete()
+        }}
+        onCancel={() => setBulkDeleteConfirmOpen(false)}
+      />
     </AppShell>
   )
 }

@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Table } from '@/components/ui/Table'
 import { Modal } from '@/components/ui/Modal'
+import { ConfirmBanner } from '@/components/ui/ConfirmBanner'
 import { Select } from '@/components/ui/Select'
 import { createClient } from '@/lib/supabase/client'
 import { formatCurrency, formatDate, cn } from '@/lib/utils'
@@ -176,6 +177,7 @@ export default function CustomerOrdersPage() {
   // --- Detail modal state ---
   const [detailOrder, setDetailOrder] = useState<CustomerOrder | null>(null)
   const [statusLoading, setStatusLoading] = useState(false)
+  const [pendingStatusChange, setPendingStatusChange] = useState<{ orderId: string; newStatus: OrderStatus } | null>(null)
 
   // --- Toasts ---
   const [toasts, setToasts] = useState<Toast[]>([])
@@ -1167,7 +1169,7 @@ export default function CustomerOrdersPage() {
                       variant="primary"
                       size="sm"
                       loading={statusLoading}
-                      onClick={() => handleStatusChange(detailOrder.id, 'confirmed')}
+                      onClick={() => setPendingStatusChange({ orderId: detailOrder.id, newStatus: 'confirmed' })}
                     >
                       <CheckCircle2 className="w-4 h-4 mr-1.5" />
                       Conferma Ordine
@@ -1179,7 +1181,7 @@ export default function CustomerOrdersPage() {
                       variant="primary"
                       size="sm"
                       loading={statusLoading}
-                      onClick={() => handleStatusChange(detailOrder.id, 'delivered')}
+                      onClick={() => setPendingStatusChange({ orderId: detailOrder.id, newStatus: 'delivered' })}
                       className="bg-success hover:bg-green-600"
                     >
                       <Truck className="w-4 h-4 mr-1.5" />
@@ -1190,7 +1192,7 @@ export default function CustomerOrdersPage() {
                     variant="danger"
                     size="sm"
                     loading={statusLoading}
-                    onClick={() => handleStatusChange(detailOrder.id, 'cancelled')}
+                    onClick={() => setPendingStatusChange({ orderId: detailOrder.id, newStatus: 'cancelled' })}
                   >
                     <XCircle className="w-4 h-4 mr-1.5" />
                     Annulla Ordine
@@ -1222,6 +1224,34 @@ export default function CustomerOrdersPage() {
           </div>
         )}
       </Modal>
+
+      {/* Confirm banner — status change */}
+      <ConfirmBanner
+        open={!!pendingStatusChange}
+        variant={pendingStatusChange?.newStatus === 'cancelled' ? 'danger' : 'default'}
+        message={
+          pendingStatusChange?.newStatus === 'confirmed'
+            ? 'Confermare questo ordine? Le quantità verranno scalate dal magazzino.'
+            : pendingStatusChange?.newStatus === 'delivered'
+              ? 'Segnare questo ordine come consegnato?'
+              : 'Annullare questo ordine? Se confermato, le quantità verranno ripristinate in magazzino.'
+        }
+        confirmLabel={
+          pendingStatusChange?.newStatus === 'confirmed'
+            ? 'Conferma'
+            : pendingStatusChange?.newStatus === 'delivered'
+              ? 'Consegnato'
+              : 'Annulla Ordine'
+        }
+        loading={statusLoading}
+        onConfirm={() => {
+          if (pendingStatusChange) {
+            handleStatusChange(pendingStatusChange.orderId, pendingStatusChange.newStatus)
+            setPendingStatusChange(null)
+          }
+        }}
+        onCancel={() => setPendingStatusChange(null)}
+      />
     </AppShell>
   )
 }
