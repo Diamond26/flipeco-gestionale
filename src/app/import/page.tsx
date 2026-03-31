@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Card } from '@/components/ui/Card';
 import { Modal } from '@/components/ui/Modal';
+import { ConfirmBanner } from '@/components/ui/ConfirmBanner';
 import { Select } from '@/components/ui/Select';
 import { Upload, Pencil, Trash2 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
@@ -170,6 +171,7 @@ export default function ImportPage() {
 
   // --- save state ---
   const [saving, setSaving] = useState(false);
+  const [saveConfirmOpen, setSaveConfirmOpen] = useState(false);
   const [saveError, setSaveError] = useState('');
   const [savedCount, setSavedCount] = useState(0);
 
@@ -946,7 +948,7 @@ export default function ImportPage() {
                   variant="primary"
                   size="lg"
                   loading={saving}
-                  onClick={save}
+                  onClick={() => setSaveConfirmOpen(true)}
                   disabled={rows.length === 0 || !selectedSupplierId || saving}
                 >
                   Salva in Anagrafica
@@ -1200,6 +1202,18 @@ export default function ImportPage() {
           </div>
         </div>
       </Modal>
+      <ConfirmBanner
+        open={saveConfirmOpen}
+        onCancel={() => setSaveConfirmOpen(false)}
+        onConfirm={async () => {
+          setSaveConfirmOpen(false);
+          await save();
+        }}
+        message={`Stai per importare ${rows.length} prodotti nell'anagrafica. Vuoi procedere?`}
+        confirmLabel="Importa"
+        variant="warning"
+        loading={saving}
+      />
     </AppShell>
   );
 }
