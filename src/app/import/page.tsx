@@ -159,6 +159,7 @@ export default function ImportPage() {
   const [parsedRows, setParsedRows] = useState<Record<string, string>[]>([]);
   const [parsing, setParsing] = useState(false);
   const [parseError, setParseError] = useState('');
+  const [hasHeader, setHasHeader] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // --- mapping state ---
@@ -214,7 +215,7 @@ export default function ImportPage() {
 
   const acceptedTypes = ['.csv', '.xlsx', '.xls', '.pdf'];
 
-  const handleFile = useCallback(async (file: File) => {
+  const handleFile = useCallback(async (file: File, isHeader: boolean) => {
     setSelectedFile(file);
     setParseError('');
     setParsing(true);
@@ -222,9 +223,9 @@ export default function ImportPage() {
       const ext = file.name.split('.').pop()?.toLowerCase() ?? '';
       let result: { headers: string[]; rows: Record<string, string>[] };
       if (ext === 'csv') {
-        result = await parseCSV(file);
+        result = await parseCSV(file, isHeader);
       } else if (ext === 'xlsx' || ext === 'xls') {
-        result = await parseExcel(file);
+        result = await parseExcel(file, isHeader);
       } else if (ext === 'pdf') {
         result = await parsePDF(file);
       } else {
@@ -247,17 +248,17 @@ export default function ImportPage() {
       e.preventDefault();
       setIsDragging(false);
       const file = e.dataTransfer.files[0];
-      if (file) handleFile(file);
+      if (file) handleFile(file, hasHeader);
     },
-    [handleFile],
+    [handleFile, hasHeader],
   );
 
   const onFileInput = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
-      if (file) handleFile(file);
+      if (file) handleFile(file, hasHeader);
     },
-    [handleFile],
+    [handleFile, hasHeader],
   );
 
   // ---------------------------------------------------------------------------
@@ -658,6 +659,22 @@ export default function ImportPage() {
                   onChange={onFileInput}
                   aria-hidden="true"
                 />
+              </div>
+
+              <div className="mt-4 flex items-center justify-center gap-3">
+                <input
+                  type="checkbox"
+                  id="hasHeaderCheckbox"
+                  checked={hasHeader}
+                  onChange={(e) => {
+                    setHasHeader(e.target.checked);
+                    if (selectedFile) handleFile(selectedFile, e.target.checked);
+                  }}
+                  className="w-4 h-4 rounded border-surface/30 text-brand focus:ring-brand/30 cursor-pointer"
+                />
+                <label htmlFor="hasHeaderCheckbox" className="text-sm text-foreground/80 font-medium cursor-pointer">
+                  Il file contiene una riga di intestazione (nomi delle colonne)
+                </label>
               </div>
 
               {parsing && (
