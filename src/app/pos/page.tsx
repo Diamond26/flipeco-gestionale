@@ -964,7 +964,7 @@ export default function POSPage() {
             </div>
 
             {/* Barcode scanner input */}
-            <div className="pos-surface bg-card/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 dark:border-white/[0.06] p-4">
+            <div className="pos-surface bg-card/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 dark:border-white/[0.06] p-4 relative z-20">
               <form onSubmit={handleBarcodeScan}>
                 <div className="flex gap-3 items-center">
                   <div ref={scannerBoxRef} className="relative flex-1">
