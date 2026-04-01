@@ -39,7 +39,7 @@ export function Modal({ open, onClose, title, children, size = 'md' }: ModalProp
       />
       {/* Panel */}
       <div
-        className={`relative ${sizes[size]} w-full mx-4 bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl shadow-black/20 max-h-[90vh] flex flex-col border border-white/50 animate-slide-up`}
+        className={`relative ${sizes[size]} w-full mx-4 bg-card/95 backdrop-blur-xl rounded-3xl shadow-2xl shadow-black/20 max-h-[90vh] flex flex-col border border-white/50 dark:border-white/[0.08] animate-slide-up`}
       >
         {/* Header */}
         <div className="flex items-center justify-between px-7 py-5 border-b border-surface/30">

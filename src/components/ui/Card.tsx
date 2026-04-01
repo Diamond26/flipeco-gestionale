@@ -11,7 +11,7 @@ export function Card({ children, className, title, action }: CardProps) {
   return (
     <div
       className={cn(
-        'bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 p-6',
+        'bg-card/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 dark:border-white/[0.06] p-6',
         'animate-fade-in',
         className
       )}

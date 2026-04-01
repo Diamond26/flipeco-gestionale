@@ -62,7 +62,7 @@ export function ConfirmBanner({
         onClick={onCancel}
       />
       {/* Banner */}
-      <div className="confirm-banner relative mt-6 mx-4 w-full max-w-lg bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl shadow-black/15 border border-white/50 overflow-hidden">
+      <div className="confirm-banner relative mt-6 mx-4 w-full max-w-lg bg-card/95 backdrop-blur-xl rounded-2xl shadow-2xl shadow-black/15 border border-white/50 dark:border-white/[0.08] overflow-hidden">
         {/* Colored top accent */}
         <div
           className={`h-1 w-full ${
@@ -115,7 +115,7 @@ export function ConfirmBanner({
             <button
               onClick={onCancel}
               disabled={loading}
-              className="px-5 py-2.5 text-sm font-semibold rounded-xl bg-white text-foreground border border-surface hover:bg-surface-light hover:border-surface active:scale-[0.98] shadow-sm cursor-pointer disabled:opacity-50"
+              className="px-5 py-2.5 text-sm font-semibold rounded-xl bg-card text-foreground border border-surface hover:bg-surface-light hover:border-surface active:scale-[0.98] shadow-sm cursor-pointer disabled:opacity-50"
             >
               {cancelLabel}
             </button>

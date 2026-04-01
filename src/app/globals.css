@@ -1,19 +1,55 @@
 @import "tailwindcss";
 
+/* ------------------------------------------------------------------ */
+/* Theme tokens — light (default) and dark                             */
+/* ------------------------------------------------------------------ */
+
+:root {
+  --th-brand: #7BB35F;
+  --th-brand-dark: #5a8a42;
+  --th-brand-light: #a3d48a;
+  --th-surface: #CCD0D5;
+  --th-surface-light: #e8eaed;
+  --th-background: #f0f2f5;
+  --th-foreground: #1a1a1a;
+  --th-card: #ffffff;
+  --th-sidebar: #0f172a;
+  --th-sidebar-hover: #1e293b;
+  --th-danger: #ef4444;
+  --th-warning: #f59e0b;
+  --th-success: #7BB35F;
+}
+
+.dark {
+  --th-brand: #8EC775;
+  --th-brand-dark: #7BB35F;
+  --th-brand-light: #a3d48a;
+  --th-surface: #2a2f38;
+  --th-surface-light: #353b45;
+  --th-background: #111318;
+  --th-foreground: #e8eaed;
+  --th-card: #1a1d24;
+  --th-sidebar: #0b0e14;
+  --th-sidebar-hover: #151921;
+  --th-danger: #f87171;
+  --th-warning: #fbbf24;
+  --th-success: #8EC775;
+}
+
 @theme inline {
-  --color-brand: #7BB35F;
-  --color-brand-dark: #5a8a42;
-  --color-brand-light: #a3d48a;
-  --color-surface: #CCD0D5;
-  --color-surface-light: #e8eaed;
-  --color-background: #f0f2f5;
-  --color-foreground: #1a1a1a;
-  --color-card: #ffffff;
-  --color-sidebar: #0f172a;
-  --color-sidebar-hover: #1e293b;
-  --color-danger: #ef4444;
-  --color-warning: #f59e0b;
-  --color-success: #7BB35F;
+  --color-brand: var(--th-brand);
+  --color-brand-dark: var(--th-brand-dark);
+  --color-brand-light: var(--th-brand-light);
+  --color-surface: var(--th-surface);
+  --color-surface-light: var(--th-surface-light);
+  --color-background: var(--th-background);
+  --color-foreground: var(--th-foreground);
+  --color-card: var(--th-card);
+  --color-sidebar: var(--th-sidebar);
+  --color-sidebar-hover: var(--th-sidebar-hover);
+  --color-danger: var(--th-danger);
+  --color-warning: var(--th-warning);
+  --color-success: var(--th-success);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 
@@ -79,9 +115,10 @@ html {
 }
 
 body {
-  background: var(--color-background);
-  color: var(--color-foreground);
+  background: var(--th-background);
+  color: var(--th-foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Global transitions on interactive elements */
@@ -98,9 +135,9 @@ button, a, input, select, textarea {
 .skeleton-shimmer {
   background: linear-gradient(
     90deg,
-    var(--color-surface-light) 25%,
-    #dfe1e5 37%,
-    var(--color-surface-light) 63%
+    var(--th-surface-light) 25%,
+    var(--th-surface) 37%,
+    var(--th-surface-light) 63%
   );
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;
@@ -118,11 +155,21 @@ button, a, input, select, textarea {
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
+.dark .glass {
+  background: rgba(26, 29, 36, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
 .glass-dark {
   background: rgba(15, 23, 42, 0.85);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.dark .glass-dark {
+  background: rgba(11, 14, 20, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 /* ------------------------------------------------------------------ */
@@ -137,11 +184,27 @@ button, a, input, select, textarea {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--color-surface);
+  background: var(--th-surface);
   border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #a0a4a8;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #555b66;
+}
+
+/* ------------------------------------------------------------------ */
+/* Dark mode: override hardcoded bg-white on inputs/dropdowns          */
+/* ------------------------------------------------------------------ */
+
+.dark input,
+.dark select,
+.dark textarea {
+  background-color: var(--th-card);
+  color: var(--th-foreground);
+  border-color: var(--th-surface);
 }
 
 /* ------------------------------------------------------------------ */

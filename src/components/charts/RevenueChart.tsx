@@ -10,6 +10,7 @@ import {
   Tooltip,
 } from 'recharts'
 import { formatCurrency } from '@/lib/utils'
+import { useChartColors } from '@/lib/useChartColors'
 
 interface RevenueDataPoint {
   date: string
@@ -24,7 +25,7 @@ interface RevenueChartProps {
 function CustomTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null
   return (
-    <div className="bg-white/95 backdrop-blur-xl rounded-xl shadow-lg shadow-black/10 border border-white/60 px-4 py-3">
+    <div className="bg-card/95 backdrop-blur-xl rounded-xl shadow-lg shadow-black/10 border border-white/60 dark:border-white/[0.08] px-4 py-3">
       <p className="text-xs text-foreground/50 font-medium mb-1">{label}</p>
       <p className="text-sm font-bold text-foreground">{formatCurrency(payload[0].value)}</p>
     </div>
@@ -32,6 +33,8 @@ function CustomTooltip({ active, payload, label }: any) {
 }
 
 export function RevenueChart({ data, loading }: RevenueChartProps) {
+  const c = useChartColors()
+
   if (loading) {
     return (
       <div className="h-[280px] flex items-center justify-center">
@@ -52,15 +55,15 @@ export function RevenueChart({ data, loading }: RevenueChartProps) {
     <div className="h-[280px] w-full">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data} margin={{ top: 8, right: 8, left: -10, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#CCD0D5" strokeOpacity={0.5} vertical={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke={c.grid} strokeOpacity={0.5} vertical={false} />
           <XAxis
             dataKey="date"
-            tick={{ fontSize: 11, fill: '#9CA3AF' }}
+            tick={{ fontSize: 11, fill: c.tick }}
             tickLine={false}
-            axisLine={{ stroke: '#CCD0D5' }}
+            axisLine={{ stroke: c.axis }}
           />
           <YAxis
-            tick={{ fontSize: 11, fill: '#9CA3AF' }}
+            tick={{ fontSize: 11, fill: c.tick }}
             tickLine={false}
             axisLine={false}
             tickFormatter={(v) => `€${v}`}
@@ -71,8 +74,8 @@ export function RevenueChart({ data, loading }: RevenueChartProps) {
             dataKey="total"
             stroke="#7BB35F"
             strokeWidth={2.5}
-            dot={{ r: 4, fill: '#7BB35F', strokeWidth: 2, stroke: '#fff' }}
-            activeDot={{ r: 6, fill: '#7BB35F', strokeWidth: 2, stroke: '#fff' }}
+            dot={{ r: 4, fill: '#7BB35F', strokeWidth: 2, stroke: c.dotStroke }}
+            activeDot={{ r: 6, fill: '#7BB35F', strokeWidth: 2, stroke: c.dotStroke }}
           />
         </LineChart>
       </ResponsiveContainer>

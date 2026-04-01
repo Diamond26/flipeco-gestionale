@@ -24,7 +24,7 @@ export function Table<T extends Record<string, any>>({
   onRowClick,
 }: TableProps<T>) {
   return (
-    <div className="overflow-x-auto rounded-2xl border border-surface/30 bg-white/60 backdrop-blur-sm">
+    <div className="overflow-x-auto rounded-2xl border border-surface/30 bg-card/60 backdrop-blur-sm">
       <table className="w-full">
         <thead>
           <tr className="border-b border-surface/30">

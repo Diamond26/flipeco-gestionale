@@ -64,7 +64,7 @@ function StatCard({ label, value, icon: Icon, loading = false, colorIndex, animD
   const color = STAT_COLORS[colorIndex % STAT_COLORS.length]
   return (
     <div
-      className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 p-6 flex items-center gap-5 animate-fade-in"
+      className="bg-card/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 dark:border-white/[0.06] p-6 flex items-center gap-5 animate-fade-in"
       style={{ animationDelay: animDelay }}
     >
       <div className={cn('flex items-center justify-center h-14 w-14 rounded-2xl ring-1 shrink-0', color.bg, color.ring)}>
@@ -94,10 +94,10 @@ const PAYMENT_LABELS: Record<string, string> = {
 }
 
 const PAYMENT_COLORS: Record<string, string> = {
-  cash: 'bg-emerald-50 text-emerald-600 ring-1 ring-emerald-200',
-  card: 'bg-blue-50 text-blue-600 ring-1 ring-blue-200',
-  transfer: 'bg-violet-50 text-violet-600 ring-1 ring-violet-200',
-  mixed: 'bg-amber-50 text-amber-600 ring-1 ring-amber-200',
+  cash: 'bg-emerald-50 text-emerald-600 ring-1 ring-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-400 dark:ring-emerald-500/30',
+  card: 'bg-blue-50 text-blue-600 ring-1 ring-blue-200 dark:bg-blue-500/15 dark:text-blue-400 dark:ring-blue-500/30',
+  transfer: 'bg-violet-50 text-violet-600 ring-1 ring-violet-200 dark:bg-violet-500/15 dark:text-violet-400 dark:ring-violet-500/30',
+  mixed: 'bg-amber-50 text-amber-600 ring-1 ring-amber-200 dark:bg-amber-500/15 dark:text-amber-400 dark:ring-amber-500/30',
 }
 
 function PaymentBadge({ method }: { method: string | null }) {
@@ -127,7 +127,7 @@ function PeriodSelector({ value, onChange }: { value: TimePeriod; onChange: (v: 
           className={cn(
             'px-3 py-1.5 text-xs font-semibold rounded-lg transition-all',
             value === opt.key
-              ? 'bg-white shadow-sm text-foreground'
+              ? 'bg-card shadow-sm text-foreground'
               : 'text-foreground/50 hover:text-foreground/70'
           )}
         >

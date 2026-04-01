@@ -10,6 +10,7 @@ import {
   Tooltip,
   Cell,
 } from 'recharts'
+import { useChartColors } from '@/lib/useChartColors'
 
 interface TopProduct {
   name: string
@@ -26,7 +27,7 @@ const BAR_COLORS = ['#7BB35F', '#8DC46F', '#9FD080', '#B1DC91', '#C3E8A2']
 function CustomTooltip({ active, payload }: any) {
   if (!active || !payload?.length) return null
   return (
-    <div className="bg-white/95 backdrop-blur-xl rounded-xl shadow-lg shadow-black/10 border border-white/60 px-4 py-3">
+    <div className="bg-card/95 backdrop-blur-xl rounded-xl shadow-lg shadow-black/10 border border-white/60 dark:border-white/[0.08] px-4 py-3">
       <p className="text-xs text-foreground/50 font-medium mb-1 max-w-[200px] truncate">
         {payload[0].payload.name}
       </p>
@@ -38,6 +39,8 @@ function CustomTooltip({ active, payload }: any) {
 }
 
 export function TopProductsChart({ data, loading }: TopProductsChartProps) {
+  const c = useChartColors()
+
   if (loading) {
     return (
       <div className="h-[280px] flex items-center justify-center">
@@ -67,23 +70,23 @@ export function TopProductsChart({ data, loading }: TopProductsChartProps) {
           layout="vertical"
           margin={{ top: 8, right: 16, left: 0, bottom: 0 }}
         >
-          <CartesianGrid strokeDasharray="3 3" stroke="#CCD0D5" strokeOpacity={0.5} horizontal={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke={c.grid} strokeOpacity={0.5} horizontal={false} />
           <XAxis
             type="number"
-            tick={{ fontSize: 11, fill: '#9CA3AF' }}
+            tick={{ fontSize: 11, fill: c.tick }}
             tickLine={false}
-            axisLine={{ stroke: '#CCD0D5' }}
+            axisLine={{ stroke: c.axis }}
             allowDecimals={false}
           />
           <YAxis
             type="category"
             dataKey="shortName"
-            tick={{ fontSize: 11, fill: '#9CA3AF' }}
+            tick={{ fontSize: 11, fill: c.tick }}
             tickLine={false}
             axisLine={false}
             width={130}
           />
-          <Tooltip content={<CustomTooltip />} cursor={{ fill: '#CCD0D5', fillOpacity: 0.2 }} />
+          <Tooltip content={<CustomTooltip />} cursor={{ fill: c.grid, fillOpacity: 0.2 }} />
           <Bar dataKey="quantity" radius={[0, 6, 6, 0]} barSize={24}>
             {truncatedData.map((_, i) => (
               <Cell key={i} fill={BAR_COLORS[i % BAR_COLORS.length]} />

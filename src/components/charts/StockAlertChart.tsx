@@ -2,6 +2,7 @@
 
 import { ResponsiveContainer, RadialBarChart, RadialBar, PolarAngleAxis } from 'recharts'
 import { AlertTriangle, CheckCircle2 } from 'lucide-react'
+import { useChartColors } from '@/lib/useChartColors'
 
 interface StockAlertChartProps {
   totalProducts: number
@@ -10,6 +11,7 @@ interface StockAlertChartProps {
 }
 
 export function StockAlertChart({ totalProducts, criticalCount, loading }: StockAlertChartProps) {
+  const c = useChartColors()
   if (loading) {
     return (
       <div className="h-[280px] flex items-center justify-center">
@@ -48,7 +50,7 @@ export function StockAlertChart({ totalProducts, criticalCount, loading }: Stock
           >
             <PolarAngleAxis type="number" domain={[0, 100]} angleAxisId={0} tick={false} />
             <RadialBar
-              background={{ fill: '#CCD0D5', opacity: 0.3 }}
+              background={{ fill: c.grid, opacity: 0.3 }}
               dataKey="value"
               cornerRadius={10}
               angleAxisId={0}

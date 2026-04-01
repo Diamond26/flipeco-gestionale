@@ -65,7 +65,7 @@ export default function LoginPage() {
     <main className="min-h-screen bg-gradient-to-br from-background via-surface-light to-background flex items-center justify-center px-4">
       <div className="w-full max-w-md animate-slide-up">
         {/* Card */}
-        <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-xl shadow-black/[0.08] border border-white/60 px-8 py-10">
+        <div className="bg-card/90 backdrop-blur-xl rounded-3xl shadow-xl shadow-black/[0.08] border border-white/60 dark:border-white/[0.08] px-8 py-10">
 
           {/* Logo and brand header */}
           <div className="flex flex-col items-center gap-3 mb-8">

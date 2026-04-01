@@ -26,7 +26,7 @@ export function Button({
     primary:
       'bg-gradient-to-b from-brand to-brand-dark text-white shadow-lg shadow-brand/25 hover:shadow-xl hover:shadow-brand/30 hover:brightness-110 active:scale-[0.97] focus:ring-brand/30',
     secondary:
-      'bg-white text-foreground border border-surface hover:bg-surface-light hover:border-surface active:scale-[0.98] shadow-sm focus:ring-surface/40',
+      'bg-card text-foreground border border-surface hover:bg-surface-light hover:border-surface active:scale-[0.98] shadow-sm focus:ring-surface/40',
     danger:
       'bg-gradient-to-b from-danger to-red-600 text-white shadow-lg shadow-danger/25 hover:shadow-xl hover:shadow-danger/30 hover:brightness-110 active:scale-[0.97] focus:ring-danger/30',
     ghost:

@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
-import { Menu } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Menu, Sun, Moon } from 'lucide-react'
+import { useTheme } from 'next-themes'
 import Sidebar from '@/components/layout/Sidebar'
 import { cn } from '@/lib/utils'
 
@@ -12,6 +13,10 @@ interface AppShellProps {
 
 export default function AppShell({ children, pageTitle }: AppShellProps) {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
+  const { theme, setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => setMounted(true), [])
 
   return (
     <div className="min-h-screen bg-background">
@@ -42,6 +47,19 @@ export default function AppShell({ children, pageTitle }: AppShellProps) {
               {pageTitle}
             </h1>
           )}
+
+          {/* Theme toggle */}
+          <div className="ml-auto">
+            {mounted && (
+              <button
+                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                className="p-2.5 rounded-xl bg-surface-light/60 hover:bg-surface-light text-foreground/60 hover:text-foreground"
+                aria-label={theme === 'dark' ? 'Passa al tema chiaro' : 'Passa al tema scuro'}
+              >
+                {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+              </button>
+            )}
+          </div>
         </header>
 
         {/* Page content */}
