@@ -80,6 +80,7 @@ export default function ImportHistoryPage() {
   const [pendingMoveSingle, setPendingMoveSingle] = useState<{ id: string; name: string } | null>(null)
   const [confirmSaveProducts, setConfirmSaveProducts] = useState(false)
   const [confirmSaveBrand, setConfirmSaveBrand] = useState(false)
+  const [pendingDeleteRow, setPendingDeleteRow] = useState<string | null>(null)
 
   // --- Toast ---
   const [toasts, setToasts] = useState<{ id: number; msg: string; type: 'success' | 'error' | 'warning' }[]>([])
@@ -708,7 +709,7 @@ export default function ImportHistoryPage() {
                             </button>
                             <button
                               type="button"
-                              onClick={() => deleteEditRow(row.id)}
+                              onClick={() => setPendingDeleteRow(row.id)}
                               aria-label={`Elimina riga ${idx + 1}`}
                               className="w-7 h-7 flex items-center justify-center rounded-full text-danger hover:bg-danger/10 transition-colors"
                               title="Elimina riga"
@@ -878,6 +879,20 @@ export default function ImportHistoryPage() {
         confirmLabel="Salva Brand"
         variant="warning"
         loading={savingBrand}
+      />
+
+      <ConfirmBanner
+        open={pendingDeleteRow !== null}
+        onCancel={() => setPendingDeleteRow(null)}
+        onConfirm={() => {
+          if (pendingDeleteRow) {
+            deleteEditRow(pendingDeleteRow)
+            setPendingDeleteRow(null)
+          }
+        }}
+        message="Sei sicuro di voler eliminare questo prodotto dalla tabella?"
+        confirmLabel="Elimina"
+        variant="danger"
       />
     </AppShell>
   )
