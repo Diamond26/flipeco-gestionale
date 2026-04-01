@@ -1010,7 +1010,7 @@ export default function POSPage() {
                       aria-label="Scanner barcode cassa"
                     />
                     {scannerOpen && scannerSuggestions.length > 0 && (
-                      <div className="absolute left-0 right-0 top-[calc(100%+8px)] z-30 rounded-xl border border-surface/40 bg-card/95 backdrop-blur-sm shadow-xl overflow-hidden">
+                      <div className="absolute left-0 right-0 top-[calc(100%+8px)] z-50 rounded-xl border border-surface/40 bg-card/95 backdrop-blur-sm shadow-xl overflow-hidden">
                         <ul className="max-h-72 overflow-y-auto py-1">
                           {scannerSuggestions.map((product, index) => {
                             const pr = product.product_registry
