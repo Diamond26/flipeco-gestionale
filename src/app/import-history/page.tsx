@@ -467,7 +467,7 @@ export default function ImportHistoryPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className={cn(
-                'w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border border-surface/80 bg-white shadow-sm',
+                'w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border border-surface/80 bg-card shadow-sm',
                 'focus:outline-none focus:border-brand focus:ring-4 focus:ring-brand/15 focus:shadow-md',
                 'placeholder:text-gray-400 transition-all duration-200'
               )}
@@ -476,7 +476,7 @@ export default function ImportHistoryPage() {
         </div>
 
         {/* ---- Table ---- */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 overflow-hidden">
+        <div className="bg-card/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 dark:border-white/[0.06] overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
               <thead>

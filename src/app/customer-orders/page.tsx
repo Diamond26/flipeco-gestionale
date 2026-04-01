@@ -652,7 +652,7 @@ export default function CustomerOrdersPage() {
         {/* Stats bar                                                          */}
         {/* ---------------------------------------------------------------- */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 p-4 flex items-center gap-3">
+          <div className="bg-card/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 dark:border-white/[0.06] p-4 flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-brand/10 flex items-center justify-center shrink-0">
               <ShoppingBag className="w-5 h-5 text-brand" />
             </div>
@@ -664,7 +664,7 @@ export default function CustomerOrdersPage() {
             </div>
           </div>
 
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 p-4 flex items-center gap-3">
+          <div className="bg-card/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 dark:border-white/[0.06] p-4 flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center shrink-0">
               <Clock className="w-5 h-5 text-amber-600" />
             </div>
@@ -676,7 +676,7 @@ export default function CustomerOrdersPage() {
             </div>
           </div>
 
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 p-4 flex items-center gap-3">
+          <div className="bg-card/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 dark:border-white/[0.06] p-4 flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
               <ClipboardList className="w-5 h-5 text-blue-600" />
             </div>
@@ -688,7 +688,7 @@ export default function CustomerOrdersPage() {
             </div>
           </div>
 
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 p-4 flex items-center gap-3">
+          <div className="bg-card/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 dark:border-white/[0.06] p-4 flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center shrink-0">
               <Truck className="w-5 h-5 text-emerald-600" />
             </div>
@@ -730,7 +730,7 @@ export default function CustomerOrdersPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className={cn(
-                  'w-full pl-10 pr-9 py-2.5 text-sm rounded-xl border border-surface/80 bg-white shadow-sm',
+                  'w-full pl-10 pr-9 py-2.5 text-sm rounded-xl border border-surface/80 bg-card shadow-sm',
                   'focus:outline-none focus:border-brand focus:ring-4 focus:ring-brand/15',
                   'placeholder:text-gray-400 transition-all duration-200'
                 )}
@@ -837,7 +837,7 @@ export default function CustomerOrdersPage() {
                   setNewOrderForm((f) => ({ ...f, notes: e.target.value }))
                 }
                 className={cn(
-                  'w-full px-4 py-3 text-sm rounded-xl border border-surface/80 bg-white shadow-sm resize-none',
+                  'w-full px-4 py-3 text-sm rounded-xl border border-surface/80 bg-card shadow-sm resize-none',
                   'focus:outline-none focus:border-brand focus:ring-4 focus:ring-brand/15',
                   'placeholder:text-gray-400 transition-all duration-200'
                 )}
@@ -1045,7 +1045,7 @@ export default function CustomerOrdersPage() {
 
             {/* Customer info */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="p-4 rounded-2xl bg-white/80 backdrop-blur-sm border border-white/60 shadow-sm shadow-black/[0.04]">
+              <div className="p-4 rounded-2xl bg-card/80 backdrop-blur-sm border border-white/60 dark:border-white/[0.06] shadow-sm shadow-black/[0.04]">
                 <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-foreground/50 mb-1">
                   <User className="w-3.5 h-3.5" />
                   Cliente
@@ -1056,7 +1056,7 @@ export default function CustomerOrdersPage() {
               </div>
 
               {detailOrder.customer_phone && (
-                <div className="p-4 rounded-2xl bg-white/80 backdrop-blur-sm border border-white/60 shadow-sm shadow-black/[0.04]">
+                <div className="p-4 rounded-2xl bg-card/80 backdrop-blur-sm border border-white/60 dark:border-white/[0.06] shadow-sm shadow-black/[0.04]">
                   <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-foreground/50 mb-1">
                     <Phone className="w-3.5 h-3.5" />
                     Telefono
@@ -1066,7 +1066,7 @@ export default function CustomerOrdersPage() {
               )}
 
               {detailOrder.notes && (
-                <div className="p-4 rounded-2xl bg-white/80 backdrop-blur-sm border border-white/60 shadow-sm shadow-black/[0.04] col-span-full">
+                <div className="p-4 rounded-2xl bg-card/80 backdrop-blur-sm border border-white/60 dark:border-white/[0.06] shadow-sm shadow-black/[0.04] col-span-full">
                   <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-foreground/50 mb-1">
                     <StickyNote className="w-3.5 h-3.5" />
                     Note

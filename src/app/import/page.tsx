@@ -559,7 +559,7 @@ export default function ImportPage() {
         {step === 'upload' && (
           <div className="space-y-5">
             {/* Supplier selector */}
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 p-6">
+            <div className="bg-card/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 dark:border-white/[0.06] p-6">
               <h3 className="text-sm font-semibold text-foreground mb-4">Fornitore</h3>
               <div className="flex flex-col sm:flex-row gap-4 items-end">
                 <div className="flex-1" onClick={loadSuppliers}>
@@ -578,7 +578,7 @@ export default function ImportPage() {
                         type="button"
                         title="Modifica fornitore"
                         onClick={openEditSupplier}
-                        className="p-3 rounded-xl border border-surface/20 bg-white/60 text-brand hover:bg-brand/10 transition-colors"
+                        className="p-3 rounded-xl border border-surface/20 bg-card/60 text-brand hover:bg-brand/10 transition-colors"
                       >
                         <Pencil className="w-5 h-5" />
                       </button>
@@ -586,7 +586,7 @@ export default function ImportPage() {
                         type="button"
                         title="Elimina fornitore"
                         onClick={() => setDeleteSupplierModal(true)}
-                        className="p-3 rounded-xl border border-surface/20 bg-white/60 text-danger hover:bg-danger/10 transition-colors"
+                        className="p-3 rounded-xl border border-surface/20 bg-card/60 text-danger hover:bg-danger/10 transition-colors"
                       >
                         <Trash2 className="w-5 h-5" />
                       </button>
@@ -607,7 +607,7 @@ export default function ImportPage() {
             </div>
 
             {/* File upload zone */}
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 p-6">
+            <div className="bg-card/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 dark:border-white/[0.06] p-6">
               <h3 className="text-sm font-semibold text-foreground mb-4">Carica File</h3>
               <div
                 role="button"
@@ -702,7 +702,7 @@ export default function ImportPage() {
         {/* ================================================================ */}
         {step === 'mapping' && (
           <div className="space-y-5">
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 p-6">
+            <div className="bg-card/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 dark:border-white/[0.06] p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-semibold text-foreground">Mappatura Colonne</h3>
                 <span className="text-xs text-foreground/40 font-normal">
@@ -744,7 +744,7 @@ export default function ImportPage() {
 
             {/* Preview */}
             {parsedRows.length > 0 && (
-              <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 p-6">
+              <div className="bg-card/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 dark:border-white/[0.06] p-6">
                 <h3 className="text-sm font-semibold text-foreground mb-4">Anteprima Dati (prime 3 righe)</h3>
                 <div className="overflow-x-auto rounded-xl border border-surface/20">
                   <table className="w-full text-sm border-collapse">
@@ -799,7 +799,7 @@ export default function ImportPage() {
         {step === 'review' && (
           <div className="space-y-5">
             {/* Supplier confirm */}
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 p-6">
+            <div className="bg-card/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 dark:border-white/[0.06] p-6">
               <h3 className="text-sm font-semibold text-foreground mb-4">Fornitore Selezionato</h3>
               <div className="flex flex-col sm:flex-row gap-4 items-end">
                 <div className="flex-1">
@@ -818,7 +818,7 @@ export default function ImportPage() {
                         type="button"
                         title="Modifica fornitore"
                         onClick={openEditSupplier}
-                        className="p-3 rounded-xl border border-surface/20 bg-white/60 text-brand hover:bg-brand/10 transition-colors"
+                        className="p-3 rounded-xl border border-surface/20 bg-card/60 text-brand hover:bg-brand/10 transition-colors"
                       >
                         <Pencil className="w-5 h-5" />
                       </button>
@@ -826,7 +826,7 @@ export default function ImportPage() {
                         type="button"
                         title="Elimina fornitore"
                         onClick={() => setDeleteSupplierModal(true)}
-                        className="p-3 rounded-xl border border-surface/20 bg-white/60 text-danger hover:bg-danger/10 transition-colors"
+                        className="p-3 rounded-xl border border-surface/20 bg-card/60 text-danger hover:bg-danger/10 transition-colors"
                       >
                         <Trash2 className="w-5 h-5" />
                       </button>
@@ -845,7 +845,7 @@ export default function ImportPage() {
             </div>
 
             {/* Editable table */}
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 p-6">
+            <div className="bg-card/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 dark:border-white/[0.06] p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-semibold text-foreground">Revisione Prodotti — {rows.length} righe</h3>
                 <span className="text-xs text-foreground/40 ring-1 ring-foreground/10 rounded-full px-2.5 py-0.5">

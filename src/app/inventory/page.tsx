@@ -1322,7 +1322,7 @@ export default function InventoryPage() {
         {/* ---------------------------------------------------------------- */}
         {/* Barcode scanner section                                           */}
         {/* ---------------------------------------------------------------- */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 p-5">
+        <div className="bg-card/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 dark:border-white/[0.06] p-5">
           <form onSubmit={handleBarcodeScan}>
             <div className="flex flex-col sm:flex-row gap-3 items-end">
               <div className="flex-1 relative">
@@ -1340,7 +1340,7 @@ export default function InventoryPage() {
                   }}
                   placeholder="Spara il barcode o digita..."
                   className={cn(
-                    'w-full pl-12 pr-4 py-4 text-xl font-mono rounded-xl border bg-white',
+                    'w-full pl-12 pr-4 py-4 text-xl font-mono rounded-xl border bg-card',
                     'focus:outline-none focus:ring-4 transition-all duration-200',
                     'placeholder:text-gray-300 placeholder:font-sans placeholder:text-base',
                     scanError
@@ -1544,7 +1544,7 @@ export default function InventoryPage() {
         {/* Stats bar                                                          */}
         {/* ---------------------------------------------------------------- */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-white/60 p-4 flex items-center gap-3 shadow-sm shadow-black/[0.04]">
+          <div className="bg-card/80 backdrop-blur-sm rounded-2xl border border-white/60 dark:border-white/[0.06] p-4 flex items-center gap-3 shadow-sm shadow-black/[0.04]">
             <div className="w-10 h-10 rounded-xl bg-brand/10 flex items-center justify-center shrink-0">
               <Package className="w-5 h-5 text-brand" />
             </div>
@@ -1556,7 +1556,7 @@ export default function InventoryPage() {
             </div>
           </div>
 
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-white/60 p-4 flex items-center gap-3 shadow-sm shadow-black/[0.04]">
+          <div className="bg-card/80 backdrop-blur-sm rounded-2xl border border-white/60 dark:border-white/[0.06] p-4 flex items-center gap-3 shadow-sm shadow-black/[0.04]">
             <div className="w-10 h-10 rounded-xl bg-brand/10 flex items-center justify-center shrink-0">
               <TrendingUp className="w-5 h-5 text-brand" />
             </div>
@@ -1570,7 +1570,7 @@ export default function InventoryPage() {
             </div>
           </div>
 
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-white/60 p-4 flex items-center gap-3 shadow-sm shadow-black/[0.04]">
+          <div className="bg-card/80 backdrop-blur-sm rounded-2xl border border-white/60 dark:border-white/[0.06] p-4 flex items-center gap-3 shadow-sm shadow-black/[0.04]">
             <div className="w-10 h-10 rounded-xl bg-yellow-50 flex items-center justify-center shrink-0">
               <AlertTriangle className="w-5 h-5 text-yellow-600" />
             </div>
@@ -1582,7 +1582,7 @@ export default function InventoryPage() {
             </div>
           </div>
 
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-white/60 p-4 flex items-center gap-3 shadow-sm shadow-black/[0.04]">
+          <div className="bg-card/80 backdrop-blur-sm rounded-2xl border border-white/60 dark:border-white/[0.06] p-4 flex items-center gap-3 shadow-sm shadow-black/[0.04]">
             <div className="w-10 h-10 rounded-xl bg-danger/10 flex items-center justify-center shrink-0">
               <AlertTriangle className="w-5 h-5 text-danger" />
             </div>
@@ -1598,7 +1598,7 @@ export default function InventoryPage() {
         {/* ---------------------------------------------------------------- */}
         {/* Inventory table                                                    */}
         {/* ---------------------------------------------------------------- */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 p-5">
+        <div className="bg-card/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 dark:border-white/[0.06] p-5">
           {/* Card header */}
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-lg font-bold text-foreground">Inventario</h2>
@@ -1617,7 +1617,7 @@ export default function InventoryPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className={cn(
-                'w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border border-surface/80 bg-white shadow-sm',
+                'w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border border-surface/80 bg-card shadow-sm',
                 'focus:outline-none focus:border-brand focus:ring-4 focus:ring-brand/15 focus:shadow-md',
                 'placeholder:text-gray-400 transition-all duration-200'
               )}
@@ -1970,7 +1970,7 @@ export default function InventoryPage() {
             </div>
             {/* Barcode typeahead suggestions */}
             {suggestField === 'barcode' && productSuggestions.length > 0 && (
-              <div className="absolute z-50 left-0 right-0 top-full mt-1 bg-white border border-surface/30 rounded-xl shadow-xl max-h-56 overflow-y-auto">
+              <div className="absolute z-50 left-0 right-0 top-full mt-1 bg-card border border-surface/30 rounded-xl shadow-xl max-h-56 overflow-y-auto">
                 {productSuggestions.map((p) => (
                   <button
                     key={p.id}
@@ -2027,7 +2027,7 @@ export default function InventoryPage() {
                 required
               />
               {suggestField === 'name' && productSuggestions.length > 0 && (
-                <div className="absolute z-50 left-0 right-0 top-full mt-1 bg-white border border-surface/30 rounded-xl shadow-xl max-h-56 overflow-y-auto">
+                <div className="absolute z-50 left-0 right-0 top-full mt-1 bg-card border border-surface/30 rounded-xl shadow-xl max-h-56 overflow-y-auto">
                   {productSuggestions.map((p) => (
                     <button
                       key={p.id}
@@ -2068,7 +2068,7 @@ export default function InventoryPage() {
                 onBlur={closeSuggestions}
               />
               {suggestField === 'size' && productSuggestions.length > 0 && (
-                <div className="absolute z-50 left-0 right-0 top-full mt-1 bg-white border border-surface/30 rounded-xl shadow-xl max-h-56 overflow-y-auto">
+                <div className="absolute z-50 left-0 right-0 top-full mt-1 bg-card border border-surface/30 rounded-xl shadow-xl max-h-56 overflow-y-auto">
                   {productSuggestions.map((p) => (
                     <button
                       key={p.id}
@@ -2101,7 +2101,7 @@ export default function InventoryPage() {
                 onBlur={closeSuggestions}
               />
               {suggestField === 'color' && productSuggestions.length > 0 && (
-                <div className="absolute z-50 left-0 right-0 top-full mt-1 bg-white border border-surface/30 rounded-xl shadow-xl max-h-56 overflow-y-auto">
+                <div className="absolute z-50 left-0 right-0 top-full mt-1 bg-card border border-surface/30 rounded-xl shadow-xl max-h-56 overflow-y-auto">
                   {productSuggestions.map((p) => (
                     <button
                       key={p.id}
@@ -2142,7 +2142,7 @@ export default function InventoryPage() {
                 onBlur={closeSuggestions}
               />
               {suggestField === 'brand' && productSuggestions.length > 0 && (
-                <div className="absolute z-50 left-0 right-0 top-full mt-1 bg-white border border-surface/30 rounded-xl shadow-xl max-h-56 overflow-y-auto">
+                <div className="absolute z-50 left-0 right-0 top-full mt-1 bg-card border border-surface/30 rounded-xl shadow-xl max-h-56 overflow-y-auto">
                   {productSuggestions.map((p) => (
                     <button
                       key={p.id}

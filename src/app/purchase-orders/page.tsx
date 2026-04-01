@@ -566,7 +566,7 @@ export default function PurchaseOrdersPage() {
         {/* Stats bar                                                          */}
         {/* ---------------------------------------------------------------- */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 p-4 flex items-center gap-3">
+          <div className="bg-card/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 dark:border-white/[0.06] p-4 flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-brand/10 flex items-center justify-center shrink-0">
               <ClipboardList className="w-5 h-5 text-brand" />
             </div>
@@ -578,7 +578,7 @@ export default function PurchaseOrdersPage() {
             </div>
           </div>
 
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 p-4 flex items-center gap-3">
+          <div className="bg-card/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 dark:border-white/[0.06] p-4 flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
               <ShoppingCart className="w-5 h-5 text-blue-600" />
             </div>
@@ -590,7 +590,7 @@ export default function PurchaseOrdersPage() {
             </div>
           </div>
 
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 p-4 flex items-center gap-3">
+          <div className="bg-card/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 dark:border-white/[0.06] p-4 flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center shrink-0">
               <Truck className="w-5 h-5 text-amber-600" />
             </div>
@@ -602,7 +602,7 @@ export default function PurchaseOrdersPage() {
             </div>
           </div>
 
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 p-4 flex items-center gap-3">
+          <div className="bg-card/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 dark:border-white/[0.06] p-4 flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center shrink-0">
               <CheckCircle2 className="w-5 h-5 text-emerald-600" />
             </div>
@@ -643,7 +643,7 @@ export default function PurchaseOrdersPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className={cn(
-                  'w-full pl-10 pr-9 py-2.5 text-sm rounded-xl border border-surface/80 bg-white shadow-sm',
+                  'w-full pl-10 pr-9 py-2.5 text-sm rounded-xl border border-surface/80 bg-card shadow-sm',
                   'focus:outline-none focus:border-brand focus:ring-4 focus:ring-brand/15',
                   'placeholder:text-gray-400 transition-all duration-200'
                 )}
@@ -669,7 +669,7 @@ export default function PurchaseOrdersPage() {
                     'px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-150 border',
                     statusFilter === opt.value
                       ? 'bg-brand text-white border-brand shadow-sm'
-                      : 'bg-white text-foreground/60 border-surface/30 hover:border-brand/40 hover:text-foreground'
+                      : 'bg-card text-foreground/60 border-surface/30 hover:border-brand/40 hover:text-foreground'
                   )}
                 >
                   {opt.label}
@@ -858,7 +858,7 @@ export default function PurchaseOrdersPage() {
                             value={item.quantity}
                             onChange={(e) => handleDraftQtyChange(item.id, e.target.value)}
                             className={cn(
-                              'w-20 px-2 py-1.5 text-sm rounded-lg border border-surface/80 bg-white shadow-sm',
+                              'w-20 px-2 py-1.5 text-sm rounded-lg border border-surface/80 bg-card shadow-sm',
                               'focus:outline-none focus:border-brand focus:ring-4 focus:ring-brand/15',
                               'text-center font-semibold transition-all duration-150'
                             )}
@@ -875,7 +875,7 @@ export default function PurchaseOrdersPage() {
                               placeholder="0.00"
                               onChange={(e) => handleDraftPriceChange(item.id, e.target.value)}
                               className={cn(
-                                'w-24 px-2 py-1.5 text-sm rounded-lg border border-surface/80 bg-white shadow-sm',
+                                'w-24 px-2 py-1.5 text-sm rounded-lg border border-surface/80 bg-card shadow-sm',
                                 'focus:outline-none focus:border-brand focus:ring-4 focus:ring-brand/15',
                                 'transition-all duration-150'
                               )}
@@ -931,7 +931,7 @@ export default function PurchaseOrdersPage() {
               placeholder="Istruzioni di consegna, riferimenti interni, ecc."
               rows={3}
               className={cn(
-                'w-full px-4 py-3 text-sm rounded-xl border border-surface/80 bg-white shadow-sm',
+                'w-full px-4 py-3 text-sm rounded-xl border border-surface/80 bg-card shadow-sm',
                 'focus:outline-none focus:border-brand focus:ring-4 focus:ring-brand/15',
                 'placeholder:text-gray-400 transition-all duration-200 resize-none'
               )}
@@ -975,7 +975,7 @@ export default function PurchaseOrdersPage() {
           <div className="space-y-5">
             {/* Header info strip */}
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              <div className="p-3 rounded-xl bg-white/80 backdrop-blur-sm border border-white/60 shadow-sm shadow-black/[0.04]">
+              <div className="p-3 rounded-xl bg-card/80 backdrop-blur-sm border border-white/60 dark:border-white/[0.06] shadow-sm shadow-black/[0.04]">
                 <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50 mb-1">
                   Fornitore
                 </p>
@@ -987,14 +987,14 @@ export default function PurchaseOrdersPage() {
                 )}
               </div>
 
-              <div className="p-3 rounded-xl bg-white/80 backdrop-blur-sm border border-white/60 shadow-sm shadow-black/[0.04]">
+              <div className="p-3 rounded-xl bg-card/80 backdrop-blur-sm border border-white/60 dark:border-white/[0.06] shadow-sm shadow-black/[0.04]">
                 <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50 mb-1">
                   Stato
                 </p>
                 <StatusBadge status={selectedOrder.status} />
               </div>
 
-              <div className="p-3 rounded-xl bg-white/80 backdrop-blur-sm border border-white/60 shadow-sm shadow-black/[0.04]">
+              <div className="p-3 rounded-xl bg-card/80 backdrop-blur-sm border border-white/60 dark:border-white/[0.06] shadow-sm shadow-black/[0.04]">
                 <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50 mb-1">
                   Data Ordine
                 </p>
@@ -1022,7 +1022,7 @@ export default function PurchaseOrdersPage() {
                         className={cn(
                           'w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-all',
                           isCompleted && 'bg-brand border-brand text-white',
-                          isCurrent && 'bg-white border-brand text-brand shadow-md',
+                          isCurrent && 'bg-card border-brand text-brand shadow-md',
                           !isCompleted && !isCurrent && 'bg-surface border-surface/30 text-foreground/30'
                         )}
                       >
@@ -1150,7 +1150,7 @@ export default function PurchaseOrdersPage() {
 
             {/* Notes */}
             {selectedOrder.notes && (
-              <div className="p-4 rounded-xl bg-white/80 backdrop-blur-sm border border-white/60 shadow-sm shadow-black/[0.04]">
+              <div className="p-4 rounded-xl bg-card/80 backdrop-blur-sm border border-white/60 dark:border-white/[0.06] shadow-sm shadow-black/[0.04]">
                 <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50 mb-1.5">
                   Note
                 </p>

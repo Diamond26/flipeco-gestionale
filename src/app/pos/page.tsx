@@ -945,26 +945,26 @@ export default function POSPage() {
           {/* ============================================================== */}
           <div className="min-w-0 space-y-4">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <div className="rounded-xl border border-white/60 bg-white/75 backdrop-blur-sm p-3 shadow-sm">
+              <div className="rounded-xl border border-white/60 dark:border-white/[0.06] bg-card/75 backdrop-blur-sm p-3 shadow-sm">
                 <p className="text-[11px] uppercase tracking-wider text-foreground/45 font-semibold">Disponibili</p>
                 <p className="text-lg font-bold text-foreground">{products.length}</p>
               </div>
-              <div className="rounded-xl border border-white/60 bg-white/75 backdrop-blur-sm p-3 shadow-sm">
+              <div className="rounded-xl border border-white/60 dark:border-white/[0.06] bg-card/75 backdrop-blur-sm p-3 shadow-sm">
                 <p className="text-[11px] uppercase tracking-wider text-foreground/45 font-semibold">Transazioni giorno</p>
                 <p className="text-lg font-bold text-foreground">{todaySales.length}</p>
               </div>
-              <div className="rounded-xl border border-white/60 bg-white/75 backdrop-blur-sm p-3 shadow-sm">
+              <div className="rounded-xl border border-white/60 dark:border-white/[0.06] bg-card/75 backdrop-blur-sm p-3 shadow-sm">
                 <p className="text-[11px] uppercase tracking-wider text-foreground/45 font-semibold">Articoli venduti</p>
                 <p className="text-lg font-bold text-foreground">{soldItemsCount}</p>
               </div>
-              <div className="rounded-xl border border-white/60 bg-white/75 backdrop-blur-sm p-3 shadow-sm">
+              <div className="rounded-xl border border-white/60 dark:border-white/[0.06] bg-card/75 backdrop-blur-sm p-3 shadow-sm">
                 <p className="text-[11px] uppercase tracking-wider text-foreground/45 font-semibold">Incasso giorno</p>
                 <p className="text-lg font-extrabold text-brand">{formatCurrency(dailyTotal)}</p>
               </div>
             </div>
 
             {/* Barcode scanner input */}
-            <div className="pos-surface bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 p-4">
+            <div className="pos-surface bg-card/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 dark:border-white/[0.06] p-4">
               <form onSubmit={handleBarcodeScan}>
                 <div className="flex gap-3 items-center">
                   <div ref={scannerBoxRef} className="relative flex-1">
@@ -1000,7 +1000,7 @@ export default function POSPage() {
                       placeholder="Scansiona barcode o digita..."
                       className={cn(
                         'w-full pl-14 pr-4 py-4 text-2xl font-mono',
-                        'rounded-xl border border-surface/80 bg-white shadow-sm',
+                        'rounded-xl border border-surface/80 bg-card shadow-sm',
                         'focus:outline-none focus:border-brand focus:ring-4 focus:ring-brand/15 focus:shadow-md',
                         'transition-all duration-200',
                         'placeholder:text-gray-300 placeholder:font-sans placeholder:text-lg'
@@ -1010,7 +1010,7 @@ export default function POSPage() {
                       aria-label="Scanner barcode cassa"
                     />
                     {scannerOpen && scannerSuggestions.length > 0 && (
-                      <div className="absolute left-0 right-0 top-[calc(100%+8px)] z-30 rounded-xl border border-surface/40 bg-white/95 backdrop-blur-sm shadow-xl overflow-hidden">
+                      <div className="absolute left-0 right-0 top-[calc(100%+8px)] z-30 rounded-xl border border-surface/40 bg-card/95 backdrop-blur-sm shadow-xl overflow-hidden">
                         <ul className="max-h-72 overflow-y-auto py-1">
                           {scannerSuggestions.map((product, index) => {
                             const pr = product.product_registry
@@ -1058,7 +1058,7 @@ export default function POSPage() {
               </form>
             </div>
 
-            <div className="pos-surface bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 p-4">
+            <div className="pos-surface bg-card/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 dark:border-white/[0.06] p-4">
               <div className="flex items-center gap-3">
                 <Button
                   type="button"
@@ -1080,7 +1080,7 @@ export default function POSPage() {
           <div className="w-full space-y-4 xl:sticky xl:top-4">
 
             {/* Cart panel */}
-            <div className="pos-surface relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 overflow-hidden">
+            <div className="pos-surface relative bg-card/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 dark:border-white/[0.06] overflow-hidden">
               {/* Decorative square lines */}
               <span className="pointer-events-none absolute left-3 top-3 h-5 w-5 border-l-2 border-t-2 border-brand/35 rounded-tl-md" />
               <span className="pointer-events-none absolute right-3 top-3 h-5 w-5 border-r-2 border-t-2 border-brand/35 rounded-tr-md" />
@@ -1122,7 +1122,7 @@ export default function POSPage() {
                   cart.map((item) => (
                     <div
                       key={item.inventoryId}
-                      className="flex items-center gap-3 px-4 py-3 bg-white/40 hover:bg-brand/[0.04] transition-colors duration-200"
+                      className="flex items-center gap-3 px-4 py-3 bg-card/40 hover:bg-brand/[0.04] transition-colors duration-200"
                     >
                       {/* Info */}
                       <div className="flex-1 min-w-0">
@@ -1275,7 +1275,7 @@ export default function POSPage() {
         {/* ---------------------------------------------------------------- */}
         {/* Sales history (always open)                                       */}
         {/* ---------------------------------------------------------------- */}
-        <div className="pos-surface bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 overflow-hidden">
+        <div className="pos-surface bg-card/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 dark:border-white/[0.06] overflow-hidden">
           <div className="px-5 py-4 border-b border-surface/20 bg-surface-light/10">
             <div className="flex items-center gap-3">
               <ReceiptText className="w-5 h-5 text-brand" />
@@ -1303,7 +1303,7 @@ export default function POSPage() {
                           (prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1)
                         )
                       }
-                      className="w-8 h-8 rounded-lg border border-surface/40 bg-white hover:bg-surface/20 text-foreground/60 flex items-center justify-center"
+                      className="w-8 h-8 rounded-lg border border-surface/40 bg-card hover:bg-surface/20 text-foreground/60 flex items-center justify-center"
                       aria-label="Mese precedente"
                     >
                       <ChevronLeft className="w-4 h-4" />
@@ -1318,7 +1318,7 @@ export default function POSPage() {
                           (prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1)
                         )
                       }
-                      className="w-8 h-8 rounded-lg border border-surface/40 bg-white hover:bg-surface/20 text-foreground/60 flex items-center justify-center"
+                      className="w-8 h-8 rounded-lg border border-surface/40 bg-card hover:bg-surface/20 text-foreground/60 flex items-center justify-center"
                       aria-label="Mese successivo"
                     >
                       <ChevronRight className="w-4 h-4" />
@@ -1349,7 +1349,7 @@ export default function POSPage() {
                           'h-10 rounded-lg text-sm font-medium transition-all border',
                           day.isSelected
                             ? 'bg-brand text-white border-brand shadow'
-                            : 'bg-white border-surface/30 hover:bg-brand/10 hover:border-brand/30 text-foreground/75',
+                            : 'bg-card border-surface/30 hover:bg-brand/10 hover:border-brand/30 text-foreground/75',
                           day.isToday && !day.isSelected && 'ring-2 ring-brand/25'
                         )}
                       >
@@ -1519,7 +1519,7 @@ export default function POSPage() {
                               {isExpanded && (
                                 <tr className="bg-brand/[0.03]">
                                   <td colSpan={6} className="px-5 py-4">
-                                    <div className="rounded-xl border border-brand/15 bg-white/85 p-3">
+                                    <div className="rounded-xl border border-brand/15 bg-card/85 p-3">
                                       <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50 mb-3">
                                         Dettaglio articoli transazione
                                       </p>
@@ -1586,7 +1586,7 @@ export default function POSPage() {
                 placeholder="Cerca per barcode, nome, brand, taglia, colore..."
                 className={cn(
                   'w-full pl-10 pr-4 py-2.5 text-sm',
-                  'rounded-xl border border-surface/80 bg-white shadow-sm',
+                  'rounded-xl border border-surface/80 bg-card shadow-sm',
                   'focus:outline-none focus:border-brand focus:ring-4 focus:ring-brand/15 focus:shadow-md',
                   'placeholder:text-gray-400 transition-all duration-200'
                 )}
@@ -1596,7 +1596,7 @@ export default function POSPage() {
               value={productSortBy}
               onChange={(e) => setProductSortBy(e.target.value as 'name' | 'brand' | 'size' | 'price' | 'quantity')}
               className={cn(
-                'w-full rounded-xl border border-surface/80 bg-white px-3 py-2.5 text-sm shadow-sm',
+                'w-full rounded-xl border border-surface/80 bg-card px-3 py-2.5 text-sm shadow-sm',
                 'focus:outline-none focus:border-brand focus:ring-4 focus:ring-brand/15'
               )}
             >
@@ -1616,7 +1616,7 @@ export default function POSPage() {
             <button
               type="button"
               onClick={toggleSelectAllVisibleProducts}
-              className="px-3 py-1.5 rounded-lg text-xs font-semibold border border-surface/40 bg-white hover:bg-surface/20 transition-colors"
+              className="px-3 py-1.5 rounded-lg text-xs font-semibold border border-surface/40 bg-card hover:bg-surface/20 transition-colors"
             >
               {allVisibleSelected ? 'Deseleziona tutti' : 'Seleziona tutti'}
             </button>
@@ -1732,7 +1732,7 @@ export default function POSPage() {
               step="0.01"
               value={bulkEditPrice}
               onChange={(e) => setBulkEditPrice(e.target.value)}
-              className="w-full rounded-xl border border-surface/80 bg-white px-3 py-2.5 text-sm focus:outline-none focus:border-brand focus:ring-4 focus:ring-brand/15"
+              className="w-full rounded-xl border border-surface/80 bg-card px-3 py-2.5 text-sm focus:outline-none focus:border-brand focus:ring-4 focus:ring-brand/15"
               placeholder="Es. 39.90"
             />
           </div>
@@ -1746,7 +1746,7 @@ export default function POSPage() {
               step="1"
               value={bulkEditQuantity}
               onChange={(e) => setBulkEditQuantity(e.target.value)}
-              className="w-full rounded-xl border border-surface/80 bg-white px-3 py-2.5 text-sm focus:outline-none focus:border-brand focus:ring-4 focus:ring-brand/15"
+              className="w-full rounded-xl border border-surface/80 bg-card px-3 py-2.5 text-sm focus:outline-none focus:border-brand focus:ring-4 focus:ring-brand/15"
               placeholder="Es. 10"
             />
           </div>
@@ -1985,7 +1985,7 @@ export default function POSPage() {
                   placeholder="Barcode prodotto..."
                   className={cn(
                     'w-full pl-12 pr-4 py-4 text-xl font-mono',
-                    'rounded-xl border border-amber-300/80 bg-white shadow-sm',
+                    'rounded-xl border border-amber-300/80 bg-card shadow-sm',
                     'focus:outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-200/40 focus:shadow-md',
                     'transition-all duration-200',
                     'placeholder:text-gray-300 placeholder:font-sans placeholder:text-base'
