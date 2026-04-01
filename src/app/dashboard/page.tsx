@@ -1,9 +1,12 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { Package, Archive, CreditCard, ShoppingBag } from 'lucide-react'
+import { useEffect, useState, useCallback } from 'react'
+import { Package, Archive, CreditCard, ShoppingBag, Calendar } from 'lucide-react'
 import AppShell from '@/components/layout/AppShell'
 import { Card } from '@/components/ui/Card'
+import { RevenueChart } from '@/components/charts/RevenueChart'
+import { TopProductsChart } from '@/components/charts/TopProductsChart'
+import { StockAlertChart } from '@/components/charts/StockAlertChart'
 import { createClient } from '@/lib/supabase/client'
 import { formatCurrency, formatDate, cn } from '@/lib/utils'
 
@@ -24,6 +27,18 @@ interface RecentSale {
   payment_method: string | null
   total: number
 }
+
+interface RevenueDataPoint {
+  date: string
+  total: number
+}
+
+interface TopProduct {
+  name: string
+  quantity: number
+}
+
+type TimePeriod = '7d' | '30d'
 
 // ---------------------------------------------------------------------------
 // Stat card component
@@ -96,6 +111,50 @@ function PaymentBadge({ method }: { method: string | null }) {
 }
 
 // ---------------------------------------------------------------------------
+// Time period selector
+// ---------------------------------------------------------------------------
+
+function PeriodSelector({ value, onChange }: { value: TimePeriod; onChange: (v: TimePeriod) => void }) {
+  return (
+    <div className="flex items-center gap-1 bg-surface-light/60 rounded-xl p-1">
+      {([
+        { key: '7d' as TimePeriod, label: '7 giorni' },
+        { key: '30d' as TimePeriod, label: '30 giorni' },
+      ]).map((opt) => (
+        <button
+          key={opt.key}
+          onClick={() => onChange(opt.key)}
+          className={cn(
+            'px-3 py-1.5 text-xs font-semibold rounded-lg transition-all',
+            value === opt.key
+              ? 'bg-white shadow-sm text-foreground'
+              : 'text-foreground/50 hover:text-foreground/70'
+          )}
+        >
+          {opt.label}
+        </button>
+      ))}
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+function getDateNDaysAgo(n: number): Date {
+  const d = new Date()
+  d.setDate(d.getDate() - n)
+  d.setHours(0, 0, 0, 0)
+  return d
+}
+
+function formatShortDate(dateStr: string): string {
+  const d = new Date(dateStr)
+  return d.toLocaleDateString('it-IT', { day: '2-digit', month: 'short' })
+}
+
+// ---------------------------------------------------------------------------
 // Dashboard page
 // ---------------------------------------------------------------------------
 
@@ -112,13 +171,21 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  // --- Charts state ---
+  const [period, setPeriod] = useState<TimePeriod>('7d')
+  const [chartsLoading, setChartsLoading] = useState(true)
+  const [revenueData, setRevenueData] = useState<RevenueDataPoint[]>([])
+  const [topProducts, setTopProducts] = useState<TopProduct[]>([])
+  const [stockTotal, setStockTotal] = useState(0)
+  const [stockCritical, setStockCritical] = useState(0)
+
+  // --- Fetch base stats (unchanged) ---
   useEffect(() => {
     async function fetchDashboardData() {
       try {
         setLoading(true)
         setError(null)
 
-        // Today's date boundaries (ISO strings, local midnight → end of day)
         const todayStart = new Date()
         todayStart.setHours(0, 0, 0, 0)
         const todayEnd = new Date()
@@ -131,30 +198,21 @@ export default function DashboardPage() {
           pendingOrdersRes,
           recentSalesRes,
         ] = await Promise.all([
-          // 1. Count of product_registry rows
           supabase
             .from('product_registry')
             .select('id', { count: 'exact', head: true }),
-
-          // 2. Sum of inventory quantities
           supabase
             .from('inventory')
             .select('quantity'),
-
-          // 3. Count of sales created today
           supabase
             .from('sales')
             .select('id', { count: 'exact', head: true })
             .gte('created_at', todayStart.toISOString())
             .lte('created_at', todayEnd.toISOString()),
-
-          // 4. Count of pending customer orders
           supabase
             .from('customer_orders')
             .select('id', { count: 'exact', head: true })
             .eq('status', 'pending'),
-
-          // 5. Last 5 sales
           supabase
             .from('sales')
             .select('id, created_at, payment_method, total')
@@ -162,7 +220,6 @@ export default function DashboardPage() {
             .limit(5),
         ])
 
-        // Compute total inventory quantity
         const inventoryTotalQty =
           inventoryRes.data?.reduce(
             (sum: number, row: { quantity: number }) => sum + (row.quantity ?? 0),
@@ -187,6 +244,80 @@ export default function DashboardPage() {
 
     fetchDashboardData()
   }, [])
+
+  // --- Fetch chart data (reacts to period) ---
+  const fetchChartData = useCallback(async () => {
+    setChartsLoading(true)
+    try {
+      const days = period === '7d' ? 7 : 30
+      const since = getDateNDaysAgo(days)
+
+      const [salesRes, saleItemsRes, inventoryRes] = await Promise.all([
+        // All sales in the period for revenue chart
+        supabase
+          .from('sales')
+          .select('total, created_at')
+          .gte('created_at', since.toISOString())
+          .order('created_at', { ascending: true }),
+
+        // Sale items with product name for top products
+        supabase
+          .from('sale_items')
+          .select('quantity, sale_id, product_id, sales!inner(created_at), product_registry!inner(name)')
+          .gte('sales.created_at', since.toISOString()),
+
+        // Inventory for stock alert
+        supabase
+          .from('inventory')
+          .select('quantity'),
+      ])
+
+      // --- Revenue by day ---
+      const revenueMap = new Map<string, number>()
+      // Pre-fill all days so chart has no gaps
+      for (let i = days - 1; i >= 0; i--) {
+        const d = new Date()
+        d.setDate(d.getDate() - i)
+        const key = d.toISOString().slice(0, 10)
+        revenueMap.set(key, 0)
+      }
+      for (const row of salesRes.data ?? []) {
+        const key = row.created_at.slice(0, 10)
+        revenueMap.set(key, (revenueMap.get(key) ?? 0) + Number(row.total))
+      }
+      setRevenueData(
+        Array.from(revenueMap.entries()).map(([date, total]) => ({
+          date: formatShortDate(date),
+          total: Math.round(total * 100) / 100,
+        }))
+      )
+
+      // --- Top 5 products ---
+      const productMap = new Map<string, number>()
+      for (const row of saleItemsRes.data ?? []) {
+        const name = (row as any).product_registry?.name ?? 'Sconosciuto'
+        productMap.set(name, (productMap.get(name) ?? 0) + row.quantity)
+      }
+      const sorted = Array.from(productMap.entries())
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5)
+        .map(([name, quantity]) => ({ name, quantity }))
+      setTopProducts(sorted)
+
+      // --- Stock alert ---
+      const invRows = inventoryRes.data ?? []
+      setStockTotal(invRows.length)
+      setStockCritical(invRows.filter((r: { quantity: number }) => r.quantity < 3).length)
+    } catch (err) {
+      console.error('Charts fetch error:', err)
+    } finally {
+      setChartsLoading(false)
+    }
+  }, [period, supabase])
+
+  useEffect(() => {
+    fetchChartData()
+  }, [fetchChartData])
 
   return (
     <AppShell pageTitle="Dashboard">
@@ -236,6 +367,37 @@ export default function DashboardPage() {
             animDelay="0.15s"
           />
         </div>
+      </section>
+
+      {/* Period selector */}
+      <div className="flex items-center justify-between mb-5">
+        <div className="flex items-center gap-2 text-foreground/50">
+          <Calendar className="w-4 h-4" />
+          <span className="text-sm font-medium">Periodo</span>
+        </div>
+        <PeriodSelector value={period} onChange={setPeriod} />
+      </div>
+
+      {/* Charts grid */}
+      <section aria-label="Grafici analitici" className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-8">
+        {/* Revenue chart */}
+        <Card title="Andamento Incassi" className="lg:col-span-2">
+          <RevenueChart data={revenueData} loading={chartsLoading} />
+        </Card>
+
+        {/* Top products */}
+        <Card title="Top 5 Prodotti Venduti">
+          <TopProductsChart data={topProducts} loading={chartsLoading} />
+        </Card>
+
+        {/* Stock alert */}
+        <Card title="Salute Magazzino">
+          <StockAlertChart
+            totalProducts={stockTotal}
+            criticalCount={stockCritical}
+            loading={chartsLoading}
+          />
+        </Card>
       </section>
 
       {/* Recent sales table */}
