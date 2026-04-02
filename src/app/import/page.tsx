@@ -4,7 +4,6 @@ import { useState, useCallback, useRef } from 'react';
 import AppShell from '@/components/layout/AppShell';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { Card } from '@/components/ui/Card';
 import { Modal } from '@/components/ui/Modal';
 import { ConfirmBanner } from '@/components/ui/ConfirmBanner';
 import { Select } from '@/components/ui/Select';
@@ -15,45 +14,12 @@ import { parseExcel } from '@/lib/parsers/excel-parser';
 import { parsePDF } from '@/lib/parsers/pdf-parser';
 import { exportToPDF } from '@/lib/pdf-export';
 import { productRegistrySchema } from '@/lib/validators/schemas';
-import { z } from 'zod';
 
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
-type Step = 'upload' | 'mapping' | 'review' | 'done';
-
-interface Supplier {
-  id: string;
-  name: string;
-  email?: string;
-  phone?: string;
-  address?: string;
-}
-
-interface MappingConfig {
-  barcode: string;
-  sku: string;
-  name: string;
-  size: string;
-  color: string;
-  color_code: string;
-  brand: string;
-  category: string;
-}
-
-interface ProductRow {
-  id: string;
-  barcode: string;
-  sku: string;
-  name: string;
-  size: string;
-  color: string;
-  color_code: string;
-  brand: string;
-  category: string;
-  hasError: boolean;
-}
+import { Step, Supplier, MappingConfig, ProductRow } from './types';
+import { PremiumStepper } from './components/PremiumStepper';
+import { UploadStep } from './components/UploadStep';
+import { MappingStep } from './components/MappingStep';
+import { ReviewStep } from './components/ReviewStep';
 
 // ---------------------------------------------------------------------------
 // Auto-mapping helper
@@ -78,65 +44,6 @@ function autoDetectMapping(headers: string[]): MappingConfig {
     brand: find([/brand/, /marca/, /marchio/, /griffe/]),
     category: find([/categ/, /category/, /tipo/, /reparto/, /classe/]),
   };
-}
-
-// ---------------------------------------------------------------------------
-// Step indicator
-// ---------------------------------------------------------------------------
-
-function StepIndicator({ current }: { current: 1 | 2 | 3 }) {
-  const steps = [
-    { n: 1, label: 'Carica File' },
-    { n: 2, label: 'Mappa Colonne' },
-    { n: 3, label: 'Revisiona e Salva' },
-  ];
-  return (
-    <div className="flex items-center justify-center gap-0 mb-10">
-      {steps.map((s, idx) => (
-        <div key={s.n} className="flex items-center">
-          <div className="flex flex-col items-center">
-            <div
-              className={[
-                'w-11 h-11 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300',
-                s.n < current
-                  ? 'bg-gradient-to-br from-brand to-brand/80 text-white shadow-md shadow-brand/20'
-                  : s.n === current
-                    ? 'bg-gradient-to-br from-brand to-brand/90 text-white shadow-lg ring-[3px] ring-brand/25'
-                    : 'bg-surface/30 text-foreground/30 border border-surface/40',
-              ].join(' ')}
-            >
-              {s.n < current ? (
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-              ) : (
-                s.n
-              )}
-            </div>
-            <span
-              className={[
-                'mt-2 text-xs font-semibold whitespace-nowrap tracking-wide',
-                s.n < current ? 'text-brand/70' : s.n === current ? 'text-brand' : 'text-foreground/30',
-              ].join(' ')}
-            >
-              {s.label}
-            </span>
-          </div>
-          {idx < steps.length - 1 && (
-            <div className="relative mx-3 mt-[-14px]">
-              <div className="h-[2px] w-20 bg-surface/20 rounded-full" />
-              <div
-                className={[
-                  'absolute top-0 left-0 h-[2px] rounded-full transition-all duration-500',
-                  s.n < current ? 'w-full bg-gradient-to-r from-brand to-brand/70' : 'w-0 bg-brand',
-                ].join(' ')}
-              />
-            </div>
-          )}
-        </div>
-      ))}
-    </div>
-  );
 }
 
 // ---------------------------------------------------------------------------
@@ -535,469 +442,92 @@ export default function ImportPage() {
 
   return (
     <AppShell>
-      {/* Toast */}
       {toast && (
-        <div className={`fixed top-6 right-6 z-50 ${toastType === 'error' ? 'bg-danger' : 'bg-success'} text-white px-5 py-3 rounded-2xl shadow-lg shadow-black/10 font-medium text-sm animate-toast-in backdrop-blur-sm`}>
+        <div className={`fixed top-6 right-6 z-50 ${toastType === 'error' ? 'bg-red-500' : 'bg-[#7BB35F]'} text-[#0a0f12] px-5 py-3 rounded-2xl shadow-lg shadow-black/20 font-bold text-sm animate-fade-in`}>
           {toast}
         </div>
       )}
 
-      <div className="max-w-4xl mx-auto px-4 py-8 animate-fade-in">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground tracking-tight">Importazione Prodotti</h1>
-          <p className="text-foreground/50 mt-1.5">
-            Carica un file CSV, Excel o PDF per importare prodotti nell&apos;anagrafica.
-          </p>
-        </div>
+      <div className="relative min-h-[calc(100vh-60px)] text-white font-sans bg-[#0f1219] rounded-[2rem] overflow-hidden -m-6 p-6 sm:p-10 lg:p-12 shadow-[inset_0_4px_40px_rgba(0,0,0,0.4)]">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-[#7BB35F]/5 blur-[120px] pointer-events-none rounded-[100%]" />
 
-        {/* Step indicator — hidden on done */}
-        {step !== 'done' && <StepIndicator current={stepNumber} />}
+        {step !== 'done' && <PremiumStepper current={step} />}
 
-        {/* ================================================================ */}
-        {/* STEP 1 — UPLOAD                                                  */}
-        {/* ================================================================ */}
         {step === 'upload' && (
-          <div className="space-y-5">
-            {/* Supplier selector */}
-            <div className="bg-card/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 dark:border-white/[0.06] p-6">
-              <h3 className="text-sm font-semibold text-foreground mb-4">Fornitore</h3>
-              <div className="flex flex-col sm:flex-row gap-4 items-end">
-                <div className="flex-1" onClick={loadSuppliers}>
-                  <Select
-                    label="Seleziona fornitore"
-                    placeholder="Scegli un fornitore..."
-                    options={supplierOptions}
-                    value={selectedSupplierId}
-                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedSupplierId(e.target.value)}
-                  />
-                </div>
-                <div className="flex gap-2">
-                  {selectedSupplierId && (
-                    <>
-                      <button
-                        type="button"
-                        title="Modifica fornitore"
-                        onClick={openEditSupplier}
-                        className="p-3 rounded-xl border border-surface/20 bg-card/60 text-brand hover:bg-brand/10 transition-colors"
-                      >
-                        <Pencil className="w-5 h-5" />
-                      </button>
-                      <button
-                        type="button"
-                        title="Elimina fornitore"
-                        onClick={() => setDeleteSupplierModal(true)}
-                        className="p-3 rounded-xl border border-surface/20 bg-card/60 text-danger hover:bg-danger/10 transition-colors"
-                      >
-                        <Trash2 className="w-5 h-5" />
-                      </button>
-                    </>
-                  )}
-                  <Button
-                    variant="secondary"
-                    size="md"
-                    onClick={() => {
-                      loadSuppliers();
-                      setShowNewSupplierModal(true);
-                    }}
-                  >
-                    + Nuovo Fornitore
-                  </Button>
-                </div>
-              </div>
-            </div>
-
-            {/* File upload zone */}
-            <div className="bg-card/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 dark:border-white/[0.06] p-6">
-              <h3 className="text-sm font-semibold text-foreground mb-4">Carica File</h3>
-              <div
-                role="button"
-                tabIndex={0}
-                aria-label="Zona di caricamento file. Trascina un file o clicca per selezionarne uno."
-                onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
-                onDragLeave={() => setIsDragging(false)}
-                onDrop={onDrop}
-                onClick={() => fileInputRef.current?.click()}
-                onKeyDown={(e) => e.key === 'Enter' && fileInputRef.current?.click()}
-                className={[
-                  'border-2 border-dashed rounded-2xl p-12 flex flex-col items-center justify-center gap-4 cursor-pointer transition-all duration-200',
-                  isDragging
-                    ? 'border-brand bg-gradient-to-b from-brand/10 to-brand/5 scale-[1.01]'
-                    : selectedFile
-                      ? 'border-brand/40 bg-gradient-to-b from-brand/5 to-transparent'
-                      : 'border-surface/30 bg-gradient-to-b from-surface/20 to-transparent hover:border-brand hover:from-brand/5 hover:to-transparent',
-                ].join(' ')}
-              >
-                <div className={['w-16 h-16 rounded-full flex items-center justify-center transition-colors', isDragging ? 'bg-brand text-white' : 'bg-surface/30 text-brand'].join(' ')}>
-                  <Upload size={32} />
-                </div>
-
-                {selectedFile ? (
-                  <div className="text-center">
-                    <p className="text-lg font-semibold text-foreground">{selectedFile.name}</p>
-                    <p className="text-sm text-foreground/40 mt-1">
-                      {(selectedFile.size / 1024).toFixed(1)} KB &mdash; clicca per cambiare
-                    </p>
-                  </div>
-                ) : (
-                  <div className="text-center">
-                    <p className="text-xl font-semibold text-foreground">
-                      Trascina il file qui
-                    </p>
-                    <p className="text-foreground/40 mt-1">oppure clicca per sfogliare</p>
-                    <p className="text-xs text-foreground/30 mt-3">
-                      Formati accettati: .csv, .xlsx, .xls, .pdf
-                    </p>
-                  </div>
-                )}
-
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept={acceptedTypes.join(',')}
-                  className="hidden"
-                  onChange={onFileInput}
-                  aria-hidden="true"
-                />
-              </div>
-
-              <div className="mt-4 flex items-center justify-center gap-3">
-                <input
-                  type="checkbox"
-                  id="hasHeaderCheckbox"
-                  checked={hasHeader}
-                  onChange={(e) => {
-                    setHasHeader(e.target.checked);
-                    if (selectedFile) handleFile(selectedFile, e.target.checked);
-                  }}
-                  className="w-4 h-4 rounded border-surface/30 text-brand focus:ring-brand/30 cursor-pointer"
-                />
-                <label htmlFor="hasHeaderCheckbox" className="text-sm text-foreground/80 font-medium cursor-pointer">
-                  Il file contiene una riga di intestazione (nomi delle colonne)
-                </label>
-              </div>
-
-              {parsing && (
-                <p className="mt-4 text-center text-sm text-brand font-medium animate-pulse">
-                  Analisi del file in corso...
-                </p>
-              )}
-
-              {parseError && (
-                <p className="mt-4 text-center text-sm text-danger font-medium" role="alert">
-                  {parseError}
-                </p>
-              )}
-
-              {selectedFile && parsedHeaders.length > 0 && (
-                <div className="mt-4 p-4 bg-success/10 rounded-xl text-sm text-foreground ring-1 ring-success/20">
-                  <span className="font-semibold text-success">File analizzato con successo.</span>
-                  <span className="ml-2 text-foreground/50">
-                    {parsedHeaders.length} colonne rilevate, {parsedRows.length} righe trovate.
-                  </span>
-                </div>
-              )}
-            </div>
-
-            {/* CTA */}
-            <div className="flex justify-end">
-              <Button
-                variant="primary"
-                size="lg"
-                loading={parsing}
-                onClick={goToMapping}
-                disabled={!selectedFile || parsedHeaders.length === 0 || parsing}
-              >
-                Continua &rarr; Mappa Colonne
-              </Button>
-            </div>
-          </div>
+          <UploadStep
+            suppliers={suppliers}
+            selectedSupplierId={selectedSupplierId}
+            setSelectedSupplierId={setSelectedSupplierId}
+            loadSuppliers={loadSuppliers}
+            openEditSupplier={openEditSupplier}
+            setDeleteSupplierModal={setDeleteSupplierModal}
+            setShowNewSupplierModal={setShowNewSupplierModal}
+            isDragging={isDragging}
+            setIsDragging={setIsDragging}
+            selectedFile={selectedFile}
+            hasHeader={hasHeader}
+            setHasHeader={setHasHeader}
+            onDrop={onDrop}
+            onFileInput={onFileInput}
+            fileInputRef={fileInputRef}
+            parsing={parsing}
+            parseError={parseError}
+            parsedHeaders={parsedHeaders}
+            parsedRows={parsedRows}
+            goToMapping={goToMapping}
+            handleFile={handleFile}
+          />
         )}
 
-        {/* ================================================================ */}
-        {/* STEP 2 — COLUMN MAPPING                                          */}
-        {/* ================================================================ */}
         {step === 'mapping' && (
-          <div className="space-y-5">
-            <div className="bg-card/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 dark:border-white/[0.06] p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold text-foreground">Mappatura Colonne</h3>
-                <span className="text-xs text-foreground/40 font-normal">
-                  File: <strong>{selectedFile?.name}</strong>
-                </span>
-              </div>
-              <p className="text-sm text-foreground/50 mb-6">
-                Il sistema ha tentato di abbinare automaticamente le colonne del file ai campi
-                dell&apos;anagrafica. Verifica e correggi le associazioni se necessario.
-              </p>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                {mappingFields.map(({ key, label, required }) => (
-                  <div key={key}>
-                    <Select
-                      label={required ? `${label} *` : label}
-                      options={headerOptions}
-                      value={mapping[key]}
-                      onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                        setMapping((prev) => ({ ...prev, [key]: e.target.value }))
-                      }
-                      placeholder="— non mappare —"
-                    />
-                    {mapping[key] && (
-                      <p className="mt-1 text-xs text-brand font-medium">
-                        &larr; colonna &quot;{mapping[key]}&quot; nel file
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              {!mapping.name && (
-                <p className="mt-5 text-sm text-danger font-medium" role="alert">
-                  Il campo &quot;Nome Prodotto&quot; è obbligatorio per procedere.
-                </p>
-              )}
-            </div>
-
-            {/* Preview */}
-            {parsedRows.length > 0 && (
-              <div className="bg-card/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 dark:border-white/[0.06] p-6">
-                <h3 className="text-sm font-semibold text-foreground mb-4">Anteprima Dati (prime 3 righe)</h3>
-                <div className="overflow-x-auto rounded-xl border border-surface/20">
-                  <table className="w-full text-sm border-collapse">
-                    <thead>
-                      <tr className="bg-surface/30">
-                        {parsedHeaders.map((h) => (
-                          <th key={h} className="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wider text-foreground/50 border-b border-surface/20 whitespace-nowrap">
-                            {h}
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {parsedRows.slice(0, 3).map((row, idx) => (
-                        <tr key={idx} className={[
-                          'hover:bg-surface/20 transition-colors',
-                          idx % 2 === 1 ? 'bg-surface/10' : '',
-                        ].join(' ')}>
-                          {parsedHeaders.map((h) => (
-                            <td key={h} className="px-3 py-2 border-b border-surface/10 text-foreground/70 whitespace-nowrap">
-                              {row[h] ?? ''}
-                            </td>
-                          ))}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-
-            {/* Navigation */}
-            <div className="flex justify-between">
-              <Button variant="ghost" size="md" onClick={() => setStep('upload')}>
-                &larr; Torna al Caricamento
-              </Button>
-              <Button
-                variant="primary"
-                size="lg"
-                onClick={goToReview}
-                disabled={!mapping.name}
-              >
-                Continua &rarr; Revisiona Dati
-              </Button>
-            </div>
-          </div>
+          <MappingStep
+            selectedFile={selectedFile}
+            parsedHeaders={parsedHeaders}
+            parsedRows={parsedRows}
+            mapping={mapping}
+            setMapping={setMapping}
+            setStep={setStep}
+            goToReview={goToReview}
+          />
         )}
 
-        {/* ================================================================ */}
-        {/* STEP 3 — REVIEW & SAVE                                           */}
-        {/* ================================================================ */}
         {step === 'review' && (
-          <div className="space-y-5">
-            {/* Supplier confirm */}
-            <div className="bg-card/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 dark:border-white/[0.06] p-6">
-              <h3 className="text-sm font-semibold text-foreground mb-4">Fornitore Selezionato</h3>
-              <div className="flex flex-col sm:flex-row gap-4 items-end">
-                <div className="flex-1">
-                  <Select
-                    label="Fornitore"
-                    options={supplierOptions}
-                    value={selectedSupplierId}
-                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedSupplierId(e.target.value)}
-                    placeholder="Scegli un fornitore..."
-                  />
-                </div>
-                <div className="flex gap-2">
-                  {selectedSupplierId && (
-                    <>
-                      <button
-                        type="button"
-                        title="Modifica fornitore"
-                        onClick={openEditSupplier}
-                        className="p-3 rounded-xl border border-surface/20 bg-card/60 text-brand hover:bg-brand/10 transition-colors"
-                      >
-                        <Pencil className="w-5 h-5" />
-                      </button>
-                      <button
-                        type="button"
-                        title="Elimina fornitore"
-                        onClick={() => setDeleteSupplierModal(true)}
-                        className="p-3 rounded-xl border border-surface/20 bg-card/60 text-danger hover:bg-danger/10 transition-colors"
-                      >
-                        <Trash2 className="w-5 h-5" />
-                      </button>
-                    </>
-                  )}
-                  <Button variant="secondary" size="md" onClick={() => setShowNewSupplierModal(true)}>
-                    + Nuovo Fornitore
-                  </Button>
-                </div>
-              </div>
-              {!selectedSupplierId && (
-                <p className="mt-3 text-sm text-danger font-medium" role="alert">
-                  Seleziona un fornitore per abilitare il salvataggio.
-                </p>
-              )}
-            </div>
-
-            {/* Editable table */}
-            <div className="bg-card/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 dark:border-white/[0.06] p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold text-foreground">Revisione Prodotti — {rows.length} righe</h3>
-                <span className="text-xs text-foreground/40 ring-1 ring-foreground/10 rounded-full px-2.5 py-0.5">
-                  {rows.filter((r) => r.hasError).length} righe con problemi
-                </span>
-              </div>
-              <p className="text-sm text-foreground/50 mb-4">
-                Modifica direttamente le celle per correggere eventuali errori prima di salvare.
-                Le righe che presentano problemi critici sul Nome sono evidenziate.
-                <strong> I campi evidenziati in #CCD0D5 indicano dati incerti o non riconosciuti.</strong>
-              </p>
-
-              <div className="overflow-x-auto rounded-xl border border-surface/20">
-                <table className="w-full text-sm border-collapse">
-                  <thead>
-                    <tr className="bg-surface/30 border-b border-surface/20">
-                      <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-foreground/50 w-8">#</th>
-                      <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-foreground/50">Barcode</th>
-                      <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-foreground/50">SKU</th>
-                      <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-foreground/50">Nome *</th>
-                      <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-foreground/50">Taglia</th>
-                      <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-foreground/50">Colore</th>
-                      <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-foreground/50">Cod. Colore</th>
-                      <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-foreground/50">Brand</th>
-                      <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-foreground/50">Categoria</th>
-                      <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-foreground/50 w-10"></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {rows.map((row, idx) => (
-                      <tr
-                        key={row.id}
-                        className={[
-                          'border-b border-surface/10 transition-colors',
-                          row.hasError ? 'bg-yellow-50/80' : idx % 2 === 1 ? 'bg-surface/10' : 'hover:bg-surface/20',
-                        ].join(' ')}
-                      >
-                        <td className="px-3 py-2 text-foreground/30 text-xs">{idx + 1}</td>
-                        {(['barcode', 'sku', 'name', 'size', 'color', 'color_code', 'brand', 'category'] as const).map((field) => (
-                          <td key={field} className="px-1 py-1">
-                            <input
-                              type="text"
-                              value={row[field]}
-                              onChange={(e) => updateCell(row.id, field, e.target.value)}
-                              aria-label={`${field} riga ${idx + 1}`}
-                              className={[
-                                'w-full px-2 py-1.5 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-brand/15 transition-colors',
-                                !row[field].trim()
-                                  ? 'bg-[#CCD0D5] text-black border-[#A0AAB5] placeholder-black/60 shadow-inner' // Campi incerti
-                                  : field === 'name' && row.hasError
-                                    ? 'bg-background border-yellow-400 ring-1 ring-yellow-300 text-foreground'
-                                    : 'bg-background text-foreground border-surface/20 focus:border-brand',
-                              ].join(' ')}
-                            />
-                          </td>
-                        ))}
-                        <td className="px-2 py-1 text-center">
-                          <button
-                            type="button"
-                            onClick={() => deleteRow(row.id)}
-                            aria-label={`Elimina riga ${idx + 1}`}
-                            className="w-7 h-7 flex items-center justify-center rounded-full text-danger/60 hover:text-danger hover:bg-danger/10 transition-colors"
-                            title="Elimina riga"
-                          >
-                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              {rows.length === 0 && (
-                <p className="mt-4 text-center text-foreground/40 py-8">
-                  Nessuna riga da visualizzare. Torna al passo precedente.
-                </p>
-              )}
-            </div>
-
-            {/* Errors */}
-            {saveError && (
-              <div className="p-4 bg-danger/10 border border-danger/20 rounded-2xl text-sm text-danger font-medium" role="alert">
-                {saveError}
-              </div>
-            )}
-
-            {/* Navigation */}
-            <div className="flex justify-between items-center">
-              <Button variant="ghost" size="md" onClick={() => setStep('mapping')}>
-                &larr; Torna alla Mappatura
-              </Button>
-              <div className="flex gap-3">
-                <Button variant="secondary" size="lg" onClick={handleExportPDF}>
-                  Scarica PDF
-                </Button>
-                <Button
-                  variant="primary"
-                  size="lg"
-                  loading={saving}
-                  onClick={() => setSaveConfirmOpen(true)}
-                  disabled={rows.length === 0 || !selectedSupplierId || saving}
-                >
-                  Salva in Anagrafica
-                </Button>
-              </div>
-            </div>
-          </div>
+          <ReviewStep
+            rows={rows}
+            selectedSupplierId={selectedSupplierId}
+            suppliers={suppliers}
+            setSelectedSupplierId={setSelectedSupplierId}
+            updateCell={updateCell}
+            deleteRow={deleteRow}
+            setStep={setStep}
+            handleExportPDF={handleExportPDF}
+            setSaveConfirmOpen={setSaveConfirmOpen}
+            saving={saving}
+            saveError={saveError}
+          />
         )}
 
-        {/* ================================================================ */}
-        {/* STEP DONE                                                         */}
-        {/* ================================================================ */}
         {step === 'done' && (
-          <div className="flex flex-col items-center justify-center py-20 gap-6 text-center animate-fade-in">
-            <div className="w-24 h-24 rounded-full bg-success/10 flex items-center justify-center ring-1 ring-success/20">
-              <svg className="w-12 h-12 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <div className="flex flex-col items-center justify-center py-32 gap-6 text-center animate-fade-in relative z-10">
+            <div className="w-24 h-24 rounded-full bg-[#7BB35F]/10 flex items-center justify-center ring-4 ring-[#7BB35F]/20 shadow-[0_0_30px_rgba(123,179,95,0.2)]">
+              <svg className="w-12 h-12 text-[#7BB35F]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
               </svg>
             </div>
             <div>
-              <h2 className="text-3xl font-bold text-foreground tracking-tight">Importazione completata!</h2>
-              <p className="text-foreground/50 mt-2 text-lg">
+              <h2 className="text-3xl font-bold text-white tracking-wide mb-2 drop-shadow-md">Importazione completata!</h2>
+              <p className="text-white/60 text-lg font-medium">
                 {savedCount} prodott{savedCount === 1 ? 'o importato' : 'i importati'} con successo nell&apos;anagrafica.
               </p>
             </div>
-            <div className="flex gap-4 flex-wrap justify-center">
-              <Button variant="secondary" size="lg" onClick={handleExportPDF}>
+            <div className="flex gap-4 flex-wrap justify-center mt-4">
+              <button
+                onClick={handleExportPDF}
+                className="px-6 py-3 rounded-full border border-white/10 bg-white/5 text-white/80 font-bold hover:bg-white/10 hover:text-white transition-all flex items-center gap-2"
+              >
                 Scarica PDF Riepilogo
-              </Button>
-              <Button
-                variant="primary"
-                size="lg"
+              </button>
+              <button
                 onClick={() => {
                   setStep('upload');
                   setSelectedFile(null);
@@ -1008,224 +538,63 @@ export default function ImportPage() {
                   setSaveError('');
                   setMapping({ barcode: '', sku: '', name: '', size: '', color: '', color_code: '', brand: '', category: '' });
                 }}
+                className="px-7 py-3 rounded-full font-bold tracking-wide transition-all bg-[#7BB35F]/20 text-[#8CE36B] border border-[#7BB35F]/50 shadow-[0_0_25px_rgba(123,179,95,0.25)] hover:shadow-[0_0_35px_rgba(123,179,95,0.4)] hover:bg-[#7BB35F]/30 hover:border-[#7BB35F]/70"
               >
                 Importa Altro File
-              </Button>
+              </button>
             </div>
           </div>
         )}
       </div>
 
-      {/* ================================================================== */}
-      {/* MODAL — Nuovo Fornitore                                             */}
-      {/* ================================================================== */}
-      <Modal
-        open={showNewSupplierModal}
-        onClose={() => {
-          setShowNewSupplierModal(false);
-          setNewSupplierError('');
-          setNewSupplier({ name: '', email: '', phone: '', address: '' });
-        }}
-        title="Nuovo Fornitore"
-        size="md"
-      >
+      <Modal open={showNewSupplierModal} onClose={() => { setShowNewSupplierModal(false); setNewSupplierError(''); setNewSupplier({ name: '', email: '', phone: '', address: '' }); }} title="Nuovo Fornitore" size="md">
         <div className="space-y-4">
-          <Input
-            label="Nome fornitore *"
-            placeholder="es. Zara Italia S.r.l."
-            value={newSupplier.name}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setNewSupplier((prev) => ({ ...prev, name: e.target.value }))
-            }
-            error={!newSupplier.name.trim() && newSupplierError ? 'Campo obbligatorio' : undefined}
-          />
-          <Input
-            label="Email"
-            type="email"
-            placeholder="fornitore@esempio.it"
-            value={newSupplier.email}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setNewSupplier((prev) => ({ ...prev, email: e.target.value }))
-            }
-          />
-          <Input
-            label="Telefono"
-            type="tel"
-            placeholder="+39 02 1234567"
-            value={newSupplier.phone}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setNewSupplier((prev) => ({ ...prev, phone: e.target.value }))
-            }
-          />
-          <Input
-            label="Indirizzo"
-            placeholder="Via Roma 1, Milano"
-            value={newSupplier.address}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setNewSupplier((prev) => ({ ...prev, address: e.target.value }))
-            }
-          />
-
-          {newSupplierError && (
-            <p className="text-sm text-danger font-medium" role="alert">
-              {newSupplierError}
-            </p>
-          )}
-
+          <Input label="Nome fornitore *" placeholder="es. Zara Italia S.r.l." value={newSupplier.name} onChange={(e) => setNewSupplier((prev) => ({ ...prev, name: e.target.value }))} error={!newSupplier.name.trim() && newSupplierError ? 'Campo obbligatorio' : undefined} />
+          <Input label="Email" type="email" placeholder="fornitore@esempio.it" value={newSupplier.email} onChange={(e) => setNewSupplier((prev) => ({ ...prev, email: e.target.value }))} />
+          <Input label="Telefono" type="tel" placeholder="+39 02 1234567" value={newSupplier.phone} onChange={(e) => setNewSupplier((prev) => ({ ...prev, phone: e.target.value }))} />
+          <Input label="Indirizzo" placeholder="Via Roma 1, Milano" value={newSupplier.address} onChange={(e) => setNewSupplier((prev) => ({ ...prev, address: e.target.value }))} />
+          {newSupplierError && <p className="text-sm text-red-500 font-medium">{newSupplierError}</p>}
           <div className="flex justify-end gap-3 pt-2">
-            <Button
-              variant="ghost"
-              size="md"
-              onClick={() => {
-                setShowNewSupplierModal(false);
-                setNewSupplierError('');
-                setNewSupplier({ name: '', email: '', phone: '', address: '' });
-              }}
-            >
-              Annulla
-            </Button>
-            <Button
-              variant="primary"
-              size="md"
-              loading={creatingSupplier}
-              onClick={createSupplier}
-            >
-              Crea Fornitore
-            </Button>
+            <Button variant="ghost" size="md" onClick={() => { setShowNewSupplierModal(false); setNewSupplierError(''); setNewSupplier({ name: '', email: '', phone: '', address: '' }); }}>Annulla</Button>
+            <Button variant="primary" size="md" loading={creatingSupplier} onClick={createSupplier}>Crea Fornitore</Button>
           </div>
         </div>
       </Modal>
 
-      {/* ================================================================== */}
-      {/* MODAL — Modifica Fornitore                                          */}
-      {/* ================================================================== */}
-      <Modal
-        open={editSupplierModal}
-        onClose={() => {
-          setEditSupplierModal(false);
-          setEditSupplierError('');
-        }}
-        title="Modifica Fornitore"
-        size="md"
-      >
+      <Modal open={editSupplierModal} onClose={() => { setEditSupplierModal(false); setEditSupplierError(''); }} title="Modifica Fornitore" size="md">
         <div className="space-y-4">
-          <Input
-            label="Nome fornitore *"
-            placeholder="es. Zara Italia S.r.l."
-            value={editSupplier.name}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setEditSupplier((prev) => ({ ...prev, name: e.target.value }))
-            }
-            error={!editSupplier.name.trim() && editSupplierError ? 'Campo obbligatorio' : undefined}
-          />
-          <Input
-            label="Email"
-            type="email"
-            placeholder="fornitore@esempio.it"
-            value={editSupplier.email}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setEditSupplier((prev) => ({ ...prev, email: e.target.value }))
-            }
-          />
-          <Input
-            label="Telefono"
-            type="tel"
-            placeholder="+39 02 1234567"
-            value={editSupplier.phone}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setEditSupplier((prev) => ({ ...prev, phone: e.target.value }))
-            }
-          />
-          <Input
-            label="Indirizzo"
-            placeholder="Via Roma 1, Milano"
-            value={editSupplier.address}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setEditSupplier((prev) => ({ ...prev, address: e.target.value }))
-            }
-          />
-
-          {editSupplierError && (
-            <p className="text-sm text-danger font-medium" role="alert">
-              {editSupplierError}
-            </p>
-          )}
-
+          <Input label="Nome fornitore *" placeholder="es. Zara Italia S.r.l." value={editSupplier.name} onChange={(e) => setEditSupplier((prev) => ({ ...prev, name: e.target.value }))} error={!editSupplier.name.trim() && editSupplierError ? 'Campo obbligatorio' : undefined} />
+          <Input label="Email" type="email" placeholder="fornitore@esempio.it" value={editSupplier.email} onChange={(e) => setEditSupplier((prev) => ({ ...prev, email: e.target.value }))} />
+          <Input label="Telefono" type="tel" placeholder="+39 02 1234567" value={editSupplier.phone} onChange={(e) => setEditSupplier((prev) => ({ ...prev, phone: e.target.value }))} />
+          <Input label="Indirizzo" placeholder="Via Roma 1, Milano" value={editSupplier.address} onChange={(e) => setEditSupplier((prev) => ({ ...prev, address: e.target.value }))} />
+          {editSupplierError && <p className="text-sm text-red-500 font-medium">{editSupplierError}</p>}
           <div className="flex justify-end gap-3 pt-2">
-            <Button
-              variant="ghost"
-              size="md"
-              onClick={() => {
-                setEditSupplierModal(false);
-                setEditSupplierError('');
-              }}
-            >
-              Annulla
-            </Button>
-            <Button
-              variant="primary"
-              size="md"
-              loading={editingSupplier}
-              onClick={handleEditSupplier}
-            >
-              Salva Modifiche
-            </Button>
+            <Button variant="ghost" size="md" onClick={() => { setEditSupplierModal(false); setEditSupplierError(''); }}>Annulla</Button>
+            <Button variant="primary" size="md" loading={editingSupplier} onClick={handleEditSupplier}>Salva Modifiche</Button>
           </div>
         </div>
       </Modal>
 
-      {/* ================================================================== */}
-      {/* MODAL — Conferma Eliminazione Fornitore                             */}
-      {/* ================================================================== */}
-      <Modal
-        open={deleteSupplierModal}
-        onClose={() => setDeleteSupplierModal(false)}
-        title="Elimina Fornitore"
-        size="sm"
-      >
+      <Modal open={deleteSupplierModal} onClose={() => setDeleteSupplierModal(false)} title="Elimina Fornitore" size="sm">
         <div className="space-y-5">
-          <div className="flex items-start gap-3 p-4 bg-danger/10 rounded-xl ring-1 ring-danger/20">
-            <Trash2 className="w-5 h-5 text-danger shrink-0 mt-0.5" />
+          <div className="flex items-start gap-3 p-4 bg-red-500/10 rounded-xl ring-1 ring-red-500/20">
+            <Trash2 className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
             <div>
-              <p className="text-sm font-semibold text-foreground">
-                Sei sicuro di voler eliminare il fornitore{' '}
-                <span className="text-danger">
-                  &quot;{suppliers.find((s) => s.id === selectedSupplierId)?.name}&quot;
-                </span>?
-              </p>
-              <p className="text-xs text-foreground/50 mt-1">
-                Questa azione è irreversibile. I prodotti e le importazioni collegate non verranno eliminati,
-                ma perderanno il riferimento al fornitore.
-              </p>
+              <p className="text-sm font-semibold text-foreground">Sei sicuro di voler eliminare il fornitore <span className="text-red-500">&quot;{suppliers.find((s) => s.id === selectedSupplierId)?.name}&quot;</span>?</p>
+              <p className="text-xs text-foreground/50 mt-1">Questa azione è irreversibile. I prodotti e le importazioni collegate non verranno eliminati, ma perderanno il riferimento al fornitore.</p>
             </div>
           </div>
-
           <div className="flex justify-end gap-3">
-            <Button
-              variant="ghost"
-              size="md"
-              onClick={() => setDeleteSupplierModal(false)}
-            >
-              Annulla
-            </Button>
-            <Button
-              variant="danger"
-              size="md"
-              loading={deletingSupplier}
-              onClick={handleDeleteSupplier}
-            >
-              Elimina Fornitore
-            </Button>
+            <Button variant="ghost" size="md" onClick={() => setDeleteSupplierModal(false)}>Annulla</Button>
+            <Button variant="danger" size="md" loading={deletingSupplier} onClick={handleDeleteSupplier}>Elimina Fornitore</Button>
           </div>
         </div>
       </Modal>
+
       <ConfirmBanner
         open={saveConfirmOpen}
         onCancel={() => setSaveConfirmOpen(false)}
-        onConfirm={async () => {
-          setSaveConfirmOpen(false);
-          await save();
-        }}
+        onConfirm={async () => { setSaveConfirmOpen(false); await save(); }}
         message={`Stai per importare ${rows.length} prodotti nell'anagrafica. Vuoi procedere?`}
         confirmLabel="Importa"
         variant="warning"
