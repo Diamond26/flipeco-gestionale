@@ -74,9 +74,9 @@ export default function LoginPage() {
       <div className="relative w-full max-w-[420px] animate-scale-in z-10">
         <div className="login-glass rounded-3xl px-10 py-10">
 
-          {/* Logo & Brand */}
-          <div className="flex flex-col items-center gap-2 mb-6">
-            <div className="relative w-14 h-14">
+          {/* Logo */}
+          <div className="flex flex-col items-center mb-6">
+            <div className="relative w-28 h-28">
               <Image
                 src="/logo.png"
                 alt="Flip&Co logo"
@@ -85,9 +85,6 @@ export default function LoginPage() {
                 priority
               />
             </div>
-            <span className="text-white/80 text-sm font-semibold tracking-wide">
-              Flip<span className="text-brand-light">&amp;</span>Co
-            </span>
           </div>
 
           {/* Title */}
@@ -166,15 +163,7 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Forgot password */}
-          <div className="text-center mt-5">
-            <Link
-              href="/forgot-password"
-              className="text-sm font-medium text-white/60 underline underline-offset-2 decoration-white/20 hover:text-brand-light hover:decoration-brand-light/40"
-            >
-              Password dimenticata?
-            </Link>
-          </div>
+
         </div>
 
         {/* Footer */}
