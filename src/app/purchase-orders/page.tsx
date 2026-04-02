@@ -95,16 +95,16 @@ const STATUS_LABELS: Record<OrderStatus, string> = {
 }
 
 const STATUS_BADGE: Record<OrderStatus, string> = {
-  ordered: 'bg-blue-50 text-blue-600 ring-1 ring-blue-200',
-  shipped: 'bg-amber-50 text-amber-600 ring-1 ring-amber-200',
-  arrived: 'bg-emerald-50 text-emerald-600 ring-1 ring-emerald-200',
+  ordered: 'bg-blue-500/10 text-blue-500 border-blue-500/20 shadow-[0_0_15px_rgba(59,130,246,0.1)]',
+  shipped: 'bg-amber-500/10 text-amber-500 border-amber-500/20 shadow-[0_0_15px_rgba(245,158,11,0.1)]',
+  arrived: 'bg-[#7BB35F]/10 text-[#7BB35F] border-[#7BB35F]/20 shadow-[0_0_15px_rgba(123,179,95,0.1)]',
 }
 
 function StatusBadge({ status }: { status: OrderStatus }) {
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold',
+        'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold uppercase tracking-wider border',
         STATUS_BADGE[status]
       )}
     >
@@ -538,79 +538,84 @@ export default function PurchaseOrdersPage() {
       {/* ------------------------------------------------------------------ */}
       {/* Toast notifications                                                  */}
       {/* ------------------------------------------------------------------ */}
-      <div
-        aria-live="polite"
-        className="fixed top-4 right-4 z-[100] flex flex-col gap-2 pointer-events-none"
-      >
-        {toasts.map((toast) => (
-          <div
-            key={toast.id}
-            className={cn(
-              'flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg text-sm font-medium pointer-events-auto',
-              'animate-toast-in',
-              toast.type === 'success' && 'bg-success text-white',
-              toast.type === 'error' && 'bg-danger text-white',
-              toast.type === 'warning' && 'bg-yellow-500 text-white'
-            )}
-          >
-            {toast.type === 'success' && <CheckCircle2 className="w-4 h-4 shrink-0" />}
-            {toast.type === 'error' && <X className="w-4 h-4 shrink-0" />}
-            {toast.type === 'warning' && <AlertTriangle className="w-4 h-4 shrink-0" />}
-            {toast.message}
-          </div>
-        ))}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-[-1] bg-slate-50 dark:bg-[#0c1222] transition-colors duration-500">
+        <div className="absolute top-[-15%] right-[-5%] w-[800px] h-[800px] bg-[#7BB35F]/20 dark:bg-[#7BB35F]/10 rounded-full blur-[160px] opacity-40 dark:opacity-70" />
+        <div className="absolute bottom-[-20%] left-[-10%] w-[600px] h-[600px] bg-[#7BB35F]/15 dark:bg-[#7BB35F]/5 rounded-full blur-[140px] opacity-30 dark:opacity-50" />
       </div>
 
-      <div className="animate-fade-in space-y-5 max-w-7xl mx-auto">
+      <div className="space-y-8 max-w-[1400px] mx-auto animate-fade-in relative z-10 pt-2 lg:pt-6">
+        {/* ------------------------------------------------------------------ */}
+        {/* Header / Top Bar Premium                                           */}
+        {/* ------------------------------------------------------------------ */}
+        <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 mb-2">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground tracking-wide">Flip&amp;Co</h1>
+            <p className="text-[13px] text-foreground/40 tracking-widest uppercase mt-1">Purchase &amp; Supply Management</p>
+          </div>
+
+          <div className="flex items-center gap-3 shrink-0">
+             <button
+               onClick={handleExportPDF}
+               className="flex items-center gap-2 px-6 py-3 rounded-full bg-white/60 dark:bg-white/[0.03] border border-surface backdrop-blur-md text-foreground/70 hover:bg-white/90 dark:hover:bg-white/10 transition-all shadow-sm"
+             >
+               <FileDown className="w-4 h-4 text-[#7BB35F]" />
+               Esporta PDF
+             </button>
+             <button
+               onClick={openNewOrderModal}
+               className="flex items-center gap-2 bg-[#7BB35F] hover:bg-[#6CAE4A] hover:scale-[1.02] active:scale-95 transition-all text-white px-8 py-3 rounded-full font-bold shadow-[0_0_20px_rgba(123,179,95,0.4)]"
+             >
+               <Plus className="w-5 h-5" />
+               Nuovo Ordine Acquisto
+             </button>
+          </div>
+        </div>
+
         {/* ---------------------------------------------------------------- */}
         {/* Stats bar                                                          */}
         {/* ---------------------------------------------------------------- */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
-          <div className="bg-card/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 dark:border-white/[0.06] p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-brand/10 flex items-center justify-center shrink-0">
-              <ClipboardList className="w-5 h-5 text-brand" />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+          <div className="bg-white/60 dark:bg-white/[0.02] backdrop-blur-xl rounded-2xl border border-black/[0.04] dark:border-white/[0.06] p-5 flex items-center gap-5 shadow-xl dark:shadow-[0_8px_30px_rgb(0,0,0,0.12)] bg-gradient-to-br from-white/80 dark:from-white/[0.04] to-transparent group transition-all duration-300 hover:scale-[1.02]">
+            <div className="relative w-12 h-12 rounded-full bg-brand/20 dark:bg-brand/10 flex items-center justify-center shrink-0">
+               <div className="absolute inset-0 bg-brand animate-pulse blur-md opacity-20 group-hover:opacity-40 rounded-full" />
+               <ClipboardList className="w-6 h-6 text-brand relative z-10" />
             </div>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50">
-                Totale Ordini
-              </p>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/50 mb-0.5">Totale Ordini</p>
               <p className="text-2xl font-bold text-foreground">{totalOrders}</p>
             </div>
           </div>
 
-          <div className="bg-card/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 dark:border-white/[0.06] p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
-              <ShoppingCart className="w-5 h-5 text-blue-600" />
+          <div className="bg-white/60 dark:bg-white/[0.02] backdrop-blur-xl rounded-2xl border border-black/[0.04] dark:border-white/[0.06] p-5 flex items-center gap-5 shadow-xl dark:shadow-[0_8px_30px_rgb(0,0,0,0.12)] bg-gradient-to-br from-white/80 dark:from-white/[0.04] to-transparent group transition-all duration-300 hover:scale-[1.02]">
+            <div className="relative w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-500/10 flex items-center justify-center shrink-0">
+               <div className="absolute inset-0 bg-blue-500 animate-pulse blur-md opacity-20 group-hover:opacity-40 rounded-full" />
+               <ShoppingCart className="w-6 h-6 text-blue-500 relative z-10" />
             </div>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50">
-                Ordinati
-              </p>
-              <p className="text-2xl font-bold text-blue-600">{orderedCount}</p>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/50 mb-0.5">Ordinati</p>
+              <p className="text-2xl font-bold text-blue-500">{orderedCount}</p>
             </div>
           </div>
 
-          <div className="bg-card/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 dark:border-white/[0.06] p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center shrink-0">
-              <Truck className="w-5 h-5 text-amber-600" />
+          <div className="bg-white/60 dark:bg-white/[0.02] backdrop-blur-xl rounded-2xl border border-black/[0.04] dark:border-white/[0.06] p-5 flex items-center gap-5 shadow-xl dark:shadow-[0_8px_30px_rgb(0,0,0,0.12)] bg-gradient-to-br from-white/80 dark:from-white/[0.04] to-transparent group transition-all duration-300 hover:scale-[1.02]">
+            <div className="relative w-12 h-12 rounded-full bg-amber-100 dark:bg-amber-500/10 flex items-center justify-center shrink-0">
+               <div className="absolute inset-0 bg-amber-500 animate-pulse blur-md opacity-20 group-hover:opacity-40 rounded-full" />
+               <Truck className="w-6 h-6 text-amber-500 relative z-10" />
             </div>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50">
-                In Transito
-              </p>
-              <p className="text-2xl font-bold text-amber-600">{shippedCount}</p>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/50 mb-0.5">In Transito</p>
+              <p className="text-2xl font-bold text-amber-500">{shippedCount}</p>
             </div>
           </div>
 
-          <div className="bg-card/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 dark:border-white/[0.06] p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center shrink-0">
-              <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+          <div className="bg-white/60 dark:bg-white/[0.02] backdrop-blur-xl rounded-2xl border border-black/[0.04] dark:border-white/[0.06] p-5 flex items-center gap-5 shadow-xl dark:shadow-[0_8px_30px_rgb(0,0,0,0.12)] bg-gradient-to-br from-white/80 dark:from-white/[0.04] to-transparent group transition-all duration-300 hover:scale-[1.02]">
+            <div className="relative w-12 h-12 rounded-full bg-emerald-100 dark:bg-[#7BB35F]/20 flex items-center justify-center shrink-0">
+               <div className="absolute inset-0 bg-[#7BB35F] animate-pulse blur-md opacity-20 group-hover:opacity-40 rounded-full" />
+               <CheckCircle2 className="w-6 h-6 text-[#7BB35F] relative z-10" />
             </div>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50">
-                Arrivati
-              </p>
-              <p className="text-2xl font-bold text-emerald-600">{arrivedCount}</p>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/50 mb-0.5">Arrivati</p>
+              <p className="text-2xl font-bold text-[#7BB35F]">{arrivedCount}</p>
             </div>
           </div>
         </div>
@@ -618,98 +623,82 @@ export default function PurchaseOrdersPage() {
         {/* ---------------------------------------------------------------- */}
         {/* Orders table card                                                  */}
         {/* ---------------------------------------------------------------- */}
-        <Card
-          title="Ordini Acquisto"
-          action={
-            <div className="flex items-center gap-2">
-              <Button variant="secondary" size="sm" onClick={handleExportPDF}>
-                <FileDown className="w-4 h-4 mr-1.5" />
-                Esporta PDF
-              </Button>
-              <Button variant="primary" size="sm" onClick={openNewOrderModal}>
-                <Plus className="w-4 h-4 mr-1.5" />
-                Nuovo Ordine
-              </Button>
-            </div>
-          }
-        >
-          {/* Search + filter bar */}
-          <div className="flex flex-col sm:flex-row gap-3 mb-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/40 pointer-events-none" />
-              <input
-                type="text"
-                placeholder="Cerca per fornitore o ID ordine..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className={cn(
-                  'w-full pl-10 pr-9 py-2.5 text-sm rounded-xl border border-surface/80 bg-card shadow-sm',
-                  'focus:outline-none focus:border-brand focus:ring-4 focus:ring-brand/15',
-                  'placeholder:text-gray-400 transition-all duration-200'
-                )}
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground/40 hover:text-foreground transition-colors"
-                  aria-label="Cancella ricerca"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              )}
-            </div>
-
-            {/* Status filter pills */}
-            <div className="flex items-center gap-1.5 flex-wrap">
-              {statusFilterOptions.map((opt) => (
-                <button
-                  key={opt.value}
-                  onClick={() => setStatusFilter(opt.value as OrderStatus | 'all')}
-                  className={cn(
-                    'px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-150 border',
-                    statusFilter === opt.value
-                      ? 'bg-brand text-white border-brand shadow-sm'
-                      : 'bg-card text-foreground/60 border-surface/30 hover:border-brand/40 hover:text-foreground'
-                  )}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
+        {/* ---------------------------------------------------------------- */}
+        {/* Orders table card                                                  */}
+        {/* ---------------------------------------------------------------- */}
+        <div className="bg-white/60 dark:bg-white/[0.02] backdrop-blur-2xl rounded-3xl shadow-2xl dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-black/[0.04] dark:border-white/[0.06] overflow-hidden relative z-10 transition-all duration-500">
+          <div className="px-6 py-5 border-b border-black/[0.04] dark:border-white/[0.06] bg-surface-light/30 dark:bg-black/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+             <div className="flex items-center gap-3">
+               <div className="relative">
+                 <div className="absolute inset-0 bg-brand blur-md opacity-20 rounded-full animate-pulse" />
+                 <ClipboardList className="w-6 h-6 text-brand relative z-10" />
+               </div>
+               <h2 className="text-xl font-bold text-foreground drop-shadow-sm">Elenco Ordini Acquisto</h2>
+             </div>
           </div>
 
-          {/* Result count */}
-          {(searchQuery || statusFilter !== 'all') && (
-            <p className="text-xs text-foreground/50 mb-3">
-              {filteredOrders.length}{' '}
-              {filteredOrders.length === 1 ? 'ordine trovato' : 'ordini trovati'}
-            </p>
-          )}
-
-          {tableLoading ? (
-            <div className="flex flex-col items-center justify-center py-16 gap-4">
-              <div className="w-full max-w-2xl space-y-3">
-                <div className="h-10 rounded-xl skeleton-shimmer" />
-                <div className="h-10 rounded-xl skeleton-shimmer" />
-                <div className="h-10 rounded-xl skeleton-shimmer" />
-                <div className="h-10 rounded-xl skeleton-shimmer" />
-                <div className="h-10 rounded-xl skeleton-shimmer" />
+          <div className="p-6">
+            {/* Search + filter bar */}
+            <div className="flex flex-col xl:flex-row gap-4 mb-6">
+              <div className="flex-1">
+                <div className="relative group">
+                  <div className="absolute inset-0 bg-white/60 dark:bg-white/[0.03] rounded-full border border-surface backdrop-blur-md shadow-sm transition-colors group-hover:bg-white/80 dark:group-hover:bg-white/[0.05]" />
+                  <div className="relative flex items-center p-1.5 pl-6">
+                    <Search className="w-5 h-5 text-[#7BB35F] mr-3 shrink-0" />
+                    <input
+                      type="text"
+                      placeholder="Cerca fornitore o ID ordine..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full bg-transparent border-none text-foreground focus:outline-none focus:ring-0 placeholder:text-foreground/30 text-[15px]"
+                    />
+                    {searchQuery && (
+                      <button onClick={() => setSearchQuery('')} className="p-2 text-foreground/30 hover:text-foreground">
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                </div>
               </div>
-              <p className="text-sm text-foreground/40">Caricamento ordini...</p>
+
+              {/* Status filter pills */}
+              <div className="flex items-center gap-2 flex-wrap">
+                {statusFilterOptions.map((opt) => (
+                  <button
+                    key={opt.value}
+                    onClick={() => setStatusFilter(opt.value as OrderStatus | 'all')}
+                    className={cn(
+                      'px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-300 border shadow-sm',
+                      statusFilter === opt.value
+                        ? 'bg-[#7BB35F] text-white border-[#7BB35F] shadow-[0_5px_15px_rgba(123,179,95,0.3)]'
+                        : 'bg-white/60 dark:bg-white/[0.03] text-foreground/50 border-surface hover:border-[#7BB35F]/40'
+                    )}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
             </div>
-          ) : (
-            <Table
-              columns={columns}
-              data={filteredOrders}
-              emptyMessage={
-                searchQuery || statusFilter !== 'all'
-                  ? 'Nessun ordine trovato con i filtri selezionati.'
-                  : 'Nessun ordine di acquisto. Clicca "Nuovo Ordine" per iniziare.'
-              }
-              onRowClick={(row) => setSelectedOrder(row as unknown as PurchaseOrder)}
-            />
-          )}
-        </Card>
+
+            {tableLoading ? (
+              <div className="flex flex-col items-center justify-center py-20 gap-4">
+                <div className="w-12 h-12 border-4 border-brand/20 border-t-brand rounded-full animate-spin" />
+                <p className="text-sm font-medium text-foreground/40 animate-pulse uppercase tracking-widest text-[11px]">Caricamento in corso...</p>
+              </div>
+            ) : (
+              <Table
+                columns={columns}
+                data={filteredOrders}
+                emptyMessage={
+                  searchQuery || statusFilter !== 'all'
+                    ? 'Nessun ordine trovato con i filtri selezionati.'
+                    : 'Nessun ordine di acquisto. Clicca "Nuovo Ordine" per iniziare.'
+                }
+                onRowClick={(row) => setSelectedOrder(row as unknown as PurchaseOrder)}
+              />
+            )}
+          </div>
+        </div>
       </div>
 
       {/* ------------------------------------------------------------------ */}
@@ -972,40 +961,42 @@ export default function PurchaseOrdersPage() {
         size="lg"
       >
         {selectedOrder && (
-          <div className="space-y-5">
+          <div className="space-y-6">
             {/* Header info strip */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              <div className="p-3 rounded-xl bg-card/80 backdrop-blur-sm border border-white/60 dark:border-white/[0.06] shadow-sm shadow-black/[0.04]">
-                <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50 mb-1">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+              <div className="p-4 rounded-2xl bg-white/60 dark:bg-white/[0.03] backdrop-blur-md border border-black/[0.04] dark:border-white/[0.06] shadow-sm">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-foreground/40 mb-2">
                   Fornitore
                 </p>
-                <p className="font-bold text-foreground">{selectedOrder.suppliers?.name ?? '—'}</p>
+                <p className="font-bold text-foreground text-lg">{selectedOrder.suppliers?.name ?? '—'}</p>
                 {selectedOrder.suppliers?.email && (
-                  <p className="text-xs text-foreground/50 mt-0.5">
+                  <p className="text-xs text-brand font-medium mt-1">
                     {selectedOrder.suppliers.email}
                   </p>
                 )}
               </div>
 
-              <div className="p-3 rounded-xl bg-card/80 backdrop-blur-sm border border-white/60 dark:border-white/[0.06] shadow-sm shadow-black/[0.04]">
-                <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50 mb-1">
-                  Stato
+              <div className="p-4 rounded-2xl bg-white/60 dark:bg-white/[0.03] backdrop-blur-md border border-black/[0.04] dark:border-white/[0.06] shadow-sm">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-foreground/40 mb-2">
+                  Stato Attuale
                 </p>
-                <StatusBadge status={selectedOrder.status} />
+                <div className="pt-1">
+                   <StatusBadge status={selectedOrder.status} />
+                </div>
               </div>
 
-              <div className="p-3 rounded-xl bg-card/80 backdrop-blur-sm border border-white/60 dark:border-white/[0.06] shadow-sm shadow-black/[0.04]">
-                <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50 mb-1">
+              <div className="p-4 rounded-2xl bg-white/60 dark:bg-white/[0.03] backdrop-blur-md border border-black/[0.04] dark:border-white/[0.06] shadow-sm">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-foreground/40 mb-2">
                   Data Ordine
                 </p>
-                <p className="font-medium text-foreground text-sm">
+                <p className="font-bold text-foreground text-lg">
                   {formatDate(selectedOrder.created_at)}
                 </p>
               </div>
             </div>
 
             {/* Status flow indicator */}
-            <div className="flex items-center gap-2 py-2">
+            <div className="flex items-center gap-2 py-6 px-4 bg-white/20 dark:bg-black/20 rounded-3xl border border-black/[0.04] dark:border-white/[0.06]">
               {(['ordered', 'shipped', 'arrived'] as OrderStatus[]).map((step, idx) => {
                 const steps: OrderStatus[] = ['ordered', 'shipped', 'arrived']
                 const currentIdx = steps.indexOf(selectedOrder.status)
@@ -1013,28 +1004,25 @@ export default function PurchaseOrdersPage() {
                 const isCurrent = idx === currentIdx
                 return (
                   <div key={step} className="flex items-center gap-2 flex-1">
-                    <div
-                      className={cn(
-                        'flex-1 flex flex-col items-center gap-1',
-                      )}
-                    >
+                    <div className="flex-1 flex flex-col items-center gap-2">
                       <div
                         className={cn(
-                          'w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-all',
-                          isCompleted && 'bg-brand border-brand text-white',
-                          isCurrent && 'bg-card border-brand text-brand shadow-md',
-                          !isCompleted && !isCurrent && 'bg-surface border-surface/30 text-foreground/30'
+                          'w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-all duration-500 relative',
+                          isCompleted && 'bg-brand border-brand text-white shadow-[0_0_15px_rgba(123,179,95,0.4)]',
+                          isCurrent && 'bg-white dark:bg-gray-900 border-brand text-brand shadow-[0_0_15px_rgba(123,179,95,0.2)] scale-110',
+                          !isCompleted && !isCurrent && 'bg-white/40 dark:bg-white/[0.02] border-black/10 dark:border-white/10 text-foreground/30'
                         )}
                       >
+                        {isCurrent && <div className="absolute inset-0 bg-brand/20 animate-ping rounded-full" />}
                         {isCompleted ? (
-                          <CheckCircle2 className="w-4 h-4" />
+                          <CheckCircle2 className="w-5 h-5 relative z-10" />
                         ) : (
-                          <span>{idx + 1}</span>
+                          <span className="relative z-10">{idx + 1}</span>
                         )}
                       </div>
                       <span
                         className={cn(
-                          'text-xs font-semibold whitespace-nowrap',
+                          'text-[10px] font-bold uppercase tracking-widest',
                           isCurrent && 'text-brand',
                           isCompleted && 'text-brand/70',
                           !isCompleted && !isCurrent && 'text-foreground/30'
@@ -1046,8 +1034,8 @@ export default function PurchaseOrdersPage() {
                     {idx < 2 && (
                       <div
                         className={cn(
-                          'h-0.5 w-8 rounded-full mb-5',
-                          idx < currentIdx ? 'bg-brand' : 'bg-surface/30'
+                          'h-0.5 flex-1 max-w-[40px] rounded-full mb-6 transition-colors duration-500',
+                          idx < currentIdx ? 'bg-brand shadow-[0_0_10px_rgba(123,179,95,0.4)]' : 'bg-black/10 dark:bg-white/10'
                         )}
                       />
                     )}
@@ -1057,169 +1045,129 @@ export default function PurchaseOrdersPage() {
             </div>
 
             {/* Items table */}
-            <div>
-              <h4 className="text-xs font-semibold uppercase tracking-wider text-foreground/50 mb-3">
-                Articoli Ordinati
-              </h4>
-              <div className="overflow-x-auto rounded-2xl border border-surface/20">
-                <table className="w-full">
+            <div className="bg-white/40 dark:bg-white/[0.01] rounded-3xl border border-black/[0.04] dark:border-white/[0.06] overflow-hidden">
+              <div className="px-5 py-4 border-b border-black/[0.04] dark:border-white/[0.06] bg-surface-light/30 dark:bg-black/20">
+                 <h4 className="text-[11px] font-bold uppercase tracking-[0.2em] text-foreground/40">
+                   Articoli Ordinati
+                 </h4>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
                   <thead>
-                    <tr className="bg-surface/20">
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-foreground/50">
-                        Prodotto
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-foreground/50 w-20">
-                        Taglia
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-foreground/50 w-24">
-                        Colore
-                      </th>
-                      <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider text-foreground/50 w-20">
-                        Qtà
-                      </th>
-                      <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-foreground/50 w-28">
-                        Prezzo Unit.
-                      </th>
-                      <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-foreground/50 w-28">
-                        Totale
-                      </th>
+                    <tr className="border-b border-black/[0.04] dark:border-white/[0.06]">
+                      <th className="px-5 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-foreground/40">Prodotto</th>
+                      <th className="px-5 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-foreground/40 w-20">Taglia</th>
+                      <th className="px-5 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-foreground/40 w-24">Colore</th>
+                      <th className="px-5 py-3 text-center text-[11px] font-bold uppercase tracking-wider text-foreground/40 w-20">Qtà</th>
+                      <th className="px-5 py-3 text-right text-[11px] font-bold uppercase tracking-wider text-foreground/40 w-28">P. Unit</th>
+                      <th className="px-5 py-3 text-right text-[11px] font-bold uppercase tracking-wider text-foreground/40 w-28">Totale</th>
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody className="divide-y divide-black/[0.04] dark:divide-white/[0.06]">
                     {selectedOrder.purchase_order_items?.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="px-4 py-8 text-center text-foreground/40 text-sm">
-                          Nessun articolo in questo ordine
-                        </td>
+                        <td colSpan={6} className="px-5 py-10 text-center text-foreground/30 font-medium">Nessun articolo in questo ordine</td>
                       </tr>
                     ) : (
                       selectedOrder.purchase_order_items?.map((item, i) => (
-                        <tr
-                          key={item.id}
-                          className={cn(
-                            'border-t border-surface/20 hover:bg-brand/[0.04] transition-colors',
-                            i % 2 === 0 ? 'bg-transparent' : 'bg-surface-light/20'
-                          )}
-                        >
-                          <td className="px-4 py-3 text-sm font-medium text-foreground">
-                            {item.product_registry?.name ?? '—'}
-                          </td>
-                          <td className="px-4 py-3 text-sm">
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-surface text-xs font-semibold">
+                        <tr key={item.id} className="hover:bg-brand/[0.04] transition-colors">
+                          <td className="px-5 py-4 font-bold text-foreground">{item.product_registry?.name ?? '—'}</td>
+                          <td className="px-5 py-4">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-lg bg-surface/40 border border-surface text-[11px] font-bold text-foreground/70 tracking-tighter">
                               {item.product_registry?.size ?? '—'}
                             </span>
                           </td>
-                          <td className="px-4 py-3 text-sm text-foreground/70">
-                            {item.product_registry?.color ?? '—'}
-                          </td>
-                          <td className="px-4 py-3 text-center">
-                            <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-brand/10 text-brand text-sm font-bold">
+                          <td className="px-5 py-4 text-foreground/60">{item.product_registry?.color ?? '—'}</td>
+                          <td className="px-5 py-4 text-center">
+                            <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-brand/10 text-brand font-bold">
                               {item.quantity}
                             </span>
                           </td>
-                          <td className="px-4 py-3 text-right text-sm text-foreground/70">
-                            {formatCurrency(item.unit_price)}
-                          </td>
-                          <td className="px-4 py-3 text-right">
-                            <span className="font-bold text-brand text-sm">
-                              {formatCurrency(item.quantity * item.unit_price)}
-                            </span>
-                          </td>
+                          <td className="px-5 py-4 text-right text-foreground/50">{formatCurrency(item.unit_price)}</td>
+                          <td className="px-5 py-4 text-right font-bold text-brand">{formatCurrency(item.quantity * item.unit_price)}</td>
                         </tr>
                       ))
                     )}
                   </tbody>
-                  <tfoot>
-                    <tr className="border-t-2 border-surface/20 bg-surface/10">
-                      <td
-                        colSpan={5}
-                        className="px-4 py-3 text-right text-sm font-bold text-foreground"
-                      >
-                        Totale Ordine
-                      </td>
-                      <td className="px-4 py-3 text-right">
-                        <span className="text-lg font-bold text-brand">
-                          {formatCurrency(selectedOrder.total)}
-                        </span>
+                  <tfoot className="bg-surface-light/30 dark:bg-black/20">
+                    <tr>
+                      <td colSpan={5} className="px-5 py-4 text-right text-[11px] font-bold uppercase tracking-widest text-foreground/40">Totale Ordine</td>
+                      <td className="px-5 py-4 text-right">
+                        <span className="text-xl font-black text-brand drop-shadow-sm">{formatCurrency(selectedOrder.total)}</span>
                       </td>
                     </tr>
                   </tfoot>
                 </table>
               </div>
             </div>
-
-            {/* Notes */}
-            {selectedOrder.notes && (
-              <div className="p-4 rounded-xl bg-card/80 backdrop-blur-sm border border-white/60 dark:border-white/[0.06] shadow-sm shadow-black/[0.04]">
-                <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50 mb-1.5">
-                  Note
-                </p>
-                <p className="text-sm text-foreground/80">{selectedOrder.notes}</p>
-              </div>
-            )}
-
             {/* Action buttons — status flow */}
-            <div className="pt-2 border-t border-surface/20 space-y-3">
+            <div className="pt-4 border-t border-black/[0.04] dark:border-white/[0.06] space-y-4">
               {/* CRITICAL: Merce Arrivata — visible when ordered or shipped */}
               {(selectedOrder.status === 'ordered' || selectedOrder.status === 'shipped') && (
                 <button
                   onClick={() => setPendingAction('arrived')}
                   disabled={statusUpdating}
                   className={cn(
-                    'w-full flex items-center justify-center gap-3 py-4 px-6 rounded-2xl',
-                    'text-white text-lg font-bold tracking-wide',
-                    'bg-success hover:bg-green-600 active:bg-green-700',
-                    'shadow-lg shadow-green-200/50 hover:shadow-green-300/50',
-                    'transition-all duration-200 transform hover:-translate-y-0.5',
-                    'focus:outline-none focus:ring-4 focus:ring-green-300',
+                    'w-full flex items-center justify-center gap-3 py-5 px-6 rounded-2xl',
+                    'text-white text-lg font-extrabold tracking-widest uppercase',
+                    'bg-gradient-to-r from-[#7BB35F] to-[#6CAE4A] hover:scale-[1.01] active:scale-95',
+                    'shadow-[0_10px_30px_rgba(123,179,95,0.4)]',
+                    'transition-all duration-300 transform',
                     'disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none'
                   )}
                   aria-label="Conferma arrivo della merce e aggiorna inventario"
                 >
                   {statusUpdating ? (
-                    <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
+                    <div className="w-6 h-6 border-4 border-white/30 border-t-white rounded-full animate-spin" />
                   ) : (
-                    <Package className="w-6 h-6" />
+                    <Package className="w-6 h-6 drop-shadow-md" />
                   )}
                   Merce Arrivata — Aggiorna Inventario
                 </button>
               )}
 
-              {/* Segna come Spedito — only when ordered */}
-              {selectedOrder.status === 'ordered' && (
-                <Button
-                  variant="secondary"
-                  size="md"
-                  loading={statusUpdating}
-                  onClick={() => setPendingAction('shipped')}
-                  className="w-full"
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {/* Segna come Spedito — only when ordered */}
+                {selectedOrder.status === 'ordered' && (
+                  <button
+                    onClick={() => setPendingAction('shipped')}
+                    disabled={statusUpdating}
+                    className="flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl bg-white/60 dark:bg-white/[0.03] border border-black/[0.1] dark:border-white/[0.1] text-foreground/80 hover:bg-white/90 dark:hover:bg-white/10 font-bold text-xs uppercase tracking-widest transition-all"
+                  >
+                    {statusUpdating ? (
+                      <div className="w-4 h-4 border-2 border-brand/20 border-t-brand rounded-full animate-spin" />
+                    ) : (
+                      <Truck className="w-4 h-4 text-brand" />
+                    )}
+                    Segna come Spedito
+                  </button>
+                )}
+
+                <button
+                  onClick={() => setSelectedOrder(null)}
+                  className={cn(
+                    "flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl border border-transparent font-bold text-xs uppercase tracking-widest transition-all",
+                    selectedOrder.status === 'ordered' ? 'bg-black/5 dark:bg-white/5 text-foreground/40 hover:text-foreground' : 'w-full bg-black/5 dark:bg-white/5 text-foreground/40 hover:text-foreground'
+                  )}
                 >
-                  <Truck className="w-4 h-4 mr-2" />
-                  Segna come Spedito
-                </Button>
-              )}
+                  Chiudi Schermata
+                </button>
+              </div>
 
               {/* Arrived state — read-only info */}
               {selectedOrder.status === 'arrived' && (
-                <div className="flex items-center gap-3 p-4 rounded-xl bg-emerald-50 border border-emerald-200/60">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+                <div className="flex items-center gap-4 p-5 rounded-3xl bg-[#7BB35F]/10 border border-[#7BB35F]/20 shadow-inner">
+                  <div className="w-10 h-10 rounded-full bg-[#7BB35F]/20 flex items-center justify-center shrink-0">
+                    <CheckCircle2 className="w-6 h-6 text-[#7BB35F]" />
+                  </div>
                   <div className="text-sm">
-                    <p className="font-bold text-emerald-700">Merce ricevuta</p>
-                    <p className="text-emerald-600 mt-0.5">
-                      Le quantità in inventario sono state aggiornate automaticamente dal database.
+                    <p className="font-bold text-[#7BB35F] tracking-wide uppercase text-xs">Merce Ricevuta Correttamente</p>
+                    <p className="text-foreground/60 mt-1 leading-relaxed">
+                      L'inventario è stato aggiornato. I prodotti di questo ordine sono ora disponibili per la vendita.
                     </p>
                   </div>
                 </div>
               )}
-
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setSelectedOrder(null)}
-                className="w-full"
-              >
-                Chiudi
-              </Button>
             </div>
           </div>
         )}
