@@ -16,20 +16,20 @@ export function PremiumStepper({ current }: PremiumStepperProps) {
   const currentIdx = current === 'upload' ? 1 : current === 'mapping' ? 2 : current === 'review' ? 3 : 4;
 
   const titles: Record<number, string> = {
-    1: 'Upload File',
-    2: 'Map Columns',
-    3: 'Review & Save',
-    4: 'Completed'
+    1: 'Carica File',
+    2: 'Mappa Colonne',
+    3: 'Revisiona e Salva',
+    4: 'Completato'
   };
 
   return (
     <div className="w-full mb-12 flex flex-col items-center animate-fade-in">
       <div className="text-center mb-10">
         <h1 className="text-3xl font-bold text-foreground tracking-wide mb-2 drop-shadow-lg">
-          Premium Import - Step {currentIdx > 3 ? 3 : currentIdx}: {titles[currentIdx > 3 ? 3 : currentIdx]}
+          Importazione - Step {currentIdx > 3 ? 3 : currentIdx}: {titles[currentIdx > 3 ? 3 : currentIdx]}
         </h1>
         <p className="text-foreground/40 text-[15px]">
-          Redesigning the Flip&Co supplier product import process.
+          Semplifichiamo il processo di importazione prodotti dai fornitori per Flip&Co.
         </p>
       </div>
 

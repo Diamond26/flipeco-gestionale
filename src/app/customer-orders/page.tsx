@@ -108,24 +108,24 @@ const STATUS_FILTER_OPTIONS = [
 function StatusBadge({ status }: { status: OrderStatus }) {
   const config: Record<OrderStatus, { label: string; className: string; icon: React.ReactNode }> = {
     pending: {
-      label: 'In attesa',
-      className: 'bg-amber-50 text-amber-600 ring-1 ring-amber-200',
-      icon: <Clock className="w-3 h-3" />,
+      label: 'In Attesa',
+      className: 'bg-amber-500/10 text-amber-400 border border-amber-500/20 shadow-[0_0_10px_rgba(245,158,11,0.15)]',
+      icon: <Clock className="w-3.5 h-3.5" />,
     },
     confirmed: {
       label: 'Confermato',
-      className: 'bg-blue-50 text-blue-600 ring-1 ring-blue-200',
-      icon: <CheckCircle2 className="w-3 h-3" />,
+      className: 'bg-blue-500/10 text-blue-400 border border-blue-500/20 shadow-[0_0_10px_rgba(59,130,246,0.15)]',
+      icon: <CheckCircle2 className="w-3.5 h-3.5" />,
     },
     delivered: {
       label: 'Consegnato',
-      className: 'bg-emerald-50 text-emerald-600 ring-1 ring-emerald-200',
-      icon: <Truck className="w-3 h-3" />,
+      className: 'bg-[#7BB35F]/20 text-[#7BB35F] border border-[#7BB35F]/30 shadow-[0_0_15px_rgba(123,179,95,0.2)]',
+      icon: <Truck className="w-3.5 h-3.5" />,
     },
     cancelled: {
       label: 'Annullato',
-      className: 'bg-red-50 text-red-600 ring-1 ring-red-200',
-      icon: <XCircle className="w-3 h-3" />,
+      className: 'bg-red-500/10 text-red-400 border border-red-500/20',
+      icon: <XCircle className="w-3.5 h-3.5" />,
     },
   }
 
@@ -134,7 +134,7 @@ function StatusBadge({ status }: { status: OrderStatus }) {
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold',
+        'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold tracking-wide',
         className
       )}
     >
@@ -647,98 +647,85 @@ export default function CustomerOrdersPage() {
         ))}
       </div>
 
-      <div className="space-y-5 max-w-7xl mx-auto animate-fade-in">
+      <div className="space-y-8 max-w-7xl mx-auto animate-fade-in relative pt-2">
+        {/* Ambient Glow */}
+        <div className="absolute top-0 right-1/4 w-[500px] h-[300px] bg-[#7BB35F]/5 blur-[120px] pointer-events-none rounded-[100%] z-[-1]" />
+        
         {/* ---------------------------------------------------------------- */}
-        {/* Stats bar                                                          */}
+        {/* Stats bar (Premium Glass)                                        */}
         {/* ---------------------------------------------------------------- */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
-          <div className="bg-card/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 dark:border-white/[0.06] p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-brand/10 flex items-center justify-center shrink-0">
-              <ShoppingBag className="w-5 h-5 text-brand" />
+        <div className="flex flex-wrap gap-4">
+          <div className="flex-1 min-w-[200px] bg-surface/50 dark:bg-white/[0.03] backdrop-blur-2xl rounded-2xl border border-surface dark:border-white/10 p-5 shadow-[0_8px_30px_rgb(0,0,0,0.15)] flex items-center gap-4 group">
+            <div className="w-14 h-14 rounded-[1.25rem] bg-white/5 border border-white/10 flex items-center justify-center shrink-0 shadow-inner group-hover:scale-105 transition-transform duration-300">
+              <ShoppingBag className="w-6 h-6 text-foreground/80 drop-shadow-md" strokeWidth={1.5} />
             </div>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50">
+              <p className="text-[12px] font-bold uppercase tracking-wider text-foreground/40 mb-1">
                 Totale Ordini
               </p>
-              <p className="text-2xl font-bold text-foreground">{totalOrders}</p>
+              <p className="text-3xl font-extrabold text-foreground drop-shadow-sm">{totalOrders}</p>
             </div>
           </div>
 
-          <div className="bg-card/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 dark:border-white/[0.06] p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center shrink-0">
-              <Clock className="w-5 h-5 text-amber-600" />
+          <div className="flex-1 min-w-[200px] bg-surface/50 dark:bg-amber-500/[0.03] backdrop-blur-2xl rounded-2xl border border-surface dark:border-amber-500/20 p-5 shadow-[0_0_30px_rgba(245,158,11,0.05)] flex items-center gap-4 group">
+            <div className="w-14 h-14 rounded-[1.25rem] bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0 shadow-[inset_0_0_15px_rgba(245,158,11,0.2)] group-hover:shadow-[inset_0_0_20px_rgba(245,158,11,0.3)] group-hover:scale-105 transition-all duration-300">
+              <Clock className="w-6 h-6 text-amber-500 drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]" strokeWidth={1.5} />
             </div>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50">
+              <p className="text-[12px] font-bold uppercase tracking-wider text-foreground/40 mb-1">
                 In Attesa
               </p>
-              <p className="text-2xl font-bold text-amber-600">{pendingCount}</p>
+              <p className="text-3xl font-extrabold text-amber-500 drop-shadow-sm">{pendingCount}</p>
             </div>
           </div>
 
-          <div className="bg-card/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 dark:border-white/[0.06] p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
-              <ClipboardList className="w-5 h-5 text-blue-600" />
+          <div className="flex-1 min-w-[200px] bg-surface/50 dark:bg-blue-500/[0.03] backdrop-blur-2xl rounded-2xl border border-surface dark:border-blue-500/20 p-5 shadow-[0_0_30px_rgba(59,130,246,0.05)] flex items-center gap-4 group">
+            <div className="w-14 h-14 rounded-[1.25rem] bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0 shadow-[inset_0_0_15px_rgba(59,130,246,0.2)] group-hover:scale-105 transition-all duration-300">
+              <ClipboardList className="w-6 h-6 text-blue-500 drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]" strokeWidth={1.5} />
             </div>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50">
+              <p className="text-[12px] font-bold uppercase tracking-wider text-foreground/40 mb-1">
                 Confermati
               </p>
-              <p className="text-2xl font-bold text-blue-600">{confirmedCount}</p>
+              <p className="text-3xl font-extrabold text-blue-400 drop-shadow-sm">{confirmedCount}</p>
             </div>
           </div>
 
-          <div className="bg-card/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 dark:border-white/[0.06] p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center shrink-0">
-              <Truck className="w-5 h-5 text-emerald-600" />
+          <div className="flex-1 min-w-[200px] bg-surface/50 dark:bg-[#7BB35F]/[0.05] backdrop-blur-2xl rounded-2xl border border-surface dark:border-[#7BB35F]/30 p-5 shadow-[0_0_30px_rgba(123,179,95,0.1)] flex items-center gap-4 group relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-[#7BB35F]/10 blur-3xl rounded-full" />
+            <div className="w-14 h-14 rounded-[1.25rem] bg-[#7BB35F]/20 border border-[#7BB35F]/30 flex items-center justify-center shrink-0 shadow-[inset_0_0_20px_rgba(123,179,95,0.3)] group-hover:scale-105 transition-all duration-300 z-10">
+              <Truck className="w-6 h-6 text-[#7BB35F] drop-shadow-[0_0_10px_rgba(123,179,95,0.6)]" strokeWidth={1.5} />
             </div>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50">
+            <div className="z-10">
+              <p className="text-[12px] font-bold uppercase tracking-wider text-foreground/40 mb-1 text-shadow-sm">
                 Consegnati
               </p>
-              <p className="text-2xl font-bold text-emerald-600">{deliveredCount}</p>
+              <p className="text-3xl font-extrabold text-[#7BB35F] drop-shadow-md">{deliveredCount}</p>
             </div>
           </div>
         </div>
 
         {/* ---------------------------------------------------------------- */}
-        {/* Orders table                                                       */}
+        {/* Orders List Container                                            */}
         {/* ---------------------------------------------------------------- */}
-        <Card
-          title="Ordini Clienti"
-          action={
-            <div className="flex items-center gap-2">
-              <Button variant="secondary" size="sm" onClick={handleExportPDF}>
-                <FileDown className="w-4 h-4 mr-1.5" />
-                Esporta PDF
-              </Button>
-              <Button variant="primary" size="sm" onClick={openNewOrderModal}>
-                <Plus className="w-4 h-4 mr-1.5" />
-                Nuovo Ordine
-              </Button>
-            </div>
-          }
-        >
-          {/* Filters row */}
-          <div className="flex flex-col sm:flex-row gap-3 mb-4">
-            {/* Search */}
-            <div className="relative flex-1">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/40 pointer-events-none" />
+        <div className="bg-surface/50 dark:bg-white/[0.03] backdrop-blur-2xl rounded-[2rem] border border-surface dark:border-white/10 p-6 sm:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.2)] relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-white/[0.02] to-transparent pointer-events-none" />
+          
+          {/* Top Actions: Search and Buttons */}
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6 relative z-10">
+            <div className="relative w-full md:w-[350px]">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/40 pointer-events-none" />
               <input
                 type="text"
                 placeholder="Cerca per nome o telefono..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className={cn(
-                  'w-full pl-10 pr-9 py-2.5 text-sm rounded-xl border border-surface/80 bg-card shadow-sm',
-                  'focus:outline-none focus:border-brand focus:ring-4 focus:ring-brand/15',
-                  'placeholder:text-gray-400 transition-all duration-200'
-                )}
+                className="w-full pl-11 pr-10 py-3.5 text-[14px] rounded-full border border-surface dark:border-white/10 bg-surface/50 dark:bg-black/20 text-foreground placeholder:text-foreground/40 focus:outline-none focus:ring-2 focus:ring-[#7BB35F]/50 focus:border-[#7BB35F]/50 transition-all shadow-inner backdrop-blur-md"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground/40 hover:text-foreground transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-foreground/40 hover:text-foreground transition-colors"
                   aria-label="Cancella ricerca"
                 >
                   <X className="w-4 h-4" />
@@ -746,43 +733,109 @@ export default function CustomerOrdersPage() {
               )}
             </div>
 
-            {/* Status filter */}
-            <div className="sm:w-52">
-              <Select
-                options={STATUS_FILTER_OPTIONS}
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                placeholder=""
-              />
+            <div className="flex items-center gap-3 w-full md:w-auto">
+              <button
+                onClick={handleExportPDF}
+                className="px-5 py-3 rounded-full border border-surface dark:border-white/10 bg-surface/60 dark:bg-white/5 text-foreground/80 text-[14px] font-semibold tracking-wide transition-all hover:bg-surface/80 dark:hover:bg-white/10 hover:text-foreground shadow-sm flex items-center gap-2 flex-1 md:flex-none justify-center"
+              >
+                <FileDown className="w-4 h-4" />
+                Esporta PDF
+              </button>
+              <button
+                onClick={openNewOrderModal}
+                className="px-6 py-3 rounded-full font-bold text-[14px] tracking-wide transition-all bg-[#7BB35F]/20 text-[#8CE36B] border border-[#7BB35F]/40 shadow-[0_0_20px_rgba(123,179,95,0.2)] hover:shadow-[0_0_30px_rgba(123,179,95,0.35)] hover:bg-[#7BB35F]/30 hover:border-[#7BB35F]/60 flex items-center gap-2 flex-1 md:flex-none justify-center"
+              >
+                <Plus className="w-4 h-4" strokeWidth={3} />
+                Nuovo Ordine
+              </button>
             </div>
           </div>
 
-          {/* Result count */}
-          {(searchQuery || statusFilter) && (
-            <p className="text-xs text-foreground/50 mb-3">
-              {filteredOrders.length}{' '}
-              {filteredOrders.length === 1 ? 'ordine trovato' : 'ordini trovati'}
-            </p>
-          )}
+          {/* Chip Filters */}
+          <div className="flex items-center gap-2 mb-8 overflow-x-auto pb-2 scrollbar-hide relative z-10">
+            {STATUS_FILTER_OPTIONS.map((opt) => (
+              <button
+                key={opt.value}
+                onClick={() => setStatusFilter(opt.value)}
+                className={`
+                  px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap transition-all border shadow-sm
+                  ${statusFilter === opt.value 
+                    ? 'bg-surface dark:bg-white/10 text-foreground border-surface dark:border-white/20' 
+                    : 'bg-transparent text-foreground/50 border-transparent hover:bg-surface/50 dark:hover:bg-white/5 hover:text-foreground/80'}
+                `}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
 
-          {tableLoading ? (
-            <div className="flex flex-col items-center justify-center py-16 gap-3">
-              <div className="w-10 h-10 rounded-2xl skeleton-shimmer" />
-              <div className="h-3 w-40 rounded-full skeleton-shimmer" />
-              <div className="h-3 w-28 rounded-full skeleton-shimmer" />
-            </div>
-          ) : (
-            <Table
-              columns={columns}
-              data={filteredOrders}
-              emptyMessage="Nessun ordine trovato. Crea il primo ordine con il pulsante 'Nuovo Ordine'."
-              onRowClick={(row) => setDetailOrder(row)}
-            />
-          )}
-        </Card>
+          {/* Table */}
+          <div className="overflow-x-auto relative z-10 pb-4">
+            {tableLoading ? (
+               <div className="flex flex-col items-center justify-center py-24 gap-4">
+                 <div className="w-12 h-12 rounded-full border-4 border-t-[#7BB35F] border-[#7BB35F]/20 animate-spin" />
+                 <p className="text-foreground/40 text-[14px] font-medium tracking-wide">Caricamento ordini...</p>
+               </div>
+            ) : filteredOrders.length === 0 ? (
+               <div className="flex flex-col items-center justify-center py-24 gap-3 text-center">
+                 <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mb-2 shadow-[0_0_30px_rgba(255,255,255,0.05)]">
+                   <ShoppingBag className="w-8 h-8 text-foreground/20" />
+                 </div>
+                 <p className="text-foreground font-bold text-[16px]">Nessun ordine trovato.</p>
+                 <p className="text-foreground/40 text-[14px]">Crea il primo ordine con il pulsante &quot;Nuovo Ordine&quot;.</p>
+               </div>
+            ) : (
+               <table className="w-full text-left border-collapse">
+                 <thead>
+                   <tr>
+                     <th className="px-4 pb-4 text-[11px] font-bold uppercase tracking-widest text-foreground/40 border-b border-surface dark:border-white/5 whitespace-nowrap">ID</th>
+                     <th className="px-4 pb-4 text-[11px] font-bold uppercase tracking-widest text-foreground/40 border-b border-surface dark:border-white/5 whitespace-nowrap">Cliente</th>
+                     <th className="px-4 pb-4 text-[11px] font-bold uppercase tracking-widest text-foreground/40 border-b border-surface dark:border-white/5 whitespace-nowrap">Telefono</th>
+                     <th className="px-4 pb-4 text-[11px] font-bold uppercase tracking-widest text-foreground/40 border-b border-surface dark:border-white/5 whitespace-nowrap">Stato</th>
+                     <th className="px-4 pb-4 text-[11px] font-bold uppercase tracking-widest text-foreground/40 border-b border-surface dark:border-white/5 whitespace-nowrap">Totale</th>
+                     <th className="px-4 pb-4 text-[11px] font-bold uppercase tracking-widest text-foreground/40 border-b border-surface dark:border-white/5 whitespace-nowrap">Data</th>
+                     <th className="px-4 pb-4 text-[11px] font-bold uppercase tracking-widest text-foreground/40 border-b border-surface dark:border-white/5 whitespace-nowrap">Articoli</th>
+                   </tr>
+                 </thead>
+                 <tbody className="divide-y divide-surface dark:divide-white/5">
+                   {filteredOrders.map((row) => (
+                     <tr 
+                       key={row.id} 
+                       onClick={() => setDetailOrder(row)}
+                       className="hover:bg-surface/50 dark:hover:bg-white/[0.02] cursor-pointer transition-all group"
+                     >
+                       <td className="px-4 py-5 whitespace-nowrap font-mono text-[11px] text-foreground/40 font-bold uppercase tracking-wider group-hover:text-foreground/60 transition-colors">
+                         #{row.id.slice(0, 8)}
+                       </td>
+                       <td className="px-4 py-5 whitespace-nowrap font-bold text-[14px] text-foreground drop-shadow-sm">
+                         {row.customer_name}
+                       </td>
+                       <td className="px-4 py-5 whitespace-nowrap text-[13px] text-foreground/60 font-medium">
+                         {row.customer_phone || <span className="opacity-40">&mdash;</span>}
+                       </td>
+                       <td className="px-4 py-5 whitespace-nowrap">
+                         <StatusBadge status={row.status} />
+                       </td>
+                       <td className="px-4 py-5 whitespace-nowrap font-extrabold text-[15px] text-foreground drop-shadow-sm">
+                         {formatCurrency(row.total)}
+                       </td>
+                       <td className="px-4 py-5 whitespace-nowrap text-[12px] text-foreground/50 font-medium tracking-wide">
+                         {formatDate(row.created_at)}
+                       </td>
+                       <td className="px-4 py-5 whitespace-nowrap">
+                         <span className="inline-flex items-center justify-center min-w-[28px] px-2.5 py-1 rounded-full bg-surface dark:bg-white/5 border border-surface dark:border-white/10 text-foreground/70 font-bold text-[11px] shadow-sm">
+                           {row.customer_order_items?.length ?? 0} pz
+                         </span>
+                       </td>
+                     </tr>
+                   ))}
+                 </tbody>
+               </table>
+            )}
+          </div>
+        </div>
       </div>
-
-      {/* ------------------------------------------------------------------ */}
+{/* ------------------------------------------------------------------ */}
       {/* New Order Modal                                                      */}
       {/* ------------------------------------------------------------------ */}
       <Modal
