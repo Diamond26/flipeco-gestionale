@@ -12,17 +12,23 @@ import {
   CreditCard,
   LogOut,
   X,
+  History,
   ChevronDown,
 } from 'lucide-react'
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
 
+interface NavChild {
+  label: string
+  href: string
+}
+
 interface NavItem {
   label: string
   icon: React.ElementType
   href?: string
-  children?: { label: string; href: string }[]
+  children?: NavChild[]
 }
 
 const navItems: NavItem[] = [
@@ -32,9 +38,9 @@ const navItems: NavItem[] = [
     icon: Upload,
     children: [
       { label: 'Importa', href: '/import' },
-      { label: 'Storico Importazioni', href: '/import-history' },
     ],
   },
+  { label: 'Storico Importazioni', icon: History, href: '/import-history' },
   {
     label: 'Magazzino',
     icon: Package,
@@ -83,7 +89,6 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
     return false
   }
 
-  // Auto-open menus with active children
   const getIsOpen = (item: NavItem): boolean => {
     if (openMenus[item.label] !== undefined) return openMenus[item.label]
     return isItemActive(item)
@@ -91,7 +96,7 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
 
   return (
     <>
-      {/* Mobile overlay backdrop */}
+      {/* Mobile overlay */}
       {mobileOpen && (
         <div
           className="fixed inset-0 z-20 bg-black/40 backdrop-blur-sm md:hidden animate-fade-in"
@@ -100,7 +105,6 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
         />
       )}
 
-      {/* Sidebar panel */}
       <aside
         className={cn(
           'fixed top-0 left-0 z-30 flex h-full w-[260px] flex-col bg-[#0c1222] transition-transform duration-300 ease-in-out',
@@ -108,20 +112,18 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
         )}
         aria-label="Navigazione principale"
       >
-        {/* Header: Logo + Brand */}
-        <div className="flex items-center gap-3 px-6 py-7 relative">
+        {/* Logo */}
+        <div className="flex items-center gap-3 px-5 py-6 relative">
           <Image
             src="/logo.png"
             alt="Flip&Co Logo"
-            width={40}
-            height={40}
+            width={38}
+            height={38}
             className="rounded-lg"
           />
-          <span className="text-white font-bold text-2xl tracking-tight">
+          <span className="text-white font-bold text-[22px] tracking-tight">
             Flip<span className="text-brand-light">&amp;</span>Co
           </span>
-
-          {/* Mobile close button */}
           <button
             onClick={onMobileClose}
             className="absolute right-4 text-white/40 hover:text-white md:hidden"
@@ -131,8 +133,8 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
           </button>
         </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto px-3 py-2 space-y-0.5" aria-label="Menu principale">
+        {/* Nav */}
+        <nav className="flex-1 overflow-y-auto px-3 pt-2 pb-4 space-y-1" aria-label="Menu principale">
           {navItems.map((item) => {
             const isActive = isItemActive(item)
             const hasChildren = !!item.children
@@ -144,32 +146,32 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
                   <button
                     onClick={() => toggleMenu(item.label)}
                     className={cn(
-                      'group flex w-full items-center gap-3 rounded-xl py-2.5 px-4 text-[15px] font-medium relative',
+                      'group flex w-full items-center gap-3 rounded-xl py-2.5 px-4 text-[14px] font-medium relative',
                       isActive
                         ? 'bg-brand/15 text-white'
-                        : 'text-white/55 hover:bg-white/[0.05] hover:text-white/85'
+                        : 'text-white/50 hover:bg-white/[0.05] hover:text-white/80'
                     )}
                   >
                     {isActive && (
                       <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-6 rounded-r-full bg-brand" />
                     )}
                     <item.icon
-                      size={20}
-                      className={cn('shrink-0', isActive ? 'text-brand' : 'text-white/35 group-hover:text-white/65')}
+                      size={19}
+                      className={cn('shrink-0', isActive ? 'text-brand' : 'text-white/30 group-hover:text-white/60')}
                       aria-hidden="true"
                     />
                     <span className="flex-1 text-left">{item.label}</span>
                     <ChevronDown
-                      size={16}
+                      size={15}
                       className={cn(
                         'shrink-0 transition-transform duration-200',
                         isOpen ? 'rotate-180' : '',
-                        isActive ? 'text-white/60' : 'text-white/30'
+                        isActive ? 'text-white/50' : 'text-white/25'
                       )}
                     />
                   </button>
                   {isOpen && (
-                    <div className="ml-7 pl-4 border-l border-white/[0.08] mt-1 mb-1 space-y-0.5">
+                    <div className="ml-8 pl-3 border-l border-white/[0.07] mt-1 mb-1 space-y-0.5">
                       {item.children!.map((child) => {
                         const childActive = pathname === child.href || pathname.startsWith(child.href + '/')
                         return (
@@ -178,10 +180,10 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
                             href={child.href}
                             onClick={onMobileClose}
                             className={cn(
-                              'block rounded-lg py-2 px-3 text-sm font-medium',
+                              'block rounded-lg py-2 px-3 text-[13px] font-medium',
                               childActive
                                 ? 'text-brand bg-brand/10'
-                                : 'text-white/45 hover:text-white/75 hover:bg-white/[0.04]'
+                                : 'text-white/40 hover:text-white/70 hover:bg-white/[0.04]'
                             )}
                           >
                             {child.label}
@@ -200,10 +202,10 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
                 href={item.href!}
                 onClick={onMobileClose}
                 className={cn(
-                  'group flex items-center gap-3 rounded-xl py-2.5 px-4 text-[15px] font-medium relative',
+                  'group flex items-center gap-3 rounded-xl py-2.5 px-4 text-[14px] font-medium relative',
                   isActive
                     ? 'bg-brand/15 text-white'
-                    : 'text-white/55 hover:bg-white/[0.05] hover:text-white/85'
+                    : 'text-white/50 hover:bg-white/[0.05] hover:text-white/80'
                 )}
                 aria-current={isActive ? 'page' : undefined}
               >
@@ -211,8 +213,8 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
                   <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-6 rounded-r-full bg-brand" />
                 )}
                 <item.icon
-                  size={20}
-                  className={cn('shrink-0', isActive ? 'text-brand' : 'text-white/35 group-hover:text-white/65')}
+                  size={19}
+                  className={cn('shrink-0', isActive ? 'text-brand' : 'text-white/30 group-hover:text-white/60')}
                   aria-hidden="true"
                 />
                 <span>{item.label}</span>
@@ -221,13 +223,13 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
           })}
         </nav>
 
-        {/* Bottom: Logout */}
+        {/* Logout */}
         <div className="px-3 py-4 border-t border-white/[0.06]">
           <button
             onClick={handleLogout}
-            className="group flex w-full items-center gap-3 rounded-xl py-2.5 px-4 text-[15px] font-medium text-white/45 hover:bg-white/[0.05] hover:text-white/75"
+            className="group flex w-full items-center gap-3 rounded-xl py-2.5 px-4 text-[14px] font-medium text-white/40 hover:bg-white/[0.05] hover:text-white/70"
           >
-            <LogOut size={20} className="text-white/30 group-hover:text-white/55" aria-hidden="true" />
+            <LogOut size={19} className="text-white/25 group-hover:text-white/50" aria-hidden="true" />
             <span>Esci</span>
           </button>
         </div>

@@ -65,18 +65,18 @@ function StatCard({ label, value, icon: Icon, loading = false, colorIndex, animD
   const style = STAT_STYLES[colorIndex % STAT_STYLES.length]
   return (
     <div
-      className="bg-card rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 dark:border-white/[0.06] p-5 flex items-center gap-4 animate-fade-in"
+      className="bg-card rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.04)] border border-black/[0.04] dark:border-white/[0.06] px-5 py-5 flex items-center gap-4 animate-fade-in"
       style={{ animationDelay: animDelay }}
     >
-      <div className={cn('flex items-center justify-center h-14 w-14 rounded-full shrink-0', style.bg)}>
-        <Icon size={26} className={style.icon} aria-hidden="true" />
+      <div className={cn('flex items-center justify-center h-[52px] w-[52px] rounded-full shrink-0', style.bg)}>
+        <Icon size={24} className={style.icon} aria-hidden="true" />
       </div>
       <div className="min-w-0">
-        <p className="text-xs text-foreground/45 font-medium truncate uppercase tracking-wide">{label}</p>
+        <p className="text-[13px] text-foreground/50 font-medium truncate">{label}</p>
         {loading ? (
-          <div className="mt-1.5 h-9 w-20 skeleton-shimmer" />
+          <div className="mt-1 h-9 w-20 skeleton-shimmer" />
         ) : (
-          <p className="text-3xl font-extrabold text-foreground leading-none mt-1">{value}</p>
+          <p className="text-[32px] font-extrabold text-foreground leading-none mt-0.5">{value}</p>
         )}
       </div>
     </div>
