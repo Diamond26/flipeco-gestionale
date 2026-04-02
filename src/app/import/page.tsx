@@ -443,13 +443,13 @@ export default function ImportPage() {
   return (
     <AppShell>
       {toast && (
-        <div className={`fixed top-6 right-6 z-50 ${toastType === 'error' ? 'bg-red-500' : 'bg-[#7BB35F]'} text-[#0a0f12] px-5 py-3 rounded-2xl shadow-lg shadow-black/20 font-bold text-sm animate-fade-in`}>
+        <div className={`fixed top-6 right-6 z-50 ${toastType === 'error' ? 'bg-red-500' : 'bg-[#7BB35F]'} text-white px-5 py-3 rounded-2xl shadow-lg shadow-black/20 font-bold text-sm animate-fade-in`}>
           {toast}
         </div>
       )}
 
-      <div className="relative min-h-[calc(100vh-60px)] text-white font-sans bg-[#0f1219] rounded-[2rem] overflow-hidden -m-6 p-6 sm:p-10 lg:p-12 shadow-[inset_0_4px_40px_rgba(0,0,0,0.4)]">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-[#7BB35F]/5 blur-[120px] pointer-events-none rounded-[100%]" />
+      <div className="relative font-sans text-foreground">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-[#7BB35F]/5 blur-[120px] pointer-events-none rounded-[100%] z-[-1]" />
 
         {step !== 'done' && <PremiumStepper current={step} />}
 
@@ -515,15 +515,15 @@ export default function ImportPage() {
               </svg>
             </div>
             <div>
-              <h2 className="text-3xl font-bold text-white tracking-wide mb-2 drop-shadow-md">Importazione completata!</h2>
-              <p className="text-white/60 text-lg font-medium">
+              <h2 className="text-3xl font-bold text-foreground tracking-wide mb-2 drop-shadow-md">Importazione completata!</h2>
+              <p className="text-foreground/60 text-lg font-medium">
                 {savedCount} prodott{savedCount === 1 ? 'o importato' : 'i importati'} con successo nell&apos;anagrafica.
               </p>
             </div>
             <div className="flex gap-4 flex-wrap justify-center mt-4">
               <button
                 onClick={handleExportPDF}
-                className="px-6 py-3 rounded-full border border-white/10 bg-white/5 text-white/80 font-bold hover:bg-white/10 hover:text-white transition-all flex items-center gap-2"
+                className="px-6 py-3 rounded-full border border-surface dark:border-white/10 bg-surface/60 dark:bg-white/5 text-foreground/80 font-bold hover:bg-surface/80 dark:hover:bg-white/10 hover:text-foreground transition-all flex items-center gap-2"
               >
                 Scarica PDF Riepilogo
               </button>
