@@ -936,28 +936,28 @@ export default function POSPage() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-card rounded-2xl border border-black/[0.04] dark:border-white/[0.06] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] flex items-center justify-between">
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-wider text-foreground/40 mb-1">Disponibili</p>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-foreground/60 mb-1">Disponibili</p>
               <p className="text-2xl font-extrabold text-foreground">{products.length}</p>
             </div>
             <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-500/20 flex items-center justify-center"><Search className="w-5 h-5 text-blue-500" /></div>
           </div>
           <div className="bg-card rounded-2xl border border-black/[0.04] dark:border-white/[0.06] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] flex items-center justify-between">
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-wider text-foreground/40 mb-1">Transazioni Oggi</p>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-foreground/60 mb-1">Transazioni Oggi</p>
               <p className="text-2xl font-extrabold text-foreground">{todaySales.length}</p>
             </div>
             <div className="w-12 h-12 rounded-full bg-violet-100 dark:bg-violet-500/20 flex items-center justify-center"><ReceiptText className="w-5 h-5 text-violet-500" /></div>
           </div>
           <div className="bg-card rounded-2xl border border-black/[0.04] dark:border-white/[0.06] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] flex items-center justify-between">
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-wider text-foreground/40 mb-1">Articoli Venduti</p>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-foreground/60 mb-1">Articoli Venduti</p>
               <p className="text-2xl font-extrabold text-foreground">{soldItemsCount}</p>
             </div>
             <div className="w-12 h-12 rounded-full bg-orange-100 dark:bg-orange-500/20 flex items-center justify-center"><ShoppingCart className="w-5 h-5 text-orange-500" /></div>
           </div>
           <div className="bg-card rounded-2xl border border-brand/20 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] flex items-center justify-between relative overflow-hidden">
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-wider text-foreground/50 mb-1">Incasso Giorno</p>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-foreground/60 mb-1">Incasso Giorno</p>
               <p className="text-2xl font-extrabold text-brand">{formatCurrency(dailyTotal)}</p>
             </div>
             <div className="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-500/20 flex items-center justify-center"><Banknote className="w-5 h-5 text-emerald-500" /></div>
@@ -999,7 +999,7 @@ export default function POSPage() {
               <ReceiptText className="w-5 h-5 text-brand" />
               <span className="font-bold text-lg text-foreground drop-shadow-sm">Storico Transazioni</span>
               {todaySales.length > 0 && (
-                <span className="text-sm text-foreground/50">
+                <span className="text-sm text-foreground/60">
                   ({todaySales.length} {todaySales.length === 1 ? 'transazione' : 'transazioni'} &middot;{' '}
                   <span className="font-bold text-brand">{formatCurrency(dailyTotal)}</span>)
                 </span>
@@ -1010,7 +1010,7 @@ export default function POSPage() {
 <div className="border-t border-black/[0.04] dark:border-white/[0.06]">
               <div className="px-5 py-4 border-b border-black/[0.04] dark:border-white/[0.06] space-y-3">
                 <div className="flex items-center justify-between gap-3">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-foreground/60">
                     Calendario transazioni
                   </p>
                   <div className="flex items-center gap-2">
@@ -1079,7 +1079,7 @@ export default function POSPage() {
                   )}
                 </div>
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
-                  <p className="text-xs text-foreground/50">
+                  <p className="text-xs text-foreground/60">
                     Giorno selezionato: <span className="font-semibold text-foreground/70">{historyDate}</span>
                   </p>
                   <Button
@@ -1094,12 +1094,12 @@ export default function POSPage() {
                 </div>
               </div>
               {historyLoading ? (
-                <div className="flex items-center justify-center py-10 text-foreground/40">
+                <div className="flex items-center justify-center py-10 text-foreground/50">
                   <div className="w-6 h-6 border-3 border-brand/20 border-t-brand rounded-full animate-spin mr-3" />
                   Caricamento...
                 </div>
               ) : todaySales.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-10 text-foreground/40 gap-2">
+                <div className="flex flex-col items-center justify-center py-10 text-foreground/50 gap-2">
                   <Clock className="w-8 h-8 opacity-40" />
                   <p className="text-sm">Nessuna transazione per il giorno selezionato</p>
                 </div>
@@ -1108,19 +1108,19 @@ export default function POSPage() {
                   {/* Summary bar */}
                   <div className="grid grid-cols-3 divide-x divide-black/[0.04] dark:divide-white/[0.06] border-b border-black/[0.04] dark:border-white/[0.06]">
                     <div className="p-4 text-center">
-                      <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50 mb-1">
+                      <p className="text-xs font-semibold uppercase tracking-wider text-foreground/60 mb-1">
                         Vendite
                       </p>
                       <p className="text-2xl font-bold">{todaySales.length}</p>
                     </div>
                     <div className="p-4 text-center">
-                      <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50 mb-1">
+                      <p className="text-xs font-semibold uppercase tracking-wider text-foreground/60 mb-1">
                         Articoli venduti
                       </p>
                       <p className="text-2xl font-bold">{soldItemsCount}</p>
                     </div>
                     <div className="p-4 text-center">
-                      <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50 mb-1">
+                      <p className="text-xs font-semibold uppercase tracking-wider text-foreground/60 mb-1">
                         Incasso totale
                       </p>
                       <p className="text-2xl font-bold text-brand">
@@ -1134,22 +1134,22 @@ export default function POSPage() {
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="border-b border-black/[0.04] dark:border-white/[0.06]">
-                          <th className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider text-foreground/50">
+                          <th className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider text-foreground/60">
                             Data / Ora
                           </th>
-                          <th className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider text-foreground/50">
+                          <th className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider text-foreground/60">
                             Metodo
                           </th>
-                          <th className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider text-foreground/50">
+                          <th className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider text-foreground/60">
                             Articoli
                           </th>
-                          <th className="text-right px-5 py-3 text-xs font-semibold uppercase tracking-wider text-foreground/50">
+                          <th className="text-right px-5 py-3 text-xs font-semibold uppercase tracking-wider text-foreground/60">
                             Totale
                           </th>
-                          <th className="text-center px-5 py-3 text-xs font-semibold uppercase tracking-wider text-foreground/50">
+                          <th className="text-center px-5 py-3 text-xs font-semibold uppercase tracking-wider text-foreground/60">
                             Dettagli
                           </th>
-                          <th className="text-right px-5 py-3 text-xs font-semibold uppercase tracking-wider text-foreground/50">
+                          <th className="text-right px-5 py-3 text-xs font-semibold uppercase tracking-wider text-foreground/60">
                             Azioni
                           </th>
                         </tr>
@@ -1238,7 +1238,7 @@ export default function POSPage() {
                                 <tr className="bg-brand/[0.03]">
                                   <td colSpan={6} className="px-5 py-4">
                                     <div className="rounded-xl border border-brand/15 bg-card/85 p-3">
-                                      <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50 mb-3">
+                                      <p className="text-xs font-semibold uppercase tracking-wider text-foreground/60 mb-3">
                                         Dettaglio articoli transazione
                                       </p>
                                       <div className="space-y-2">
@@ -1326,7 +1326,7 @@ export default function POSPage() {
             </select>
           </div>
 
-          <div className="text-xs text-foreground/50">
+          <div className="text-xs text-foreground/60">
             {productMenuItems.length} articoli disponibili
           </div>
 
@@ -1338,7 +1338,7 @@ export default function POSPage() {
             >
               {allVisibleSelected ? 'Deseleziona tutti' : 'Seleziona tutti'}
             </button>
-            <span className="text-xs text-foreground/50">
+            <span className="text-xs text-foreground/60">
               {selectedInMenuCount} selezionati
             </span>
             <button
@@ -1376,7 +1376,7 @@ export default function POSPage() {
                 Caricamento prodotti...
               </div>
             ) : productMenuItems.length === 0 ? (
-              <div className="py-10 text-center text-sm text-foreground/50">
+              <div className="py-10 text-center text-sm text-foreground/60">
                 Nessun articolo disponibile con i filtri selezionati.
               </div>
             ) : (
@@ -1408,7 +1408,7 @@ export default function POSPage() {
                       <p className="text-foreground/60 text-right">{product.quantity} pz</p>
                     </div>
                     <div className="mt-1 flex items-center justify-between gap-3">
-                      <p className="text-xs text-foreground/50 truncate">
+                      <p className="text-xs text-foreground/60 truncate">
                         {pr.barcode} · {pr.color || '-'}
                       </p>
                       <button
@@ -1441,7 +1441,7 @@ export default function POSPage() {
             Articoli selezionati: <span className="font-semibold text-foreground">{selectedInMenuCount}</span>
           </p>
           <div className="space-y-2">
-            <label className="text-xs font-semibold uppercase tracking-wider text-foreground/50">
+            <label className="text-xs font-semibold uppercase tracking-wider text-foreground/60">
               Nuovo prezzo vendita (opzionale)
             </label>
             <input
@@ -1455,7 +1455,7 @@ export default function POSPage() {
             />
           </div>
           <div className="space-y-2">
-            <label className="text-xs font-semibold uppercase tracking-wider text-foreground/50">
+            <label className="text-xs font-semibold uppercase tracking-wider text-foreground/60">
               Nuova quantita (opzionale)
             </label>
             <input
@@ -1615,7 +1615,7 @@ export default function POSPage() {
               <p className="text-2xl font-extrabold text-foreground">
                 {formatCurrency(completedSale.total)}
               </p>
-              <p className="text-foreground/50 text-sm mt-1">
+              <p className="text-foreground/60 text-sm mt-1">
                 {completedSale.itemCount}{' '}
                 {completedSale.itemCount === 1 ? 'articolo venduto' : 'articoli venduti'}
               </p>

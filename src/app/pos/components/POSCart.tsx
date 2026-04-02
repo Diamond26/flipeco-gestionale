@@ -30,7 +30,7 @@ export function POSCart({
     <div className="w-full space-y-4 flex flex-col h-full relative z-10">
       <div className="flex-[1_1_auto] bg-card rounded-3xl border border-black/[0.04] dark:border-white/[0.06] overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.08)] dark:shadow-[0_1px_3px_rgba(0,0,0,0.3)] flex flex-col min-h-[500px]">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-black/[0.04] dark:border-white/[0.06] bg-surface-light/40 dark:bg-white/[0.02]">
+        <div className="flex items-center justify-between px-6 py-5 border-b border-black/[0.06] dark:border-white/[0.06]">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-brand/10 text-brand flex items-center justify-center shadow-inner">
               <ShoppingCart className="w-5 h-5" />
@@ -55,9 +55,9 @@ export function POSCart({
         {/* List */}
         <div className="flex-1 overflow-y-auto w-full">
           {cart.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-foreground/30 gap-4 opacity-70">
+            <div className="flex flex-col items-center justify-center h-full text-foreground/40 gap-4">
               <ShoppingCart className="w-16 h-16" />
-              <p className="text-lg font-medium">Carrello vuoto</p>
+              <p className="text-lg font-semibold">Carrello vuoto</p>
             </div>
           ) : (
             <div className="divide-y divide-black/[0.04] dark:divide-white/[0.06]">
@@ -94,9 +94,9 @@ export function POSCart({
         </div>
 
         {/* Footer */}
-        <div className="border-t border-black/[0.04] dark:border-white/[0.06] bg-surface-light/40 dark:bg-white/[0.02] p-6 flex flex-col gap-5">
+        <div className="border-t border-black/[0.06] dark:border-white/[0.06] p-6 flex flex-col gap-5">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-bold uppercase tracking-widest text-foreground/50">Totale Cassa</span>
+            <span className="text-sm font-bold uppercase tracking-widest text-foreground/60">Totale Cassa</span>
             <span className="text-4xl font-black text-foreground drop-shadow-md">{formatCurrency(cartTotal)}</span>
           </div>
 

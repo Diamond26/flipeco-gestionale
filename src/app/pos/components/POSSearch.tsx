@@ -32,7 +32,7 @@ export function POSSearch({
         {/* Search header info */}
         <div>
            <h3 className="text-xl font-bold text-foreground drop-shadow-sm mb-1">Ricerca Rapida</h3>
-           <p className="text-xs text-foreground/50">Digita il nome o scansiona direttamente il codice a barre.</p>
+           <p className="text-xs text-foreground/60">Digita il nome o scansiona direttamente il codice a barre.</p>
         </div>
 
         {/* Barcode Form */}
@@ -113,7 +113,7 @@ export function POSSearch({
 
         <div className="relative pt-4">
            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-black/[0.06] dark:border-white/[0.08]" /></div>
-           <div className="relative flex justify-center"><span className="bg-card px-4 text-xs font-semibold text-foreground/40 tracking-wider">OPPURE</span></div>
+           <div className="relative flex justify-center"><span className="bg-card px-4 text-xs font-semibold text-foreground/50 tracking-wider">OPPURE</span></div>
         </div>
 
         <button
