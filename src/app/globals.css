@@ -224,3 +224,66 @@ button, a, input, select, textarea {
 .confirm-banner {
   animation: banner-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
+
+/* ------------------------------------------------------------------ */
+/* Login page — Premium Glassmorphism                                  */
+/* ------------------------------------------------------------------ */
+
+.login-bg {
+  background: radial-gradient(ellipse at 70% 20%, rgba(123, 179, 95, 0.12) 0%, transparent 50%),
+              radial-gradient(ellipse at 30% 80%, rgba(90, 138, 66, 0.08) 0%, transparent 50%),
+              linear-gradient(160deg, #0a0f18 0%, #111a12 30%, #0c1222 60%, #0a1010 100%);
+}
+
+.login-glass {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.05) inset,
+    0 1px 0 rgba(255, 255, 255, 0.1) inset;
+}
+
+.login-input {
+  width: 100%;
+  padding: 14px 16px;
+  font-size: 15px;
+  border-radius: 14px;
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.06);
+  color: #e8eaed;
+  outline: none;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+}
+
+.login-input::placeholder {
+  color: rgba(255, 255, 255, 0.25);
+}
+
+.login-input:focus {
+  border-color: rgba(123, 179, 95, 0.6);
+  box-shadow: 0 0 0 3px rgba(123, 179, 95, 0.15), 0 0 20px rgba(123, 179, 95, 0.08);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.login-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.login-btn {
+  background: linear-gradient(135deg, #7BB35F 0%, #5a8a42 100%);
+  box-shadow: 0 4px 16px rgba(123, 179, 95, 0.3), 0 1px 0 rgba(255, 255, 255, 0.15) inset;
+  transition: transform 0.15s ease, box-shadow 0.25s ease, filter 0.25s ease;
+}
+
+.login-btn:hover:not(:disabled) {
+  filter: brightness(1.1);
+  box-shadow: 0 6px 24px rgba(123, 179, 95, 0.4), 0 1px 0 rgba(255, 255, 255, 0.15) inset;
+}
+
+.login-btn:active:not(:disabled) {
+  transform: scale(0.97);
+}

@@ -3,10 +3,10 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { loginSchema } from '@/lib/validators/schemas'
+import { Loader2 } from 'lucide-react'
 import type { ZodError } from 'zod'
 
 interface FormErrors {
@@ -62,85 +62,123 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-background via-surface-light to-background flex items-center justify-center px-4">
-      <div className="w-full max-w-md animate-slide-up">
-        {/* Card */}
-        <div className="bg-card/90 backdrop-blur-xl rounded-3xl shadow-xl shadow-black/[0.08] border border-white/60 dark:border-white/[0.08] px-8 py-10">
+    <main className="login-bg relative min-h-screen flex items-center justify-center px-4 overflow-hidden">
+      {/* Animated aurora blobs */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+        <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] rounded-full bg-[#7BB35F]/20 blur-[120px] animate-[pulse_8s_ease-in-out_infinite]" />
+        <div className="absolute bottom-[-15%] left-[-5%] w-[500px] h-[500px] rounded-full bg-[#5a8a42]/15 blur-[100px] animate-[pulse_10s_ease-in-out_infinite_2s]" />
+        <div className="absolute top-[30%] left-[20%] w-[300px] h-[300px] rounded-full bg-[#8EC775]/10 blur-[80px] animate-[pulse_12s_ease-in-out_infinite_4s]" />
+      </div>
 
-          {/* Logo and brand header */}
-          <div className="flex flex-col items-center gap-3 mb-8">
-            <div className="relative w-20 h-20">
+      {/* Glass card */}
+      <div className="relative w-full max-w-[420px] animate-scale-in z-10">
+        <div className="login-glass rounded-3xl px-10 py-10">
+
+          {/* Logo & Brand */}
+          <div className="flex flex-col items-center gap-2 mb-6">
+            <div className="relative w-14 h-14">
               <Image
                 src="/logo.png"
                 alt="Flip&Co logo"
                 fill
-                className="object-contain"
+                className="object-contain drop-shadow-lg"
                 priority
               />
             </div>
-            <div className="text-center">
-              <h1 className="text-2xl font-bold text-foreground tracking-tight">
-                Flip<span className="text-brand">&</span>Co
-              </h1>
-              <p className="text-sm font-medium text-foreground/40 mt-0.5 uppercase tracking-widest">
-                Gestionale
-              </p>
-            </div>
+            <span className="text-white/80 text-sm font-semibold tracking-wide">
+              Flip<span className="text-brand-light">&amp;</span>Co
+            </span>
+          </div>
+
+          {/* Title */}
+          <div className="text-center mb-6">
+            <h1 className="text-[32px] font-bold text-white tracking-tight leading-none">
+              Accedi
+            </h1>
+            <p className="text-xs font-semibold text-white/40 mt-2 uppercase tracking-[0.25em]">
+              Gestionale
+            </p>
           </div>
 
           {/* Divider */}
-          <div className="border-t border-surface/40 mb-8" />
+          <div className="border-t border-white/10 mb-7" />
 
           {/* Form */}
           <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
-            <Input
-              label="Email"
-              type="email"
-              name="email"
-              autoComplete="email"
-              placeholder="nome@esempio.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              error={errors.email}
-              disabled={loading}
-            />
+            {/* Email */}
+            <div>
+              <label className="block text-sm font-semibold text-white/70 mb-2">
+                Email
+              </label>
+              <input
+                type="email"
+                name="email"
+                autoComplete="email"
+                placeholder="nome@esempio.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={loading}
+                className="login-input"
+              />
+              {errors.email && (
+                <p className="mt-1.5 text-sm text-red-400 font-medium">{errors.email}</p>
+              )}
+            </div>
 
-            <Input
-              label="Password"
-              type="password"
-              name="password"
-              autoComplete="current-password"
-              placeholder="La tua password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              error={errors.password}
-              disabled={loading}
-            />
+            {/* Password */}
+            <div>
+              <label className="block text-sm font-semibold text-white/70 mb-2">
+                Password
+              </label>
+              <input
+                type="password"
+                name="password"
+                autoComplete="current-password"
+                placeholder="La tua password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                disabled={loading}
+                className="login-input"
+              />
+              {errors.password && (
+                <p className="mt-1.5 text-sm text-red-400 font-medium">{errors.password}</p>
+              )}
+            </div>
 
             {/* General error */}
             {errors.general && (
               <div
                 role="alert"
-                className="px-4 py-3 rounded-xl bg-danger/10 border border-danger/20 text-sm text-danger font-medium animate-slide-down"
+                className="px-4 py-3 rounded-xl bg-red-500/15 border border-red-500/20 text-sm text-red-400 font-medium animate-slide-down"
               >
                 {errors.general}
               </div>
             )}
 
-            <Button
+            {/* Submit button */}
+            <button
               type="submit"
-              variant="primary"
-              size="lg"
-              loading={loading}
-              className="w-full mt-1"
+              disabled={loading}
+              className="login-btn mt-1 w-full py-3.5 rounded-2xl text-lg font-semibold text-white flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
+              {loading && <Loader2 className="h-5 w-5 animate-spin" />}
               {loading ? 'Accesso in corso...' : 'Accedi'}
-            </Button>
+            </button>
           </form>
+
+          {/* Forgot password */}
+          <div className="text-center mt-5">
+            <Link
+              href="/forgot-password"
+              className="text-sm font-medium text-white/60 underline underline-offset-2 decoration-white/20 hover:text-brand-light hover:decoration-brand-light/40"
+            >
+              Password dimenticata?
+            </Link>
+          </div>
         </div>
 
-        {/* Footer note */}
-        <p className="text-center text-xs text-foreground/35 mt-6">
+        {/* Footer */}
+        <p className="text-center text-xs text-white/30 mt-6">
           Accesso riservato al personale autorizzato
         </p>
       </div>
