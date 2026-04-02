@@ -64,7 +64,7 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
 
       <aside
         className={cn(
-          'fixed top-0 left-0 z-30 flex h-full w-[280px] flex-col bg-[#0f1219] transition-transform duration-300 ease-in-out',
+          'fixed top-0 left-0 z-30 flex h-full w-[280px] flex-col bg-white dark:bg-[#0f1219] border-r border-[#CCD0D5]/50 dark:border-transparent transition-transform duration-300 ease-in-out',
           mobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         )}
         aria-label="Navigazione principale"
@@ -103,12 +103,12 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
               />
             </svg>
           </div>
-          <span className="text-white font-bold text-[26px] tracking-wide ml-1">
+          <span className="text-gray-900 dark:text-white font-bold text-[26px] tracking-wide ml-1">
             Flip&amp;Co
           </span>
           <button
             onClick={onMobileClose}
-            className="absolute right-4 text-white/40 hover:text-white md:hidden"
+            className="absolute right-4 text-gray-400 hover:text-gray-700 dark:text-white/40 dark:hover:text-white md:hidden"
             aria-label="Chiudi menu"
           >
             <X size={20} />
@@ -128,8 +128,8 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
                   className={cn(
                     'flex items-center gap-4 rounded-2xl py-3.5 px-4 text-[15px] font-medium transition-all duration-300 w-full overflow-hidden relative',
                     isActive
-                      ? 'text-[#7BB35F] bg-gradient-to-r from-transparent to-[#7BB35F]/15 border border-[#7BB35F]/40 shadow-[0_0_15px_rgba(123,179,95,0.1)]'
-                      : 'text-white/70 hover:text-white hover:bg-white/[0.03] border border-transparent'
+                      ? 'text-[#7BB35F] bg-gradient-to-r from-[#7BB35F]/5 dark:from-transparent to-[#7BB35F]/15 border border-[#7BB35F]/40 shadow-[0_0_15px_rgba(123,179,95,0.1)]'
+                      : 'text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/[0.03] border border-transparent'
                   )}
                   aria-current={isActive ? 'page' : undefined}
                 >
@@ -138,11 +138,11 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
                     strokeWidth={isActive ? 2 : 1.5}
                     className={cn(
                       'shrink-0 transition-colors',
-                      isActive ? 'text-[#7BB35F] drop-shadow-[0_0_5px_rgba(123,179,95,0.5)]' : 'text-white/60 group-hover:text-white/80'
+                      isActive ? 'text-[#7BB35F] drop-shadow-[0_0_5px_rgba(123,179,95,0.3)] dark:drop-shadow-[0_0_5px_rgba(123,179,95,0.5)]' : 'text-gray-400 dark:text-white/60 group-hover:text-gray-700 dark:group-hover:text-white/80'
                     )}
                     aria-hidden="true"
                   />
-                  <span className={cn('flex-1 tracking-wide', isActive ? 'drop-shadow-[0_0_4px_rgba(123,179,95,0.3)]' : '')}>
+                  <span className={cn('flex-1 tracking-wide', isActive ? 'drop-shadow-[0_0_4px_rgba(123,179,95,0.2)] dark:drop-shadow-[0_0_4px_rgba(123,179,95,0.3)]' : '')}>
                     {item.label}
                   </span>
 
@@ -160,9 +160,9 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
         <div className="px-5 py-6">
           <button
             onClick={handleLogout}
-            className="group flex w-full items-center gap-4 rounded-2xl py-3 px-4 text-[15px] font-medium text-white/50 hover:text-white/80 transition-colors hover:bg-white/[0.03]"
+            className="group flex w-full items-center gap-4 rounded-2xl py-3 px-4 text-[15px] font-medium text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white/80 transition-colors hover:bg-gray-100 dark:hover:bg-white/[0.03]"
           >
-            <LogOut size={22} strokeWidth={1.5} className="text-white/40 group-hover:text-white/60" aria-hidden="true" />
+            <LogOut size={22} strokeWidth={1.5} className="text-gray-400 dark:text-white/40 group-hover:text-gray-700 dark:group-hover:text-white/60" aria-hidden="true" />
             <span className="tracking-wide">Esci</span>
           </button>
         </div>
