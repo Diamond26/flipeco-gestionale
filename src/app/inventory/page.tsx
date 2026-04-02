@@ -1084,7 +1084,7 @@ export default function InventoryPage() {
           checked={selectedInventoryIds.includes(row.id)}
           onChange={() => toggleRowSelection(row.id)}
           aria-label={`Seleziona ${row.product_registry.name}`}
-          className="h-4 w-4 rounded border-gray-300 dark:border-white/20 bg-gray-100 dark:bg-white/5 text-[#7BB35F] focus:ring-[#7BB35F]/30 cursor-pointer"
+          className="h-4 w-4 rounded border-surface text-foreground bg-surface/20 text-[#7BB35F] focus:ring-[#7BB35F]/30 cursor-pointer"
         />
       ),
     },
@@ -1093,13 +1093,13 @@ export default function InventoryPage() {
       header: (
         <button
           onClick={() => handleSort('barcode')}
-          className="flex items-center text-xs uppercase tracking-wider text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors"
+          className="flex items-center text-xs uppercase tracking-wider text-foreground/50 hover:text-foreground transition-colors"
         >
           Barcode <SortIcon field="barcode" />
         </button>
       ) as unknown as string,
       render: (row: InventoryItem) => (
-        <span className="font-mono text-sm text-gray-500 dark:text-white/60">
+        <span className="font-mono text-sm text-foreground/60">
           {row.product_registry.barcode}
         </span>
       ),
@@ -1109,13 +1109,13 @@ export default function InventoryPage() {
       header: (
         <button
           onClick={() => handleSort('name')}
-          className="flex items-center text-xs uppercase tracking-wider text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors"
+          className="flex items-center text-xs uppercase tracking-wider text-foreground/50 hover:text-foreground transition-colors"
         >
           Nome <SortIcon field="name" />
         </button>
       ) as unknown as string,
       render: (row: InventoryItem) => (
-        <span className="font-semibold text-gray-900 dark:text-white/90">{row.product_registry.name}</span>
+        <span className="font-semibold text-foreground/90">{row.product_registry.name}</span>
       ),
     },
     {
@@ -1123,13 +1123,13 @@ export default function InventoryPage() {
       header: (
         <button
           onClick={() => handleSort('brand')}
-          className="flex items-center text-xs uppercase tracking-wider text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors"
+          className="flex items-center text-xs uppercase tracking-wider text-foreground/50 hover:text-foreground transition-colors"
         >
           Brand <SortIcon field="brand" />
         </button>
       ) as unknown as string,
       render: (row: InventoryItem) => (
-        <span className="text-sm font-medium text-gray-500 dark:text-white/50">
+        <span className="text-sm font-medium text-foreground/50">
           {row.product_registry.brand || '\u2014'}
         </span>
       ),
@@ -1139,13 +1139,13 @@ export default function InventoryPage() {
       header: (
         <button
           onClick={() => handleSort('size')}
-          className="flex items-center text-xs uppercase tracking-wider text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors"
+          className="flex items-center text-xs uppercase tracking-wider text-foreground/50 hover:text-foreground transition-colors"
         >
           Taglia <SortIcon field="size" />
         </button>
       ) as unknown as string,
       render: (row: InventoryItem) => (
-        <span className="inline-flex items-center px-2 py-0.5 rounded-lg bg-gray-100 dark:bg-white/5 ring-1 ring-gray-200/60 dark:ring-white/10 text-xs font-semibold text-gray-700 dark:text-white/80">
+        <span className="inline-flex items-center px-2 py-0.5 rounded-lg bg-surface/20 ring-1 ring-gray-200/60 dark:ring-white/10 text-xs font-semibold text-foreground/80">
           {row.product_registry.size}
         </span>
       ),
@@ -1155,13 +1155,13 @@ export default function InventoryPage() {
       header: (
         <button
           onClick={() => handleSort('color')}
-          className="flex items-center text-xs uppercase tracking-wider text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors"
+          className="flex items-center text-xs uppercase tracking-wider text-foreground/50 hover:text-foreground transition-colors"
         >
           Colore <SortIcon field="color" />
         </button>
       ) as unknown as string,
       render: (row: InventoryItem) => (
-        <span className="text-sm text-gray-600 dark:text-white/70">{row.product_registry.color}</span>
+        <span className="text-sm text-foreground/70">{row.product_registry.color}</span>
       ),
     },
     {
@@ -1169,7 +1169,7 @@ export default function InventoryPage() {
       header: (
         <button
           onClick={() => handleSort('quantity')}
-          className="flex items-center text-xs uppercase tracking-wider text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors"
+          className="flex items-center text-xs uppercase tracking-wider text-foreground/50 hover:text-foreground transition-colors"
         >
           Quantità <SortIcon field="quantity" />
         </button>
@@ -1183,7 +1183,7 @@ export default function InventoryPage() {
               'inline-flex items-center gap-1.5 font-bold px-2.5 py-1 rounded-lg text-sm border',
               isOut && 'bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 border-red-200 dark:border-red-500/20',
               isLow && !isOut && 'bg-yellow-50 dark:bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-200 dark:border-yellow-500/20',
-              !isOut && !isLow && 'text-gray-900 dark:text-white/90 border-transparent'
+              !isOut && !isLow && 'text-foreground/90 border-transparent'
             )}
           >
             {isOut && <AlertTriangle className="w-3.5 h-3.5" />}
@@ -1198,13 +1198,13 @@ export default function InventoryPage() {
       header: (
         <button
           onClick={() => handleSort('purchase_price')}
-          className="flex items-center text-xs uppercase tracking-wider text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors"
+          className="flex items-center text-xs uppercase tracking-wider text-foreground/50 hover:text-foreground transition-colors"
         >
           P. Acq <SortIcon field="purchase_price" />
         </button>
       ) as unknown as string,
       render: (row: InventoryItem) => (
-        <span className="text-gray-400 dark:text-white/40">{formatCurrency(row.purchase_price)}</span>
+        <span className="text-foreground/40">{formatCurrency(row.purchase_price)}</span>
       ),
     },
     {
@@ -1212,7 +1212,7 @@ export default function InventoryPage() {
       header: (
         <button
           onClick={() => handleSort('sell_price')}
-          className="flex items-center text-xs uppercase tracking-wider text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors"
+          className="flex items-center text-xs uppercase tracking-wider text-foreground/50 hover:text-foreground transition-colors"
         >
           P. Ven <SortIcon field="sell_price" />
         </button>
@@ -1226,16 +1226,16 @@ export default function InventoryPage() {
       header: (
         <button
           onClick={() => handleSort('location')}
-          className="flex items-center text-xs uppercase tracking-wider text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors"
+          className="flex items-center text-xs uppercase tracking-wider text-foreground/50 hover:text-foreground transition-colors"
         >
           Ubicazione <SortIcon field="location" />
         </button>
       ) as unknown as string,
       render: (row: InventoryItem) =>
         row.location ? (
-          <span className="text-sm text-gray-500 dark:text-white/50">{row.location}</span>
+          <span className="text-sm text-foreground/50">{row.location}</span>
         ) : (
-          <span className="text-sm text-gray-300 dark:text-white/20">\u2014</span>
+          <span className="text-sm text-foreground/20">\u2014</span>
         ),
     },
     {
@@ -1249,7 +1249,7 @@ export default function InventoryPage() {
               e.stopPropagation()
               openEdit(row)
             }}
-            className="p-2 rounded-xl bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 text-gray-500 dark:text-white/60 hover:text-gray-900 dark:hover:text-white transition-colors"
+            className="p-2 rounded-xl bg-surface/20 hover:bg-surface/30 text-foreground/60 hover:text-foreground transition-colors"
             aria-label="Modifica"
           >
             <Pencil className="w-4 h-4" />
@@ -1259,7 +1259,7 @@ export default function InventoryPage() {
               e.stopPropagation()
               setDeleteItem(row)
             }}
-            className="p-2 rounded-xl bg-gray-100 dark:bg-white/5 hover:bg-red-100 dark:hover:bg-red-500/20 text-gray-500 dark:text-white/60 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+            className="p-2 rounded-xl bg-surface/20 hover:bg-red-100 dark:hover:bg-red-500/20 text-foreground/60 hover:text-red-600 dark:hover:text-red-400 transition-colors"
             aria-label="Elimina"
           >
             <Trash2 className="w-4 h-4" />
@@ -1323,14 +1323,14 @@ export default function InventoryPage() {
         <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 mb-2">
           {/* Logo & Subtitle */}
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white tracking-wide">Flip&amp;Co</h1>
-            <p className="text-[13px] text-gray-500 dark:text-white/40 tracking-widest uppercase mt-1">Premium Inventory Management</p>
+            <h1 className="text-3xl font-bold text-foreground tracking-wide">Flip&amp;Co</h1>
+            <p className="text-[13px] text-foreground/40 tracking-widest uppercase mt-1">Premium Inventory Management</p>
           </div>
 
           {/* Search Bar Center */}
           <form onSubmit={handleBarcodeScan} className="flex-1 max-w-2xl mx-auto xl:mx-0 w-full">
             <div className="relative group">
-              <div className="absolute inset-0 bg-white/60 dark:bg-white/[0.03] rounded-full border border-gray-200/80 dark:border-white/10 backdrop-blur-md shadow-sm dark:shadow-[0_8px_30px_rgb(0,0,0,0.12)] transition-colors group-hover:bg-white/80 dark:group-hover:bg-white/[0.05]" />
+              <div className="absolute inset-0 bg-white/60 dark:bg-white/[0.03] rounded-full border border-surface backdrop-blur-md shadow-sm dark:shadow-[0_8px_30px_rgb(0,0,0,0.12)] transition-colors group-hover:bg-white/80 dark:group-hover:bg-white/[0.05]" />
               
               <div className="relative flex items-center p-1.5 pl-6">
                 <Scan className="w-5 h-5 text-[#7BB35F] mr-3 shrink-0" />
@@ -1343,7 +1343,7 @@ export default function InventoryPage() {
                     setScanError(null)
                   }}
                   placeholder="Spara il barcode o digita..."
-                  className="w-full bg-transparent border-none text-gray-900 dark:text-white focus:outline-none focus:ring-0 placeholder:text-gray-400 dark:placeholder:text-white/30 text-[15px]"
+                  className="w-full bg-transparent border-none text-foreground focus:outline-none focus:ring-0 placeholder:text-foreground/40 text-[15px]"
                   autoComplete="off"
                   spellCheck={false}
                 />
@@ -1363,7 +1363,7 @@ export default function InventoryPage() {
           <button
              type="button"
              onClick={() => setManualAddOpen(true)}
-             className="flex items-center gap-2 px-6 py-3 rounded-full bg-white/60 dark:bg-white/[0.03] border border-gray-200/80 dark:border-white/10 backdrop-blur-md text-gray-700 dark:text-white/70 hover:bg-white/90 dark:hover:bg-white/10 hover:text-brand dark:hover:text-white transition-all shadow-sm dark:shadow-[0_8px_30px_rgb(0,0,0,0.12)] shrink-0"
+             className="flex items-center gap-2 px-6 py-3 rounded-full bg-white/60 dark:bg-white/[0.03] border border-surface backdrop-blur-md text-foreground/70 hover:bg-white/90 dark:hover:bg-white/10 hover:text-brand dark:hover:text-white transition-all shadow-sm dark:shadow-[0_8px_30px_rgb(0,0,0,0.12)] shrink-0"
           >
              <Plus className="w-4 h-4 text-[#7BB35F]" />
              Aggiungi Manualmente
@@ -1377,44 +1377,44 @@ export default function InventoryPage() {
             <div className="text-sm">
               <p className="font-semibold text-yellow-800 dark:text-yellow-400">Prodotto non trovato in anagrafica</p>
               <p className="text-yellow-700 dark:text-yellow-500 mt-0.5">Barcode: <span className="font-mono font-bold">{scanError}</span></p>
-              <a href="/import" className="inline-block mt-2 text-gray-900 dark:text-white font-semibold hover:underline">Vai alla pagina di importazione &rarr;</a>
+              <a href="/import" className="inline-block mt-2 text-foreground font-semibold hover:underline">Vai alla pagina di importazione &rarr;</a>
             </div>
           </div>
         )}
 
         {scannedProduct && (
-          <div className="bg-white/60 dark:bg-white/[0.02] backdrop-blur-2xl rounded-3xl shadow-xl dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] border border-gray-200/80 dark:border-white/10 p-6 lg:p-8 mt-4">
+          <div className="bg-white/60 dark:bg-white/[0.02] backdrop-blur-2xl rounded-3xl shadow-xl dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] border border-surface p-6 lg:p-8 mt-4">
             <div className="flex items-center gap-2 mb-6">
               <div className="w-8 h-8 rounded-full bg-[#7BB35F]/10 dark:bg-[#7BB35F]/20 flex items-center justify-center">
                 <CheckCircle2 className="w-5 h-5 text-[#7BB35F]" />
               </div>
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white">Prodotto trovato &mdash; aggiungi al magazzino</h3>
+              <h3 className="text-lg font-bold text-foreground">Prodotto trovato &mdash; aggiungi al magazzino</h3>
             </div>
 
             <div className="flex flex-wrap gap-4 mb-6">
               <div className="flex-1 min-w-[160px] p-4 rounded-2xl bg-white/80 dark:bg-white/5 border border-gray-200/60 dark:border-white/10">
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-white/50 mb-1">Nome</p>
-                <p className="font-bold text-gray-900 dark:text-white text-lg">{scannedProduct.name}</p>
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/50 mb-1">Nome</p>
+                <p className="font-bold text-foreground text-lg">{scannedProduct.name}</p>
               </div>
               {scannedProduct.sku && (
                 <div className="p-4 rounded-2xl bg-white/80 dark:bg-white/5 border border-gray-200/60 dark:border-white/10 min-w-[100px]">
-                  <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-white/50 mb-1">SKU</p>
-                  <p className="font-mono text-sm text-gray-900 dark:text-white/90">{scannedProduct.sku}</p>
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/50 mb-1">SKU</p>
+                  <p className="font-mono text-sm text-foreground/90">{scannedProduct.sku}</p>
                 </div>
               )}
               {scannedProduct.brand && (
                 <div className="p-4 rounded-2xl bg-white/80 dark:bg-white/5 border border-gray-200/60 dark:border-white/10 min-w-[100px]">
-                  <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-white/50 mb-1">Brand</p>
-                  <p className="font-bold text-gray-900 dark:text-white">{scannedProduct.brand}</p>
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/50 mb-1">Brand</p>
+                  <p className="font-bold text-foreground">{scannedProduct.brand}</p>
                 </div>
               )}
               <div className="p-4 rounded-2xl bg-white/80 dark:bg-white/5 border border-gray-200/60 dark:border-white/10 min-w-[100px]">
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-white/50 mb-1">Taglia</p>
-                <p className="font-bold text-gray-900 dark:text-white">{scannedProduct.size || '\u2014'}</p>
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/50 mb-1">Taglia</p>
+                <p className="font-bold text-foreground">{scannedProduct.size || '\u2014'}</p>
               </div>
               <div className="p-4 rounded-2xl bg-white/80 dark:bg-white/5 border border-gray-200/60 dark:border-white/10 min-w-[120px]">
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-white/50 mb-1">Colore</p>
-                <p className="font-bold text-gray-900 dark:text-white">
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/50 mb-1">Colore</p>
+                <p className="font-bold text-foreground">
                   {scannedProduct.color ? (
                     <span className="inline-flex items-center gap-2">
                        {scannedProduct.color_code && <span className="inline-block w-4 h-4 rounded-full border border-gray-200 dark:border-white/20 shadow-sm" style={{ backgroundColor: scannedProduct.color_code }} />}
@@ -1424,8 +1424,8 @@ export default function InventoryPage() {
                 </p>
               </div>
               <div className="p-4 rounded-2xl bg-white/80 dark:bg-white/5 border border-gray-200/60 dark:border-white/10 min-w-[140px]">
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-white/50 mb-1">Barcode</p>
-                <p className="font-mono text-sm text-gray-600 dark:text-white/60">{scannedProduct.barcode}</p>
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/50 mb-1">Barcode</p>
+                <p className="font-mono text-sm text-foreground/60">{scannedProduct.barcode}</p>
               </div>
             </div>
 
@@ -1485,7 +1485,7 @@ export default function InventoryPage() {
                     setScanError(null)
                     focusBarcode()
                   }}
-                  className="px-6 py-3 rounded-xl text-gray-500 dark:text-white/60 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/5 transition-colors font-medium"
+                  className="px-6 py-3 rounded-xl text-foreground/60 hover:text-foreground hover:bg-surface/30 transition-colors font-medium"
                 >
                   Annulla
                 </button>
@@ -1498,47 +1498,47 @@ export default function InventoryPage() {
         {/* Stats bar Frosted Glass                                          */}
         {/* ---------------------------------------------------------------- */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mt-4">
-          <div className="bg-white/60 dark:bg-white/[0.02] backdrop-blur-xl rounded-2xl border border-gray-200/60 dark:border-white/5 p-5 flex items-center gap-5 shadow-xl dark:shadow-[0_8px_30px_rgb(0,0,0,0.12)] bg-gradient-to-br from-white/80 dark:from-white/[0.04] to-transparent">
+          <div className="bg-white/60 dark:bg-white/[0.02] backdrop-blur-xl rounded-2xl border border-surface/50 p-5 flex items-center gap-5 shadow-xl dark:shadow-[0_8px_30px_rgb(0,0,0,0.12)] bg-gradient-to-br from-white/80 dark:from-white/[0.04] to-transparent">
             <div className="relative w-12 h-12 rounded-full bg-[#7BB35F]/20 dark:bg-[#7BB35F]/10 flex items-center justify-center shrink-0">
                <div className="absolute inset-0 bg-[#7BB35F] animate-pulse blur-md opacity-20 rounded-full" />
                <Package className="w-6 h-6 text-[#7BB35F] relative z-10" />
             </div>
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-white/50 mb-0.5">Articoli</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{totalArticoli}</p>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/50 mb-0.5">Articoli</p>
+              <p className="text-2xl font-bold text-foreground">{totalArticoli}</p>
             </div>
           </div>
 
-          <div className="bg-white/60 dark:bg-white/[0.02] backdrop-blur-xl rounded-2xl border border-gray-200/60 dark:border-white/5 p-5 flex items-center gap-5 shadow-xl dark:shadow-[0_8px_30px_rgb(0,0,0,0.12)] bg-gradient-to-br from-white/80 dark:from-white/[0.04] to-transparent">
+          <div className="bg-white/60 dark:bg-white/[0.02] backdrop-blur-xl rounded-2xl border border-surface/50 p-5 flex items-center gap-5 shadow-xl dark:shadow-[0_8px_30px_rgb(0,0,0,0.12)] bg-gradient-to-br from-white/80 dark:from-white/[0.04] to-transparent">
             <div className="relative w-12 h-12 rounded-full bg-[#7BB35F]/10 dark:bg-white/5 flex items-center justify-center shrink-0">
                <div className="absolute inset-0 bg-[#7BB35F] dark:bg-white animate-pulse blur-md opacity-20 dark:opacity-10 rounded-full" />
                <TrendingUp className="w-6 h-6 text-[#7BB35F] dark:text-white/80 relative z-10" />
             </div>
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-white/50 mb-0.5">Valore Magazzino</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{formatCurrency(valoreInventario)}</p>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/50 mb-0.5">Valore Magazzino</p>
+              <p className="text-2xl font-bold text-foreground">{formatCurrency(valoreInventario)}</p>
             </div>
           </div>
 
-          <div className="bg-white/60 dark:bg-white/[0.02] backdrop-blur-xl rounded-2xl border border-gray-200/60 dark:border-white/5 p-5 flex items-center gap-5 shadow-xl dark:shadow-[0_8px_30px_rgb(0,0,0,0.12)] bg-gradient-to-br from-white/80 dark:from-white/[0.04] to-transparent">
+          <div className="bg-white/60 dark:bg-white/[0.02] backdrop-blur-xl rounded-2xl border border-surface/50 p-5 flex items-center gap-5 shadow-xl dark:shadow-[0_8px_30px_rgb(0,0,0,0.12)] bg-gradient-to-br from-white/80 dark:from-white/[0.04] to-transparent">
             <div className="relative w-12 h-12 rounded-full bg-yellow-50 dark:bg-yellow-500/10 flex items-center justify-center shrink-0">
                <div className="absolute inset-0 bg-yellow-400 dark:bg-yellow-500 animate-pulse blur-md opacity-20 rounded-full" />
                <AlertTriangle className="w-6 h-6 text-yellow-600 dark:text-yellow-500 relative z-10" />
             </div>
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-white/50 mb-0.5">Scorte Basse</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{lowStockCount}</p>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/50 mb-0.5">Scorte Basse</p>
+              <p className="text-2xl font-bold text-foreground">{lowStockCount}</p>
             </div>
           </div>
 
-          <div className="bg-white/60 dark:bg-white/[0.02] backdrop-blur-xl rounded-2xl border border-gray-200/60 dark:border-white/5 p-5 flex items-center gap-5 shadow-xl dark:shadow-[0_8px_30px_rgb(0,0,0,0.12)] bg-gradient-to-br from-white/80 dark:from-white/[0.04] to-transparent">
+          <div className="bg-white/60 dark:bg-white/[0.02] backdrop-blur-xl rounded-2xl border border-surface/50 p-5 flex items-center gap-5 shadow-xl dark:shadow-[0_8px_30px_rgb(0,0,0,0.12)] bg-gradient-to-br from-white/80 dark:from-white/[0.04] to-transparent">
             <div className="relative w-12 h-12 rounded-full bg-red-50 dark:bg-red-500/10 flex items-center justify-center shrink-0">
                <div className="absolute inset-0 bg-red-400 dark:bg-red-500 animate-pulse blur-md opacity-20 rounded-full" />
                <AlertTriangle className="w-6 h-6 text-red-500 relative z-10" />
             </div>
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-white/50 mb-0.5">Esauriti</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{outOfStockCount}</p>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/50 mb-0.5">Esauriti</p>
+              <p className="text-2xl font-bold text-foreground">{outOfStockCount}</p>
             </div>
           </div>
         </div>
@@ -1547,22 +1547,22 @@ export default function InventoryPage() {
         {/* Inventory table Glass Container                                  */}
         {/* ---------------------------------------------------------------- */}
         <div className="mt-8 bg-white/60 dark:bg-white/[0.02] backdrop-blur-2xl rounded-[2rem] shadow-xl dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] border border-gray-200/60 dark:border-white/10 p-6 lg:p-8">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8 border-b border-gray-200/60 dark:border-white/5 pb-6">
-            <h2 className="text-2xl font-semibold text-gray-900 dark:text-white tracking-wide">Inventario</h2>
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8 border-b border-surface/50 pb-6">
+            <h2 className="text-2xl font-semibold text-foreground tracking-wide">Inventario</h2>
             
             <div className="relative flex-1 max-w-md mx-auto sm:mx-0 w-full">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-white/40" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/40" />
               <input
                 type="text"
                 placeholder="Cerca..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-11 pr-4 py-2.5 bg-white/80 dark:bg-white/[0.03] border border-gray-200/80 dark:border-white/10 rounded-full text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/30 focus:outline-none focus:border-[#7BB35F]/50 focus:ring-1 focus:ring-[#7BB35F]/50 transition-all"
+                className="w-full pl-11 pr-4 py-2.5 bg-white/80 dark:bg-white/[0.03] border border-surface rounded-full text-sm text-foreground placeholder:text-foreground/40 focus:outline-none focus:border-[#7BB35F]/50 focus:ring-1 focus:ring-[#7BB35F]/50 transition-all"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-white/40 hover:text-gray-900 dark:hover:text-white"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground/40 hover:text-foreground"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -1576,23 +1576,23 @@ export default function InventoryPage() {
           </div>
 
           <div className="flex flex-wrap items-center gap-3 mb-6">
-            <label className="flex items-center gap-2 text-sm text-gray-500 dark:text-white/60 cursor-pointer hover:text-gray-900 dark:hover:text-white transition-colors">
+            <label className="flex items-center gap-2 text-sm text-foreground/60 cursor-pointer hover:text-foreground transition-colors">
                <input 
                  type="checkbox" 
                  checked={allVisibleSelected} 
                  onChange={toggleSelectAllVisible} 
-                 className="w-4 h-4 rounded border-gray-300 dark:border-white/20 bg-white/60 dark:bg-white/5 text-[#7BB35F] focus:ring-[#7BB35F]/30" 
+                 className="w-4 h-4 rounded border-surface text-foreground bg-white/60 dark:bg-white/5 text-[#7BB35F] focus:ring-[#7BB35F]/30" 
                />
                Seleziona tutti
             </label>
-            <span className="text-xs text-gray-300 dark:text-white/30 px-2">|</span>
-            <span className="text-sm font-medium text-gray-500 dark:text-white/50">
+            <span className="text-xs text-foreground/30 px-2">|</span>
+            <span className="text-sm font-medium text-foreground/50">
               {selectedVisibleCount} selezionati
             </span>
             <button
               onClick={() => setBulkEditOpen(true)}
               disabled={selectedVisibleCount === 0 || bulkEditLoading}
-              className="ml-auto bg-white/80 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed transition-colors border border-gray-200/80 dark:border-white/10 text-gray-700 dark:text-white/80 px-4 py-2 rounded-lg text-sm font-medium"
+              className="ml-auto bg-white/80 dark:bg-white/5 hover:bg-surface/30 disabled:opacity-50 disabled:cursor-not-allowed transition-colors border border-surface text-foreground/80 px-4 py-2 rounded-lg text-sm font-medium"
             >
               Modifica selezionati
             </button>
@@ -1606,7 +1606,7 @@ export default function InventoryPage() {
           </div>
 
           {tableLoading ? (
-             <div className="flex items-center justify-center py-20 text-gray-400 dark:text-white/40">
+             <div className="flex items-center justify-center py-20 text-foreground/40">
                <div className="w-8 h-8 border-4 border-[#7BB35F]/20 border-t-[#7BB35F] rounded-full animate-spin mr-3" />
                Caricamento magazzino...
              </div>
@@ -1619,17 +1619,17 @@ export default function InventoryPage() {
                       <path d="M40 90 L100 50 L160 90" stroke="#7BB35F" strokeWidth="2.5" strokeLinejoin="round" />
                       <path d="M80 160 L80 110 L120 110 L120 160" stroke="#7BB35F" strokeWidth="2.5" fill="none" />
                       <path d="M80 120 L120 120 M80 130 L120 130 M80 140 L120 140 M80 150 L120 150" stroke="#7BB35F" strokeWidth="1.5" />
-                      <path d="M125 150 L145 140 L165 150 L165 170 L145 180 L125 170 Z" className="stroke-gray-400 dark:stroke-white" strokeWidth="1.5" fill="rgba(0,0,0,0.05)" strokeLinejoin="round"/>
-                      <path d="M145 140 L145 180 M125 150 L145 160 L165 150" className="stroke-gray-400 dark:stroke-white" strokeWidth="1.5" />
-                      <path d="M50 140 L65 132 L80 140 L80 155 L65 163 L50 155 Z" className="stroke-gray-400 dark:stroke-white" strokeWidth="1.5" fill="rgba(0,0,0,0.05)" strokeLinejoin="round"/>
-                      <path d="M65 132 L65 163 M50 140 L65 148 L80 140" className="stroke-gray-400 dark:stroke-white" strokeWidth="1.5" />
+                      <path d="M125 150 L145 140 L165 150 L165 170 L145 180 L125 170 Z" className="stroke-foreground/60" strokeWidth="1.5" fill="rgba(0,0,0,0.05)" strokeLinejoin="round"/>
+                      <path d="M145 140 L145 180 M125 150 L145 160 L165 150" className="stroke-foreground/60" strokeWidth="1.5" />
+                      <path d="M50 140 L65 132 L80 140 L80 155 L65 163 L50 155 Z" className="stroke-foreground/60" strokeWidth="1.5" fill="rgba(0,0,0,0.05)" strokeLinejoin="round"/>
+                      <path d="M65 132 L65 163 M50 140 L65 148 L80 140" className="stroke-foreground/60" strokeWidth="1.5" />
                    </svg>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Il magazzino è vuoto.</h3>
-                <p className="text-gray-500 dark:text-white/40 text-sm max-w-sm mx-auto">Scansiona un barcode per aggiungere il primo articolo al tuo inventario.</p>
+                <h3 className="text-xl font-bold text-foreground mb-2">Il magazzino è vuoto.</h3>
+                <p className="text-foreground/40 text-sm max-w-sm mx-auto">Scansiona un barcode per aggiungere il primo articolo al tuo inventario.</p>
              </div>
           ) : (
-             <div className="overflow-x-auto rounded-xl border border-gray-200/60 dark:border-white/5 bg-gray-50/50 dark:bg-black/10">
+             <div className="overflow-x-auto rounded-xl border border-surface/50 bg-gray-50/50 dark:bg-black/10">
                <Table columns={columns} data={sortedInventory} />
              </div>
           )}
