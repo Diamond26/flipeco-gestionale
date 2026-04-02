@@ -6,7 +6,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { loginSchema } from '@/lib/validators/schemas'
-import { Loader2 } from 'lucide-react'
+import { Loader2, Check } from 'lucide-react'
 import type { ZodError } from 'zod'
 
 interface FormErrors {
@@ -21,6 +21,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [errors, setErrors] = useState<FormErrors>({})
   const [loading, setLoading] = useState(false)
+  const [success, setSuccess] = useState(false)
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -58,7 +59,10 @@ export default function LoginPage() {
       return
     }
 
-    router.push('/dashboard')
+    setSuccess(true)
+    setTimeout(() => {
+      router.push('/dashboard')
+    }, 1500)
   }
 
   return (
@@ -75,13 +79,13 @@ export default function LoginPage() {
         <div className="login-glass rounded-3xl px-10 py-10">
 
           {/* Logo */}
-          <div className="flex flex-col items-center mb-6">
-            <div className="relative w-28 h-28">
+          <div className="flex flex-col items-center mb-6 md:mb-8">
+            <div className="relative w-40 h-40 md:w-44 md:h-44 transition-transform duration-500 hover:scale-105">
               <Image
                 src="/logo.png"
                 alt="Flip&Co logo"
                 fill
-                className="object-contain drop-shadow-lg"
+                className="object-contain drop-shadow-xl"
                 priority
               />
             </div>
@@ -100,68 +104,82 @@ export default function LoginPage() {
           {/* Divider */}
           <div className="border-t border-white/10 mb-7" />
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
-            {/* Email */}
-            <div>
-              <label className="block text-sm font-semibold text-white/70 mb-2">
-                Email
-              </label>
-              <input
-                type="email"
-                name="email"
-                autoComplete="email"
-                placeholder="nome@esempio.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={loading}
-                className="login-input"
-              />
-              {errors.email && (
-                <p className="mt-1.5 text-sm text-red-400 font-medium">{errors.email}</p>
-              )}
-            </div>
-
-            {/* Password */}
-            <div>
-              <label className="block text-sm font-semibold text-white/70 mb-2">
-                Password
-              </label>
-              <input
-                type="password"
-                name="password"
-                autoComplete="current-password"
-                placeholder="La tua password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={loading}
-                className="login-input"
-              />
-              {errors.password && (
-                <p className="mt-1.5 text-sm text-red-400 font-medium">{errors.password}</p>
-              )}
-            </div>
-
-            {/* General error */}
-            {errors.general && (
-              <div
-                role="alert"
-                className="px-4 py-3 rounded-xl bg-red-500/15 border border-red-500/20 text-sm text-red-400 font-medium animate-slide-down"
-              >
-                {errors.general}
+          {/* Form / Success Animation */}
+          {success ? (
+            <div className="flex flex-col items-center justify-center py-6">
+              <div className="w-20 h-20 bg-[#7BB35F]/20 rounded-full flex items-center justify-center mb-5 animate-scale-in">
+                <Check className="w-10 h-10 text-[#7BB35F] animate-slide-up" style={{ animationDelay: '150ms' }} />
               </div>
-            )}
+              <h2 className="text-xl font-bold text-white mb-2 animate-slide-up" style={{ animationDelay: '300ms' }}>
+                Accesso Eseguito
+              </h2>
+              <p className="text-sm text-white/50 animate-fade-in" style={{ animationDelay: '450ms' }}>
+                Apertura gestionale in corso...
+              </p>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
+              {/* Email */}
+              <div>
+                <label className="block text-sm font-semibold text-white/70 mb-2">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  autoComplete="email"
+                  placeholder="nome@esempio.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={loading}
+                  className="login-input"
+                />
+                {errors.email && (
+                  <p className="mt-1.5 text-sm text-red-400 font-medium">{errors.email}</p>
+                )}
+              </div>
 
-            {/* Submit button */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="login-btn mt-1 w-full py-3.5 rounded-2xl text-lg font-semibold text-white flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading && <Loader2 className="h-5 w-5 animate-spin" />}
-              {loading ? 'Accesso in corso...' : 'Accedi'}
-            </button>
-          </form>
+              {/* Password */}
+              <div>
+                <label className="block text-sm font-semibold text-white/70 mb-2">
+                  Password
+                </label>
+                <input
+                  type="password"
+                  name="password"
+                  autoComplete="current-password"
+                  placeholder="La tua password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={loading}
+                  className="login-input"
+                />
+                {errors.password && (
+                  <p className="mt-1.5 text-sm text-red-400 font-medium">{errors.password}</p>
+                )}
+              </div>
+
+              {/* General error */}
+              {errors.general && (
+                <div
+                  role="alert"
+                  className="px-4 py-3 rounded-xl bg-red-500/15 border border-red-500/20 text-sm text-red-400 font-medium animate-slide-down"
+                >
+                  {errors.general}
+                </div>
+              )}
+
+              {/* Submit button */}
+              <button
+                type="submit"
+                disabled={loading}
+                className="login-btn mt-1 w-full py-3.5 rounded-2xl text-lg font-semibold text-white flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading && <Loader2 className="h-5 w-5 animate-spin" />}
+                {loading ? 'Accesso in corso...' : 'Accedi'}
+              </button>
+            </form>
+          )}
 
 
         </div>
