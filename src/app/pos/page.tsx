@@ -1,6 +1,8 @@
 'use client'
 
 import { Fragment, useEffect, useRef, useState, useCallback, useMemo } from 'react'
+import { POSCart } from './components/POSCart'
+import { POSSearch } from './components/POSSearch'
 import AppShell from '@/components/layout/AppShell'
 import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'
@@ -924,372 +926,92 @@ export default function POSPage() {
         ))}
       </div>
 
-      <div className={cn('max-w-[1500px] mx-auto space-y-4 animate-fade-in pos-theme-root')}>
-        {/* ------------------------------------------------------------------ */}
-        {/* Indicator Scanner                                                  */}
-        {/* ------------------------------------------------------------------ */}
+      <div className={cn('max-w-[1500px] mx-auto space-y-8 animate-fade-in pos-theme-root pb-20 relative')}>
+        <div className="absolute top-0 right-1/2 translate-x-1/2 w-[800px] h-[300px] bg-[#7BB35F]/5 blur-[120px] pointer-events-none rounded-[100%] z-[-1]" />
+
         {isReceivingScan && (
-          <div className="fixed bottom-6 right-6 z-[100] flex items-center gap-3 bg-brand text-white px-5 py-3 rounded-full shadow-2xl animate-pulse">
+          <div className="fixed bottom-6 right-6 z-[100] flex items-center gap-3 bg-[#7BB35F] text-white px-5 py-3 rounded-full shadow-[0_0_20px_rgba(123,179,95,0.4)] animate-pulse">
             <Scan className="w-6 h-6" />
-            <span className="font-bold">Scanner in ascolto...</span>
+            <span className="font-bold tracking-wide">Scanner in ascolto...</span>
           </div>
         )}
 
-        {/* ---------------------------------------------------------------- */}
-        {/* Main two-column POS layout                                        */}
-        {/* ---------------------------------------------------------------- */}
-        <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_460px] gap-4 items-start">
-
-          {/* ============================================================== */}
-          {/* LEFT — Product selection                                         */}
-          {/* ============================================================== */}
-          <div className="min-w-0 space-y-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <div className="rounded-xl border border-white/60 dark:border-white/[0.06] bg-card/75 backdrop-blur-sm p-3 shadow-sm">
-                <p className="text-[11px] uppercase tracking-wider text-foreground/45 font-semibold">Disponibili</p>
-                <p className="text-lg font-bold text-foreground">{products.length}</p>
-              </div>
-              <div className="rounded-xl border border-white/60 dark:border-white/[0.06] bg-card/75 backdrop-blur-sm p-3 shadow-sm">
-                <p className="text-[11px] uppercase tracking-wider text-foreground/45 font-semibold">Transazioni giorno</p>
-                <p className="text-lg font-bold text-foreground">{todaySales.length}</p>
-              </div>
-              <div className="rounded-xl border border-white/60 dark:border-white/[0.06] bg-card/75 backdrop-blur-sm p-3 shadow-sm">
-                <p className="text-[11px] uppercase tracking-wider text-foreground/45 font-semibold">Articoli venduti</p>
-                <p className="text-lg font-bold text-foreground">{soldItemsCount}</p>
-              </div>
-              <div className="rounded-xl border border-white/60 dark:border-white/[0.06] bg-card/75 backdrop-blur-sm p-3 shadow-sm">
-                <p className="text-[11px] uppercase tracking-wider text-foreground/45 font-semibold">Incasso giorno</p>
-                <p className="text-lg font-extrabold text-brand">{formatCurrency(dailyTotal)}</p>
-              </div>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="bg-surface/50 dark:bg-white/[0.03] backdrop-blur-2xl rounded-2xl border border-surface dark:border-white/10 p-5 shadow-[0_8px_30px_rgb(0,0,0,0.1)] flex items-center justify-between">
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-foreground/40 mb-1">Disponibili</p>
+              <p className="text-2xl font-extrabold text-foreground">{products.length}</p>
             </div>
-
-            {/* Barcode scanner input */}
-            <div className="pos-surface bg-card/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 dark:border-white/[0.06] p-4 relative z-20">
-              <form onSubmit={handleBarcodeScan}>
-                <div className="flex gap-3 items-center">
-                  <div ref={scannerBoxRef} className="relative flex-1">
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none text-brand">
-                      <Scan className="w-6 h-6" />
-                    </div>
-                    <input
-                      ref={barcodeInputRef}
-                      type="text"
-                      value={barcodeValue}
-                      onChange={(e) => {
-                        setBarcodeValue(e.target.value)
-                        setScannerOpen(true)
-                        setScannerActiveIndex(-1)
-                      }}
-                      onFocus={() => setScannerOpen(true)}
-                      onKeyDown={(e) => {
-                        if (!scannerOpen || scannerSuggestions.length === 0) return
-                        if (e.key === 'ArrowDown') {
-                          e.preventDefault()
-                          setScannerActiveIndex((prev) =>
-                            prev < scannerSuggestions.length - 1 ? prev + 1 : 0
-                          )
-                        } else if (e.key === 'ArrowUp') {
-                          e.preventDefault()
-                          setScannerActiveIndex((prev) =>
-                            prev > 0 ? prev - 1 : scannerSuggestions.length - 1
-                          )
-                        } else if (e.key === 'Escape') {
-                          setScannerOpen(false)
-                        }
-                      }}
-                      placeholder="Scansiona barcode o digita..."
-                      className={cn(
-                        'w-full pl-14 pr-4 py-4 text-2xl font-mono',
-                        'rounded-xl border border-surface/80 bg-card shadow-sm',
-                        'focus:outline-none focus:border-brand focus:ring-4 focus:ring-brand/15 focus:shadow-md',
-                        'transition-all duration-200',
-                        'placeholder:text-gray-300 placeholder:font-sans placeholder:text-lg'
-                      )}
-                      autoComplete="off"
-                      spellCheck={false}
-                      aria-label="Scanner barcode cassa"
-                    />
-                    {scannerOpen && scannerSuggestions.length > 0 && (
-                      <div className="absolute left-0 right-0 top-[calc(100%+8px)] z-50 rounded-xl border border-surface/40 bg-card/95 backdrop-blur-sm shadow-xl overflow-hidden">
-                        <ul className="max-h-72 overflow-y-auto py-1">
-                          {scannerSuggestions.map((product, index) => {
-                            const pr = product.product_registry
-                            return (
-                              <li key={product.id}>
-                                <button
-                                  type="button"
-                                  onClick={() => selectScannerSuggestion(product)}
-                                  className={cn(
-                                    'w-full text-left px-3 py-2.5 border-b last:border-b-0 border-surface/20 transition-colors',
-                                    index === scannerActiveIndex ? 'bg-brand/10' : 'hover:bg-surface/20'
-                                  )}
-                                >
-                                  <div className="flex items-center justify-between gap-3">
-                                    <div className="min-w-0">
-                                      <p className="text-sm font-semibold truncate">{pr.name}</p>
-                                      <p className="text-xs text-foreground/55 truncate">
-                                        {pr.barcode} · {pr.brand || 'N/D'} · {pr.size} · {pr.color}
-                                      </p>
-                                    </div>
-                                    <div className="text-right shrink-0">
-                                      <p className="text-sm font-bold text-brand">{formatCurrency(product.sell_price)}</p>
-                                      <p className="text-xs text-foreground/50">{product.quantity} pz</p>
-                                    </div>
-                                  </div>
-                                </button>
-                              </li>
-                            )
-                          })}
-                        </ul>
-                      </div>
-                    )}
-                  </div>
-                  <Button
-                    type="submit"
-                    variant="primary"
-                    size="lg"
-                    loading={scanLoading}
-                    className="shrink-0 h-[64px] px-6"
-                  >
-                    <Scan className="w-5 h-5 mr-2" />
-                    Aggiungi
-                  </Button>
-                </div>
-              </form>
-            </div>
-
-            <div className="pos-surface bg-card/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 dark:border-white/[0.06] p-4">
-              <div className="flex items-center gap-3">
-                <Button
-                  type="button"
-                  variant="primary"
-                  size="lg"
-                  onClick={() => setProductMenuOpen(true)}
-                  className="w-full h-[56px] text-base font-bold"
-                >
-                  <Search className="w-5 h-5 mr-2" />
-                  Lista Prodotti
-                </Button>
-              </div>
-            </div>
+            <div className="w-12 h-12 rounded-full bg-surface dark:bg-white/5 flex items-center justify-center"><Search className="w-5 h-5 text-foreground/40" /></div>
           </div>
-
-          {/* ============================================================== */}
-          {/* RIGHT — Cart + Payment                                           */}
-          {/* ============================================================== */}
-          <div className="w-full space-y-4 xl:sticky xl:top-4">
-
-            {/* Cart panel */}
-            <div className="pos-surface relative bg-card/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 dark:border-white/[0.06] overflow-hidden">
-              {/* Decorative square lines */}
-              <span className="pointer-events-none absolute left-3 top-3 h-5 w-5 border-l-2 border-t-2 border-brand/35 rounded-tl-md" />
-              <span className="pointer-events-none absolute right-3 top-3 h-5 w-5 border-r-2 border-t-2 border-brand/35 rounded-tr-md" />
-              <span className="pointer-events-none absolute left-3 bottom-3 h-5 w-5 border-l-2 border-b-2 border-brand/35 rounded-bl-md" />
-              <span className="pointer-events-none absolute right-3 bottom-3 h-5 w-5 border-r-2 border-b-2 border-brand/35 rounded-br-md" />
-              {/* Cart header */}
-              <div className="flex items-center justify-between px-5 py-4 border-b border-surface/20 bg-surface-light/20">
-                <div className="flex items-center gap-2">
-                  <ShoppingCart className="w-5 h-5 text-brand" />
-                  <h2 className="font-bold text-lg">Carrello</h2>
-                  {cartItemCount > 0 && (
-                    <span className="bg-brand text-white text-xs font-bold px-2 py-0.5 rounded-full ring-2 ring-white/60">
-                      {cartItemCount}
-                    </span>
-                  )}
-                </div>
-                {cart.length > 0 && (
-                  <button
-                    onClick={clearCart}
-                    className="flex items-center gap-1.5 text-xs text-foreground/40 hover:text-danger transition-colors duration-200 px-2 py-1 rounded-lg hover:bg-danger/10"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                    Svuota
-                  </button>
-                )}
-              </div>
-
-              {/* Cart items */}
-              <div className="divide-y divide-surface/20 max-h-[380px] overflow-y-auto">
-                {cart.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-12 text-foreground/30 gap-3">
-                    <ShoppingCart className="w-10 h-10 opacity-40" />
-                    <p className="text-sm font-medium">Carrello vuoto</p>
-                    <p className="text-xs text-center px-4">
-                      Scansiona un barcode o clicca su un prodotto per aggiungerlo
-                    </p>
-                  </div>
-                ) : (
-                  cart.map((item) => (
-                    <div
-                      key={item.inventoryId}
-                      className="flex items-center gap-3 px-4 py-3 bg-card/40 hover:bg-brand/[0.04] transition-colors duration-200"
-                    >
-                      {/* Info */}
-                      <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-sm text-foreground leading-tight truncate">
-                          {item.name}
-                        </p>
-                        <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 mt-1 text-xs text-foreground/55">
-                          <p className="truncate">
-                            <span className="font-medium text-foreground/70">Barcode:</span> {item.barcode}
-                          </p>
-                          <p className="truncate">
-                            <span className="font-medium text-foreground/70">Brand:</span> {item.brand || 'N/D'}
-                          </p>
-                          <p className="truncate">
-                            <span className="font-medium text-foreground/70">Taglia:</span> {item.size || '-'}
-                          </p>
-                          <p className="truncate">
-                            <span className="font-medium text-foreground/70">Colore:</span> {item.color || '-'}
-                          </p>
-                        </div>
-                        <p className="text-xs font-semibold text-brand mt-0.5">
-                          Prezzo vendita: {formatCurrency(item.price)}
-                        </p>
-                      </div>
-
-                      {/* Qty controls */}
-                      <div className="flex items-center gap-1 shrink-0">
-                        <button
-                          onClick={() => decrementQty(item.inventoryId)}
-                          className="w-8 h-8 rounded-lg bg-surface-light/50 hover:bg-surface/60 flex items-center justify-center transition-colors duration-200"
-                          aria-label="Diminuisci quantità"
-                        >
-                          <Minus className="w-3.5 h-3.5" />
-                        </button>
-                        <span className="w-8 text-center font-bold text-base">
-                          {item.qty}
-                        </span>
-                        <button
-                          onClick={() => incrementQty(item.inventoryId)}
-                          disabled={item.qty >= item.maxQty}
-                          className={cn(
-                            'w-8 h-8 rounded-lg flex items-center justify-center transition-colors duration-200',
-                            item.qty >= item.maxQty
-                              ? 'bg-surface/20 text-foreground/20 cursor-not-allowed'
-                              : 'bg-surface-light/50 hover:bg-surface/60'
-                          )}
-                          aria-label="Aumenta quantità"
-                        >
-                          <Plus className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-
-                      {/* Subtotal */}
-                      <div className="text-right shrink-0 w-20">
-                        <p className="font-bold text-sm">
-                          {formatCurrency(item.price * item.qty)}
-                        </p>
-                      </div>
-
-                      {/* Remove */}
-                      <button
-                        onClick={() => removeFromCart(item.inventoryId)}
-                        className="w-7 h-7 rounded-lg text-foreground/30 hover:text-danger hover:bg-danger/10 flex items-center justify-center transition-colors duration-200 shrink-0"
-                        aria-label={`Rimuovi ${item.name} dal carrello`}
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
-                  ))
-                )}
-              </div>
-
-              {/* Total */}
-              <div className="px-5 py-4 border-t border-surface/20 bg-surface-light/10">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-foreground/50">
-                    Totale
-                  </span>
-                  <span
-                    className={cn(
-                      'font-extrabold text-3xl transition-all',
-                      cart.length === 0 ? 'text-foreground/20' : 'text-foreground'
-                    )}
-                  >
-                    {formatCurrency(cartTotal)}
-                  </span>
-                </div>
-                {cartItemCount > 0 && (
-                  <p className="text-xs text-foreground/40 text-right mt-0.5">
-                    {cartItemCount} {cartItemCount === 1 ? 'articolo' : 'articoli'}
-                  </p>
-                )}
-              </div>
+          <div className="bg-surface/50 dark:bg-white/[0.03] backdrop-blur-2xl rounded-2xl border border-surface dark:border-white/10 p-5 shadow-[0_8px_30px_rgb(0,0,0,0.1)] flex items-center justify-between">
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-foreground/40 mb-1">Transazioni Oggi</p>
+              <p className="text-2xl font-extrabold text-foreground">{todaySales.length}</p>
             </div>
-
-            {/* Payment buttons */}
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                onClick={() => cart.length > 0 && setPaymentMethod('cash')}
-                disabled={cart.length === 0}
-                className={cn(
-                  'flex flex-col items-center justify-center gap-1.5 rounded-2xl py-5 px-4',
-                  'font-bold text-lg transition-all duration-200 select-none min-h-[50px]',
-                  'focus:outline-none focus:ring-4 focus:ring-brand/30',
-                  cart.length === 0
-                    ? 'bg-surface/30 text-foreground/25 cursor-not-allowed'
-                    : 'bg-gradient-to-br from-brand to-brand-dark text-white hover:shadow-xl active:scale-[0.97] shadow-lg cursor-pointer'
-                )}
-                aria-label="Pagamento contanti"
-              >
-                <Banknote className="w-10 h-10" />
-                <span>CONTANTI</span>
-              </button>
-
-              <button
-                onClick={() => cart.length > 0 && setPaymentMethod('pos')}
-                disabled={cart.length === 0}
-                className={cn(
-                  'flex flex-col items-center justify-center gap-1.5 rounded-2xl py-5 px-4',
-                  'font-bold text-lg transition-all duration-200 select-none min-h-[50px]',
-                  'focus:outline-none focus:ring-4 focus:ring-blue-300/30',
-                  cart.length === 0
-                    ? 'bg-surface/30 text-foreground/25 cursor-not-allowed'
-                    : 'bg-gradient-to-br from-blue-500 to-blue-700 text-white hover:shadow-xl active:scale-[0.97] shadow-lg cursor-pointer'
-                )}
-                aria-label="Pagamento POS / Carta"
-              >
-                <CreditCard className="w-10 h-10" />
-                <span>POS / CARTA</span>
-              </button>
+            <div className="w-12 h-12 rounded-full bg-surface dark:bg-white/5 flex items-center justify-center"><ReceiptText className="w-5 h-5 text-foreground/40" /></div>
+          </div>
+          <div className="bg-surface/50 dark:bg-white/[0.03] backdrop-blur-2xl rounded-2xl border border-surface dark:border-white/10 p-5 shadow-[0_8px_30px_rgb(0,0,0,0.1)] flex items-center justify-between">
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-foreground/40 mb-1">Articoli Venduti</p>
+              <p className="text-2xl font-extrabold text-foreground">{soldItemsCount}</p>
             </div>
-
-            {/* Return (Reso) button */}
-            <button
-              onClick={openReturnModal}
-              className={cn(
-                'w-full flex items-center justify-center gap-3 rounded-2xl py-4 px-4 min-h-[50px]',
-                'font-bold text-base transition-all duration-200 select-none',
-                'focus:outline-none focus:ring-4 focus:ring-amber-300/30',
-                'bg-gradient-to-br from-amber-400 to-amber-600 text-white hover:shadow-lg active:scale-[0.98] shadow-md cursor-pointer'
-              )}
-              aria-label="Effettua reso"
-            >
-              <RotateCcw className="w-6 h-6" />
-              <span>EFFETTUA RESO</span>
-            </button>
+             <div className="w-12 h-12 rounded-full bg-surface dark:bg-white/5 flex items-center justify-center"><ShoppingCart className="w-5 h-5 text-foreground/40" /></div>
+          </div>
+          <div className="bg-[#7BB35F]/5 dark:bg-[#7BB35F]/[0.05] backdrop-blur-2xl rounded-2xl border border-[#7BB35F]/20 p-5 shadow-[0_0_30px_rgba(123,179,95,0.1)] flex items-center justify-between relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-[#7BB35F]/10 blur-3xl rounded-full" />
+            <div className="relative z-10">
+              <p className="text-[11px] font-bold uppercase tracking-wider text-foreground/60 mb-1 text-shadow-sm">Incasso Giorno</p>
+              <p className="text-2xl font-extrabold text-[#7BB35F] drop-shadow-md">{formatCurrency(dailyTotal)}</p>
+            </div>
+             <div className="relative z-10 w-12 h-12 rounded-full bg-[#7BB35F]/20 flex items-center justify-center border border-[#7BB35F]/30 shadow-inner group-hover:scale-110 transition-transform"><Banknote className="w-5 h-5 text-[#7BB35F]" /></div>
           </div>
         </div>
 
-        {/* ---------------------------------------------------------------- */}
-        {/* Sales history (always open)                                       */}
-        {/* ---------------------------------------------------------------- */}
-        <div className="pos-surface bg-card/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 dark:border-white/[0.06] overflow-hidden">
-          <div className="px-5 py-4 border-b border-surface/20 bg-surface-light/10">
+        <div className="grid grid-cols-1 xl:grid-cols-[60%_1fr] gap-6 items-start">
+          <POSCart
+            cart={cart}
+            cartTotal={cartTotal}
+            cartItemCount={cartItemCount}
+            incrementQty={incrementQty}
+            decrementQty={decrementQty}
+            removeFromCart={removeFromCart}
+            clearCart={clearCart}
+            setPaymentMethod={setPaymentMethod}
+            openReturnModal={openReturnModal}
+          />
+          <POSSearch
+            barcodeValue={barcodeValue}
+            setBarcodeValue={setBarcodeValue}
+            handleBarcodeScan={handleBarcodeScan}
+            scanLoading={scanLoading}
+            scannerOpen={scannerOpen}
+            setScannerOpen={setScannerOpen}
+            scannerActiveIndex={scannerActiveIndex}
+            setScannerActiveIndex={setScannerActiveIndex}
+            scannerSuggestions={scannerSuggestions}
+            selectScannerSuggestion={selectScannerSuggestion}
+            scannerBoxRef={scannerBoxRef}
+            barcodeInputRef={barcodeInputRef}
+            setProductMenuOpen={setProductMenuOpen}
+          />
+        </div>
+
+        <div className="bg-surface/50 dark:bg-white/[0.03] backdrop-blur-3xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.1)] border border-surface dark:border-white/10 overflow-hidden relative z-10 mt-6">
+          <div className="px-6 py-5 border-b border-surface/20 dark:border-white/5 bg-surface-light/30 dark:bg-black/20">
             <div className="flex items-center gap-3">
-              <ReceiptText className="w-5 h-5 text-brand" />
-              <span className="font-bold text-base">Storico Transazioni</span>
+              <ReceiptText className="w-5 h-5 text-[#7BB35F]" />
+              <span className="font-bold text-lg text-foreground drop-shadow-sm">Storico Transazioni</span>
               {todaySales.length > 0 && (
                 <span className="text-sm text-foreground/50">
                   ({todaySales.length} {todaySales.length === 1 ? 'transazione' : 'transazioni'} &middot;{' '}
-                  <span className="font-semibold text-foreground">{formatCurrency(dailyTotal)}</span>)
+                  <span className="font-bold text-[#7BB35F]">{formatCurrency(dailyTotal)}</span>)
                 </span>
               )}
             </div>
           </div>
 
-          <div className="border-t border-surface/20">
+<div className="border-t border-surface/20">
               <div className="px-5 py-4 border-b border-surface/20 bg-surface-light/10 space-y-3">
                 <div className="flex items-center justify-between gap-3">
                   <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50">
