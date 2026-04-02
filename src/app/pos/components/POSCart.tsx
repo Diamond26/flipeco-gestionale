@@ -28,12 +28,13 @@ export function POSCart({
 }: POSCartProps) {
   return (
     <div className="w-full space-y-4 flex flex-col h-full relative z-10">
-      <div className="flex-[1_1_auto] bg-card rounded-3xl border border-black/[0.04] dark:border-white/[0.06] overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.08)] dark:shadow-[0_1px_3px_rgba(0,0,0,0.3)] flex flex-col min-h-[500px]">
+      <div className="flex-[1_1_auto] bg-white/60 dark:bg-white/[0.02] backdrop-blur-2xl rounded-3xl border border-black/[0.04] dark:border-white/[0.06] overflow-hidden shadow-2xl dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex flex-col min-h-[600px] transition-all duration-500">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-black/[0.06] dark:border-white/[0.06]">
+        <div className="flex items-center justify-between px-6 py-5 border-b border-black/[0.04] dark:border-white/[0.06] bg-surface-light/30 dark:bg-black/20">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-brand/10 text-brand flex items-center justify-center shadow-inner">
-              <ShoppingCart className="w-5 h-5" />
+            <div className="relative w-10 h-10 rounded-full bg-brand/10 flex items-center justify-center">
+              <div className="absolute inset-0 bg-brand animate-pulse blur-md opacity-20 rounded-full" />
+              <ShoppingCart className="w-5 h-5 text-brand relative z-10" />
             </div>
             <h2 className="font-bold text-xl text-foreground drop-shadow-sm">Carrello</h2>
             {cartItemCount > 0 && (
@@ -55,35 +56,35 @@ export function POSCart({
         {/* List */}
         <div className="flex-1 overflow-y-auto w-full">
           {cart.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-foreground/40 gap-4">
+            <div className="flex flex-col items-center justify-center h-full text-foreground/30 gap-4 opacity-70">
               <ShoppingCart className="w-16 h-16" />
-              <p className="text-lg font-semibold">Carrello vuoto</p>
+              <p className="text-lg font-medium">Carrello vuoto</p>
             </div>
           ) : (
             <div className="divide-y divide-black/[0.04] dark:divide-white/[0.06]">
               {cart.map((item) => (
-                <div key={item.inventoryId} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-6 py-4 hover:bg-surface-light/50 dark:hover:bg-white/[0.02] transition-colors group">
+                <div key={item.inventoryId} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-6 py-4 hover:bg-surface-light/40 dark:hover:bg-white/[0.02] transition-colors group">
                   <div className="flex-1 min-w-0 flex flex-col">
                     <p className="font-bold text-[15px] text-foreground truncate">{item.name}</p>
-                    <div className="text-[12px] text-foreground/50 mt-1 flex flex-wrap gap-x-3 gap-y-1">
-                      <span>Brand: <strong className="text-foreground/70">{item.brand || 'N/D'}</strong></span>
-                      <span>Taglia: <strong className="text-foreground/70">{item.size || '-'}</strong></span>
-                      <span>Colore: <strong className="text-foreground/70">{item.color || '-'}</strong></span>
+                    <div className="text-[12px] text-foreground/60 mt-1 flex flex-wrap gap-x-3 gap-y-1">
+                      <span>Brand: <strong className="text-foreground/80">{item.brand || 'N/D'}</strong></span>
+                      <span>Taglia: <strong className="text-foreground/80">{item.size || '-'}</strong></span>
+                      <span>Colore: <strong className="text-foreground/80">{item.color || '-'}</strong></span>
                     </div>
                   </div>
                   
                   <div className="flex items-center gap-6 sm:shrink-0 justify-between sm:justify-end w-full sm:w-auto">
-                    <div className="flex items-center gap-1.5 bg-surface-light/60 dark:bg-white/[0.04] rounded-xl p-1 border border-black/[0.04] dark:border-white/[0.06]">
-                      <button onClick={() => decrementQty(item.inventoryId)} className="w-8 h-8 rounded-lg hover:bg-surface dark:hover:bg-white/10 flex items-center justify-center transition-colors"><Minus className="w-4 h-4 text-foreground/60" /></button>
+                    <div className="flex items-center gap-1.5 bg-surface-light/60 dark:bg-black/30 rounded-xl p-1 border border-black/[0.04] dark:border-white/[0.06]">
+                      <button onClick={() => decrementQty(item.inventoryId)} className="w-8 h-8 rounded-lg hover:bg-surface-light dark:hover:bg-white/10 flex items-center justify-center transition-colors"><Minus className="w-4 h-4 text-foreground/60" /></button>
                       <span className="w-8 text-center font-bold text-[15px]">{item.qty}</span>
-                      <button disabled={item.qty >= item.maxQty} onClick={() => incrementQty(item.inventoryId)} className={cn('w-8 h-8 rounded-lg flex items-center justify-center transition-colors', item.qty >= item.maxQty ? 'opacity-30 cursor-not-allowed' : 'hover:bg-surface dark:hover:bg-white/10')}><Plus className="w-4 h-4 text-foreground/60" /></button>
+                      <button disabled={item.qty >= item.maxQty} onClick={() => incrementQty(item.inventoryId)} className={cn('w-8 h-8 rounded-lg flex items-center justify-center transition-colors', item.qty >= item.maxQty ? 'opacity-30 cursor-not-allowed' : 'hover:bg-surface-light dark:hover:bg-white/10')}><Plus className="w-4 h-4 text-foreground/60" /></button>
                     </div>
                     
                     <div className="text-right w-[80px]">
                       <p className="font-bold text-[16px] text-brand">{formatCurrency(item.price * item.qty)}</p>
                     </div>
                     
-                    <button onClick={() => removeFromCart(item.inventoryId)} className="w-8 h-8 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white flex items-center justify-center transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100">
+                    <button onClick={() => removeFromCart(item.inventoryId)} className="relative w-8 h-8 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white flex items-center justify-center transition-all duration-300 opacity-0 group-hover:opacity-100 focus:opacity-100 shadow-sm hover:shadow-red-500/40">
                       <X className="w-4 h-4" />
                     </button>
                   </div>
@@ -94,44 +95,59 @@ export function POSCart({
         </div>
 
         {/* Footer */}
-        <div className="border-t border-black/[0.06] dark:border-white/[0.06] p-6 flex flex-col gap-5">
+        <div className="border-t border-black/[0.04] dark:border-white/[0.06] bg-gradient-to-b from-surface-light/40 to-surface-light/60 dark:from-black/30 dark:to-black/50 p-6 flex flex-col gap-6">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-bold uppercase tracking-widest text-foreground/60">Totale Cassa</span>
-            <span className="text-4xl font-black text-foreground drop-shadow-md">{formatCurrency(cartTotal)}</span>
+            <span className="text-sm font-bold uppercase tracking-widest text-foreground/50">Totale Cassa</span>
+            <span className="text-4xl font-black text-foreground drop-shadow-md bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">{formatCurrency(cartTotal)}</span>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-4">
             <button
               onClick={() => cart.length > 0 && setPaymentMethod('cash')}
               disabled={cart.length === 0}
               className={cn(
-                'flex flex-col items-center justify-center gap-2 rounded-[1.25rem] py-6 shadow-sm transition-colors duration-200 relative overflow-hidden',
-                cart.length === 0 ? 'bg-surface-light/50 dark:bg-white/[0.03] text-foreground/30 cursor-not-allowed border border-black/[0.04] dark:border-white/[0.06]' : 'bg-brand text-white hover:brightness-110 border border-brand-light/50 shadow-lg shadow-brand/20'
+                'flex flex-col items-center justify-center gap-2 rounded-2xl py-6 shadow-xl transition-all duration-500 relative overflow-hidden group',
+                cart.length === 0 
+                  ? 'bg-surface-light/50 text-foreground/30 cursor-not-allowed border border-black/[0.04] dark:border-white/[0.06]' 
+                  : 'bg-gradient-to-br from-[#7BB35F] to-[#6CAE4A] text-white hover:scale-[1.02] active:scale-95 border border-[#8CE36B]/30 shadow-[0_10px_40px_rgba(123,179,95,0.4)]'
               )}
             >
-              {cart.length > 0 && <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 blur-xl rounded-full pointer-events-none" />}
-              <Banknote className="w-7 h-7 relative z-10" strokeWidth={2.5} />
-              <span className="font-bold tracking-wide relative z-10 text-[14px]">CHIUDI CASSA<br/>(CONTANTI)</span>
+              <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500 blur-2xl opacity-30" />
+              <div className="relative z-10 flex flex-col items-center gap-2">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-white blur-md opacity-0 group-hover:opacity-40 rounded-full transition-opacity" />
+                  <Banknote className="w-8 h-8" strokeWidth={2.5} />
+                </div>
+                <span className="font-bold tracking-wider text-[13px] uppercase drop-shadow-sm">Chiudi Cassa<br/>(Contanti)</span>
+              </div>
             </button>
             <button
               onClick={() => cart.length > 0 && setPaymentMethod('pos')}
               disabled={cart.length === 0}
               className={cn(
-                'flex flex-col items-center justify-center gap-2 rounded-[1.25rem] py-6 shadow-sm transition-colors duration-200 relative overflow-hidden',
-                cart.length === 0 ? 'bg-surface-light/50 dark:bg-white/[0.03] text-foreground/30 cursor-not-allowed border border-black/[0.04] dark:border-white/[0.06]' : 'bg-blue-600 text-white hover:brightness-110 border border-blue-400/50 shadow-lg shadow-blue-600/20'
+                'flex flex-col items-center justify-center gap-2 rounded-2xl py-6 shadow-xl transition-all duration-500 relative overflow-hidden group',
+                cart.length === 0 
+                  ? 'bg-surface-light/50 text-foreground/30 cursor-not-allowed border border-black/[0.04] dark:border-white/[0.06]' 
+                  : 'bg-gradient-to-br from-blue-600 to-blue-700 text-white hover:scale-[1.02] active:scale-95 border border-blue-400/30 shadow-[0_10px_40px_rgba(37,99,235,0.4)]'
               )}
             >
-              <CreditCard className="w-7 h-7 relative z-10" strokeWidth={2.5} />
-              <span className="font-bold tracking-wide relative z-10 text-[14px]">CHIUDI CASSA<br/>(POS / CARTA)</span>
+              <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500 blur-2xl opacity-30" />
+              <div className="relative z-10 flex flex-col items-center gap-2">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-white blur-md opacity-0 group-hover:opacity-40 rounded-full transition-opacity" />
+                  <CreditCard className="w-8 h-8" strokeWidth={2.5} />
+                </div>
+                <span className="font-bold tracking-wider text-[13px] uppercase drop-shadow-sm">Chiudi Cassa<br/>(POS / Carta)</span>
+              </div>
             </button>
           </div>
           
           <button
             onClick={openReturnModal}
-            className="w-full flex items-center justify-center gap-2 rounded-2xl py-4 bg-transparent border-2 border-amber-500/30 text-amber-600 dark:text-amber-400 hover:bg-amber-500 hover:text-white transition-colors duration-200 font-bold tracking-wider text-[14px]"
+            className="w-full flex items-center justify-center gap-2 rounded-2xl py-4 bg-transparent border-2 border-amber-500/40 text-amber-600 dark:text-amber-500 hover:bg-amber-500 hover:text-white transition-all duration-300 font-bold tracking-wider text-[13px] uppercase shadow-sm group"
           >
-            <RotateCcw className="w-5 h-5" strokeWidth={2.5} />
-            EFFETTUA RESO ARTICOLO
+            <RotateCcw className="w-5 h-5 group-hover:rotate-[-45deg] transition-transform" strokeWidth={2.5} />
+            Effettua Reso Articolo
           </button>
         </div>
       </div>

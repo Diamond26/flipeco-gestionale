@@ -923,7 +923,14 @@ export default function POSPage() {
         ))}
       </div>
 
-      <div className={cn('max-w-[1500px] mx-auto space-y-8 animate-fade-in pos-theme-root pb-20 relative')}>
+      {/* ---------------- Sfondo Globale Glassmorphism Aurora ---------------- */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-[-1] bg-slate-50 dark:bg-[#0c1222] transition-colors duration-500">
+        <div className="absolute top-[-15%] right-[-5%] w-[800px] h-[800px] bg-brand/20 dark:bg-brand/10 rounded-full blur-[160px] opacity-40 dark:opacity-70" />
+        <div className="absolute bottom-[-20%] left-[-10%] w-[600px] h-[600px] bg-brand/15 dark:bg-brand/5 rounded-full blur-[140px] opacity-30 dark:opacity-50" />
+      </div>
+
+      <div className={cn('max-w-[1500px] mx-auto space-y-8 animate-fade-in pos-theme-root pb-20 relative pt-2 lg:pt-6')}>
+        {/* Glow point (local) */}
         <div className="absolute top-0 right-1/2 translate-x-1/2 w-[800px] h-[300px] bg-brand/[0.03] dark:bg-brand/5 blur-[120px] pointer-events-none rounded-[100%] z-[-1]" />
 
         {isReceivingScan && (
@@ -933,34 +940,46 @@ export default function POSPage() {
           </div>
         )}
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-card rounded-2xl border border-black/[0.04] dark:border-white/[0.06] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] flex items-center justify-between">
-            <div>
-              <p className="text-[11px] font-bold uppercase tracking-wider text-foreground/60 mb-1">Disponibili</p>
-              <p className="text-2xl font-extrabold text-foreground">{products.length}</p>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+          <div className="bg-white/60 dark:bg-white/[0.02] backdrop-blur-xl rounded-2xl border border-black/[0.04] dark:border-white/[0.06] p-5 flex items-center gap-5 shadow-xl dark:shadow-[0_8px_30px_rgb(0,0,0,0.12)] bg-gradient-to-br from-white/80 dark:from-white/[0.04] to-transparent group transition-all duration-300 hover:scale-[1.02]">
+            <div className="relative w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-500/10 flex items-center justify-center shrink-0">
+              <div className="absolute inset-0 bg-blue-500 animate-pulse blur-md opacity-20 group-hover:opacity-40 rounded-full" />
+              <Search className="w-6 h-6 text-blue-500 relative z-10" />
             </div>
-            <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-500/20 flex items-center justify-center"><Search className="w-5 h-5 text-blue-500" /></div>
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/50 mb-0.5">Disponibili</p>
+              <p className="text-2xl font-bold text-foreground">{products.length}</p>
+            </div>
           </div>
-          <div className="bg-card rounded-2xl border border-black/[0.04] dark:border-white/[0.06] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] flex items-center justify-between">
-            <div>
-              <p className="text-[11px] font-bold uppercase tracking-wider text-foreground/60 mb-1">Transazioni Oggi</p>
-              <p className="text-2xl font-extrabold text-foreground">{todaySales.length}</p>
+          <div className="bg-white/60 dark:bg-white/[0.02] backdrop-blur-xl rounded-2xl border border-black/[0.04] dark:border-white/[0.06] p-5 flex items-center gap-5 shadow-xl dark:shadow-[0_8px_30px_rgb(0,0,0,0.12)] bg-gradient-to-br from-white/80 dark:from-white/[0.04] to-transparent group transition-all duration-300 hover:scale-[1.02]">
+            <div className="relative w-12 h-12 rounded-full bg-violet-100 dark:bg-violet-500/10 flex items-center justify-center shrink-0">
+              <div className="absolute inset-0 bg-violet-500 animate-pulse blur-md opacity-20 group-hover:opacity-40 rounded-full" />
+              <ReceiptText className="w-6 h-6 text-violet-500 relative z-10" />
             </div>
-            <div className="w-12 h-12 rounded-full bg-violet-100 dark:bg-violet-500/20 flex items-center justify-center"><ReceiptText className="w-5 h-5 text-violet-500" /></div>
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/50 mb-0.5">Transazioni Oggi</p>
+              <p className="text-2xl font-bold text-foreground">{todaySales.length}</p>
+            </div>
           </div>
-          <div className="bg-card rounded-2xl border border-black/[0.04] dark:border-white/[0.06] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] flex items-center justify-between">
-            <div>
-              <p className="text-[11px] font-bold uppercase tracking-wider text-foreground/60 mb-1">Articoli Venduti</p>
-              <p className="text-2xl font-extrabold text-foreground">{soldItemsCount}</p>
+          <div className="bg-white/60 dark:bg-white/[0.02] backdrop-blur-xl rounded-2xl border border-black/[0.04] dark:border-white/[0.06] p-5 flex items-center gap-5 shadow-xl dark:shadow-[0_8px_30px_rgb(0,0,0,0.12)] bg-gradient-to-br from-white/80 dark:from-white/[0.04] to-transparent group transition-all duration-300 hover:scale-[1.02]">
+            <div className="relative w-12 h-12 rounded-full bg-orange-100 dark:bg-orange-500/10 flex items-center justify-center shrink-0">
+              <div className="absolute inset-0 bg-orange-500 animate-pulse blur-md opacity-20 group-hover:opacity-40 rounded-full" />
+              <ShoppingCart className="w-6 h-6 text-orange-500 relative z-10" />
             </div>
-            <div className="w-12 h-12 rounded-full bg-orange-100 dark:bg-orange-500/20 flex items-center justify-center"><ShoppingCart className="w-5 h-5 text-orange-500" /></div>
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/50 mb-0.5">Articoli Venduti</p>
+              <p className="text-2xl font-bold text-foreground">{soldItemsCount}</p>
+            </div>
           </div>
-          <div className="bg-card rounded-2xl border border-brand/20 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] flex items-center justify-between relative overflow-hidden">
-            <div>
-              <p className="text-[11px] font-bold uppercase tracking-wider text-foreground/60 mb-1">Incasso Giorno</p>
-              <p className="text-2xl font-extrabold text-brand">{formatCurrency(dailyTotal)}</p>
+          <div className="bg-white/60 dark:bg-white/[0.02] backdrop-blur-xl rounded-2xl border border-black/[0.04] dark:border-white/[0.06] p-5 flex items-center gap-5 shadow-xl dark:shadow-[0_8px_30px_rgb(0,0,0,0.12)] bg-gradient-to-br from-white/80 dark:from-white/[0.04] to-transparent group transition-all duration-300 hover:scale-[1.02]">
+            <div className="relative w-12 h-12 rounded-full bg-brand/20 dark:bg-brand/10 flex items-center justify-center shrink-0">
+              <div className="absolute inset-0 bg-brand animate-pulse blur-md opacity-20 group-hover:opacity-40 rounded-full" />
+              <Banknote className="w-6 h-6 text-brand relative z-10" />
             </div>
-            <div className="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-500/20 flex items-center justify-center"><Banknote className="w-5 h-5 text-emerald-500" /></div>
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/50 mb-0.5">Incasso Giorno</p>
+              <p className="text-2xl font-bold text-brand drop-shadow-sm">{formatCurrency(dailyTotal)}</p>
+            </div>
           </div>
         </div>
 
@@ -993,13 +1012,16 @@ export default function POSPage() {
           />
         </div>
 
-        <div className="bg-card rounded-3xl shadow-[0_1px_3px_rgba(0,0,0,0.04)] border border-black/[0.04] dark:border-white/[0.06] overflow-hidden relative z-10 mt-6">
-          <div className="px-6 py-5 border-b border-black/[0.04] dark:border-white/[0.06]">
+        <div className="bg-white/60 dark:bg-white/[0.02] backdrop-blur-2xl rounded-3xl shadow-2xl dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-black/[0.04] dark:border-white/[0.06] overflow-hidden relative z-10 mt-6 transition-all duration-500">
+          <div className="px-6 py-5 border-b border-black/[0.04] dark:border-white/[0.06] bg-surface-light/30 dark:bg-black/20">
             <div className="flex items-center gap-3">
-              <ReceiptText className="w-5 h-5 text-brand" />
-              <span className="font-bold text-lg text-foreground drop-shadow-sm">Storico Transazioni</span>
+              <div className="relative">
+                <div className="absolute inset-0 bg-brand blur-md opacity-20 rounded-full animate-pulse" />
+                <ReceiptText className="w-6 h-6 text-brand relative z-10" />
+              </div>
+              <span className="font-bold text-xl text-foreground drop-shadow-sm">Storico Transazioni</span>
               {todaySales.length > 0 && (
-                <span className="text-sm text-foreground/60">
+                <span className="text-sm font-medium text-foreground/60">
                   ({todaySales.length} {todaySales.length === 1 ? 'transazione' : 'transazioni'} &middot;{' '}
                   <span className="font-bold text-brand">{formatCurrency(dailyTotal)}</span>)
                 </span>
