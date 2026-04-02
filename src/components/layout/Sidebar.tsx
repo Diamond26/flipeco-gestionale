@@ -12,7 +12,6 @@ import {
   LogOut,
   X,
   History,
-  ChevronDown,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
@@ -21,15 +20,14 @@ interface NavItem {
   label: string
   icon: React.ElementType
   href: string
-  hasChevron?: boolean
 }
 
 const navItems: NavItem[] = [
   { label: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
-  { label: 'Import Fornitori', icon: Upload, href: '/import', hasChevron: true },
+  { label: 'Import Fornitori', icon: Upload, href: '/import' },
   { label: 'Storico Importazioni', icon: History, href: '/import-history' },
-  { label: 'Magazzino', icon: Archive, href: '/inventory', hasChevron: true },
-  { label: 'Ordini Clienti', icon: ClipboardList, href: '/customer-orders', hasChevron: true },
+  { label: 'Magazzino', icon: Archive, href: '/inventory' },
+  { label: 'Ordini Clienti', icon: ClipboardList, href: '/customer-orders' },
   { label: 'Ordini Acquisto', icon: ShoppingCart, href: '/purchase-orders' },
   { label: 'Cassa / POS', icon: Box, href: '/pos' },
 ]
@@ -66,7 +64,7 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
 
       <aside
         className={cn(
-          'fixed top-0 left-0 z-30 flex h-full w-[280px] flex-col bg-[#0f1219] transition-transform duration-300 ease-in-out border-r border-white-[0.02]',
+          'fixed top-0 left-0 z-30 flex h-full w-[280px] flex-col bg-[#0f1219] transition-transform duration-300 ease-in-out',
           mobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         )}
         aria-label="Navigazione principale"
@@ -138,13 +136,6 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
                   <span className={cn('flex-1 tracking-wide', isActive ? 'drop-shadow-[0_0_4px_rgba(123,179,95,0.3)]' : '')}>
                     {item.label}
                   </span>
-                  
-                  {item.hasChevron && (
-                    <ChevronDown
-                      size={18}
-                      className="shrink-0 text-[#7BB35F] opacity-80 group-hover:opacity-100"
-                    />
-                  )}
 
                   {/* Active glowing right bar */}
                   {isActive && (
