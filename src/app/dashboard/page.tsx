@@ -62,21 +62,30 @@ interface StatCardProps {
 }
 
 function StatCard({ label, value, icon: Icon, loading = false, colorIndex, animDelay }: StatCardProps) {
-  const style = STAT_STYLES[colorIndex % STAT_STYLES.length]
   return (
     <div
-      className="bg-card rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.04)] border border-black/[0.04] dark:border-white/[0.06] px-5 py-5 flex items-center gap-4 animate-fade-in"
+      className="bg-white/60 dark:bg-white/[0.02] backdrop-blur-2xl rounded-3xl shadow-2xl dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-black/[0.04] dark:border-white/[0.06] p-6 flex flex-col gap-4 relative overflow-hidden group transition-all duration-500 hover:scale-[1.02] animate-fade-in"
       style={{ animationDelay: animDelay }}
     >
-      <div className={cn('flex items-center justify-center h-[52px] w-[52px] rounded-full shrink-0', style.bg)}>
-        <Icon size={24} className={style.icon} aria-hidden="true" />
+      <div className="absolute -right-4 -top-4 w-24 h-24 bg-brand/5 rounded-full blur-2xl group-hover:bg-brand/10 transition-colors" />
+
+      <div className="flex items-center justify-between">
+        <div className="relative">
+          <div className="absolute inset-0 bg-brand blur-md opacity-20 rounded-full animate-pulse" />
+          <div className="relative bg-brand/10 p-3 rounded-2xl border border-brand/20">
+            <Icon size={24} className="text-brand relative z-10" />
+          </div>
+        </div>
       </div>
-      <div className="min-w-0">
-        <p className="text-[13px] text-foreground/50 font-medium truncate">{label}</p>
+
+      <div className="relative z-10">
+        <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-foreground/40 mb-1">{label}</p>
         {loading ? (
-          <div className="mt-1 h-9 w-20 skeleton-shimmer" />
+          <div className="h-10 w-24 skeleton-shimmer rounded-lg" />
         ) : (
-          <p className="text-[32px] font-extrabold text-foreground leading-none mt-0.5">{value}</p>
+          <div className="flex items-baseline gap-2">
+            <span className="text-3xl font-black text-foreground tracking-tight drop-shadow-sm">{value}</span>
+          </div>
         )}
       </div>
     </div>
@@ -88,18 +97,18 @@ function StatCard({ label, value, icon: Icon, loading = false, colorIndex, animD
 // ---------------------------------------------------------------------------
 
 function StatusBadge({ status }: { status?: string | null }) {
-  if (status === 'completed' || status === 'paid') {
-    return (
-      <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/15 px-3 py-1 rounded-full">
-        Completato
-        <CheckCircle2 size={14} />
-      </span>
-    )
-  }
+  const isCompleted = status === 'completed' || status === 'paid'
   return (
-    <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-500/15 px-3 py-1 rounded-full">
-      In attesa
-      <Clock size={14} />
+    <span
+      className={cn(
+        'inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full border transition-all duration-300',
+        isCompleted
+          ? 'bg-[#7BB35F]/10 text-[#7BB35F] border-[#7BB35F]/20 shadow-[0_0_15px_rgba(123,179,95,0.1)]'
+          : 'bg-amber-500/10 text-amber-500 border-amber-500/20 shadow-[0_0_15px_rgba(245,158,11,0.1)]'
+      )}
+    >
+      {isCompleted ? 'Completato' : 'In attesa'}
+      {isCompleted ? <CheckCircle2 size={12} className="opacity-70" /> : <Clock size={12} className="opacity-70" />}
     </span>
   )
 }
@@ -110,22 +119,19 @@ function StatusBadge({ status }: { status?: string | null }) {
 
 function PeriodSelector({ value, onChange }: { value: TimePeriod; onChange: (v: TimePeriod) => void }) {
   return (
-    <div className="flex items-center gap-1 bg-surface-light/60 rounded-xl p-1">
-      {([
-        { key: '7d' as TimePeriod, label: '7 giorni' },
-        { key: '30d' as TimePeriod, label: '30 giorni' },
-      ]).map((opt) => (
+    <div className="flex items-center gap-1 bg-black/5 dark:bg-white/[0.03] backdrop-blur-md rounded-2xl p-1.5 border border-black/[0.04] dark:border-white/[0.06]">
+      {(['7d', '30d'] as const).map((periodKey) => (
         <button
-          key={opt.key}
-          onClick={() => onChange(opt.key)}
+          key={periodKey}
+          onClick={() => onChange(periodKey)}
           className={cn(
-            'px-3 py-1.5 text-xs font-semibold rounded-lg transition-all',
-            value === opt.key
-              ? 'bg-card shadow-sm text-foreground'
-              : 'text-foreground/50 hover:text-foreground/70'
+            'px-6 py-2 text-[10px] font-bold uppercase tracking-widest rounded-xl transition-all duration-300',
+            value === periodKey
+              ? 'bg-[#7BB35F] text-white shadow-[0_5px_15px_rgba(123,179,95,0.3)]'
+              : 'text-foreground/40 hover:text-foreground/70'
           )}
         >
-          {opt.label}
+          {periodKey === '7d' ? '7 giorni' : '30 giorni'}
         </button>
       ))}
     </div>
@@ -309,143 +315,145 @@ export default function DashboardPage() {
 
   return (
     <AppShell pageTitle="Dashboard">
-      {/* Error banner */}
-      {error && (
-        <div
-          role="alert"
-          className="mb-6 rounded-2xl bg-danger/10 border border-danger/20 px-5 py-3.5 text-sm text-danger font-medium animate-slide-down"
-        >
-          {error}
-        </div>
-      )}
-
-      {/* Stat cards grid */}
-      <section aria-label="Statistiche principali">
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-8">
-          <StatCard
-            label="Prodotti in Anagrafica"
-            value={stats.productRegistryCount}
-            icon={Package}
-            loading={loading}
-            colorIndex={0}
-            animDelay="0s"
-          />
-          <StatCard
-            label="Articoli in Magazzino"
-            value={stats.inventoryTotalQty}
-            icon={Archive}
-            loading={loading}
-            colorIndex={1}
-            animDelay="0.05s"
-          />
-          <StatCard
-            label="Vendite Oggi"
-            value={stats.salesTodayCount}
-            icon={CreditCard}
-            loading={loading}
-            colorIndex={2}
-            animDelay="0.1s"
-          />
-          <StatCard
-            label="Ordini in Corso"
-            value={stats.pendingOrdersCount}
-            icon={ShoppingBag}
-            loading={loading}
-            colorIndex={3}
-            animDelay="0.15s"
-          />
-        </div>
-      </section>
-
-      {/* Period selector */}
-      <div className="flex items-center justify-between mb-5">
-        <div className="flex items-center gap-2 text-foreground/50">
-          <Calendar className="w-4 h-4" />
-          <span className="text-sm font-medium">Periodo</span>
-        </div>
-        <PeriodSelector value={period} onChange={setPeriod} />
+      {/* Background Aurora Effects */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-brand/10 rounded-full blur-[160px] animate-pulse" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-brand/5 rounded-full blur-[160px] animate-pulse [animation-delay:2s]" />
       </div>
 
-      {/* Charts grid */}
-      <section aria-label="Grafici analitici" className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-8">
-        {/* Revenue chart */}
-        <Card title="Andamento Incassi" className="lg:col-span-2">
-          <RevenueChart data={revenueData} loading={chartsLoading} />
-        </Card>
+      <div className="relative z-10 space-y-8">
+        {/* Error banner */}
+        {error && (
+          <div role="alert" className="mb-6 rounded-3xl bg-danger/10 border border-danger/20 px-6 py-4 text-sm text-danger font-bold uppercase tracking-widest animate-slide-down">
+            {error}
+          </div>
+        )}
 
-        {/* Top products */}
-        <Card title="Top 5 Prodotti Venduti">
-          <TopProductsChart data={topProducts} loading={chartsLoading} />
-        </Card>
+        {/* Stat cards grid */}
+        <section aria-label="Statistiche principali">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+            <StatCard label="Prodotti Anagrafica" value={stats.productRegistryCount} icon={Package} loading={loading} colorIndex={0} animDelay="0s" />
+            <StatCard label="Articoli Magazzino" value={stats.inventoryTotalQty} icon={Archive} loading={loading} colorIndex={1} animDelay="0.05s" />
+            <StatCard label="Vendite Oggi" value={stats.salesTodayCount} icon={CreditCard} loading={loading} colorIndex={2} animDelay="0.1s" />
+            <StatCard label="Ordini in Corso" value={stats.pendingOrdersCount} icon={ShoppingBag} loading={loading} colorIndex={3} animDelay="0.15s" />
+          </div>
+        </section>
 
-        {/* Stock alert */}
-        <Card title="Salute Magazzino">
-          <StockAlertChart
-            totalProducts={stockTotal}
-            criticalCount={stockCritical}
-            loading={chartsLoading}
-          />
-        </Card>
-      </section>
-
-      {/* Recent sales table */}
-      <section aria-label="Ultime vendite">
-        <Card title="Ultime Vendite">
-          {loading ? (
-            <div className="space-y-3 py-2">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="h-11 skeleton-shimmer"
-                  style={{ animationDelay: `${i * 0.08}s` }}
-                />
-              ))}
+        {/* Charts Section Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4 border-t border-black/[0.04] dark:border-white/[0.06]">
+          <div className="flex items-center gap-3">
+            <div className="bg-brand/10 p-2 rounded-xl">
+              <Calendar className="w-5 h-5 text-brand" />
             </div>
-          ) : recentSales.length === 0 ? (
-            <p className="py-10 text-center text-sm text-foreground/40">
-              Nessuna vendita registrata.
-            </p>
-          ) : (
-            <div className="overflow-x-auto -mx-1">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-surface/30 text-left text-xs uppercase tracking-wider text-foreground/40 font-semibold">
-                    <th className="py-3 px-3 whitespace-nowrap">Data</th>
-                    <th className="py-3 px-3 whitespace-nowrap">Cliente</th>
-                    <th className="py-3 px-3 text-right whitespace-nowrap">Totale</th>
-                    <th className="py-3 px-3 text-right whitespace-nowrap">Stato</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recentSales.map((sale, index) => (
-                    <tr
-                      key={sale.id}
-                      className={cn(
-                        'hover:bg-brand/[0.03] animate-fade-in',
-                        index !== recentSales.length - 1 && 'border-b border-surface/20'
-                      )}
-                      style={{ animationDelay: `${index * 0.05}s` }}
-                    >
-                      <td className="py-3.5 px-3 text-foreground/70 whitespace-nowrap">
-                        {formatDate(sale.created_at)}
-                      </td>
-                      <td className="py-3.5 px-3 text-foreground font-medium whitespace-nowrap">
-                        {sale.customer_orders?.customer_name || 'Cliente'}
-                      </td>
-                      <td className="py-3.5 px-3 text-right font-bold text-foreground whitespace-nowrap">
-                        {formatCurrency(sale.total)}
-                      </td>
-                      <td className="py-3.5 px-3 text-right">
-                        <StatusBadge status={sale.payment_method ? 'completed' : 'pending'} />
-                      </td>
-                    </tr>
+            <div>
+              <h2 className="text-xl font-black text-foreground tracking-tight">Analisi Performance</h2>
+              <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-foreground/30">Dati aggiornati in tempo reale</p>
+            </div>
+          </div>
+          <PeriodSelector value={period} onChange={setPeriod} />
+        </div>
+
+        {/* Charts grid */}
+        <section aria-label="Grafici analitici" className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Revenue chart - larger span */}
+          <div className="lg:col-span-2 bg-white/60 dark:bg-white/[0.02] backdrop-blur-2xl rounded-3xl shadow-2xl dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-black/[0.04] dark:border-white/[0.06] overflow-hidden">
+            <div className="px-6 py-5 border-b border-black/[0.04] dark:border-white/[0.06] flex items-center justify-between">
+              <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-foreground/40">Andamento Incassi</h3>
+            </div>
+            <div className="p-6">
+              <RevenueChart data={revenueData} loading={chartsLoading} />
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            {/* Top products */}
+            <div className="bg-white/60 dark:bg-white/[0.02] backdrop-blur-2xl rounded-3xl shadow-2xl dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-black/[0.04] dark:border-white/[0.06] overflow-hidden">
+              <div className="px-6 py-5 border-b border-black/[0.04] dark:border-white/[0.06]">
+                <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-foreground/40">Top 5 Prodotti</h3>
+              </div>
+              <div className="p-6">
+                <TopProductsChart data={topProducts} loading={chartsLoading} />
+              </div>
+            </div>
+
+            {/* Stock alert */}
+            <div className="bg-white/60 dark:bg-white/[0.02] backdrop-blur-2xl rounded-3xl shadow-2xl dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-black/[0.04] dark:border-white/[0.06] overflow-hidden">
+              <div className="px-6 py-5 border-b border-black/[0.04] dark:border-white/[0.06]">
+                <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-foreground/40">Stato Magazzino</h3>
+              </div>
+              <div className="p-6">
+                <StockAlertChart totalProducts={stockTotal} criticalCount={stockCritical} loading={chartsLoading} />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Recent sales table */}
+        <section aria-label="Ultime vendite">
+          <div className="bg-white/60 dark:bg-white/[0.02] backdrop-blur-2xl rounded-3xl shadow-2xl dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-black/[0.04] dark:border-white/[0.06] overflow-hidden">
+            <div className="px-6 py-5 border-b border-black/[0.04] dark:border-white/[0.06] bg-surface-light/30 dark:bg-black/20 flex items-center gap-3">
+              <Clock className="w-5 h-5 text-brand" />
+              <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-foreground/40 text-left">Ultime Operazioni</h3>
+            </div>
+            
+            <div className="p-6">
+              {loading ? (
+                <div className="space-y-4 py-2">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <div key={i} className="h-12 skeleton-shimmer rounded-xl" style={{ animationDelay: `${i * 0.08}s` }} />
                   ))}
-                </tbody>
-              </table>
+                </div>
+              ) : recentSales.length === 0 ? (
+                <div className="py-20 text-center">
+                  <p className="text-sm font-medium text-foreground/30 uppercase tracking-[0.2em]">Nessuna vendita registrata</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-black/[0.04] dark:border-white/[0.06]">
+                        <th className="py-4 px-3 text-left text-[10px] font-black uppercase tracking-[0.2em] text-foreground/40">Data Operazione</th>
+                        <th className="py-4 px-3 text-left text-[10px] font-black uppercase tracking-[0.2em] text-foreground/40">Anagrafica Cliente</th>
+                        <th className="py-4 px-3 text-right text-[10px] font-black uppercase tracking-[0.2em] text-foreground/40">Importo Totale</th>
+                        <th className="py-4 px-3 text-right text-[10px] font-black uppercase tracking-[0.2em] text-foreground/40">Stato</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-black/[0.04] dark:divide-white/[0.06]">
+                      {recentSales.map((sale, index) => (
+                        <tr
+                          key={sale.id}
+                          className="group hover:bg-brand/[0.04] transition-all duration-300 animate-fade-in cursor-default"
+                          style={{ animationDelay: `${index * 0.05}s` }}
+                        >
+                          <td className="py-4 px-3">
+                             <div className="flex flex-col">
+                               <span className="font-bold text-foreground">{formatDate(sale.created_at).split(' ')[0]}</span>
+                               <span className="text-[10px] font-bold text-foreground/30">{formatDate(sale.created_at).split(' ').slice(1).join(' ')}</span>
+                             </div>
+                          </td>
+                          <td className="py-4 px-3">
+                            <span className="font-extrabold text-foreground tracking-tight capitalize">
+                              {sale.customer_orders?.customer_name || 'Vendita Diretta'}
+                            </span>
+                          </td>
+                          <td className="py-4 px-3 text-right">
+                             <span className="text-base font-black text-brand drop-shadow-sm">
+                              {formatCurrency(sale.total)}
+                            </span>
+                          </td>
+                          <td className="py-4 px-3 text-right">
+                            <StatusBadge status={sale.payment_method ? 'completed' : 'pending'} />
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
-          )}
-        </Card>
-      </section>
+          </div>
+        </section>
+      </div>
     </AppShell>
   )
 }
