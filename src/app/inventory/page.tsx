@@ -1061,11 +1061,11 @@ export default function InventoryPage() {
   // ---------------------------------------------------------------------------
 
   function SortIcon({ field }: { field: SortField }) {
-    if (sortField !== field) return <ChevronsUpDown className="w-3.5 h-3.5 opacity-40" />
+    if (sortField !== field) return <ChevronsUpDown className="w-3.5 h-3.5 opacity-30 ml-2 inline-block" />
     return sortDir === 'asc' ? (
-      <ChevronUp className="w-3.5 h-3.5 text-brand" />
+      <ChevronUp className="w-3.5 h-3.5 text-[#7BB35F] ml-2 inline-block" />
     ) : (
-      <ChevronDown className="w-3.5 h-3.5 text-brand" />
+      <ChevronDown className="w-3.5 h-3.5 text-[#7BB35F] ml-2 inline-block" />
     )
   }
 
@@ -1076,23 +1076,15 @@ export default function InventoryPage() {
   const columns = [
     {
       key: 'select',
-      header: (
-        <input
-          type="checkbox"
-          checked={allVisibleSelected}
-          onChange={toggleSelectAllVisible}
-          aria-label={allVisibleSelected ? 'Deseleziona tutti' : 'Seleziona tutti'}
-          className="h-4 w-4 rounded border-surface/60 text-brand focus:ring-brand/30"
-        />
-      ) as unknown as string,
-      className: 'w-10',
+      header: '' as unknown as string,
+      className: 'w-10 opacity-0',
       render: (row: InventoryItem) => (
         <input
           type="checkbox"
           checked={selectedInventoryIds.includes(row.id)}
           onChange={() => toggleRowSelection(row.id)}
           aria-label={`Seleziona ${row.product_registry.name}`}
-          className="h-4 w-4 rounded border-surface/60 text-brand focus:ring-brand/30"
+          className="h-4 w-4 rounded border-white/20 bg-white/5 text-[#7BB35F] focus:ring-[#7BB35F]/30 cursor-pointer"
         />
       ),
     },
@@ -1101,13 +1093,13 @@ export default function InventoryPage() {
       header: (
         <button
           onClick={() => handleSort('barcode')}
-          className="flex items-center gap-1 hover:text-brand transition-colors"
+          className="flex items-center text-xs uppercase tracking-wider text-white/50 hover:text-white transition-colors"
         >
           Barcode <SortIcon field="barcode" />
         </button>
       ) as unknown as string,
       render: (row: InventoryItem) => (
-        <span className="font-mono text-xs text-foreground/50">
+        <span className="font-mono text-sm text-white/60">
           {row.product_registry.barcode}
         </span>
       ),
@@ -1117,13 +1109,13 @@ export default function InventoryPage() {
       header: (
         <button
           onClick={() => handleSort('name')}
-          className="flex items-center gap-1 hover:text-brand transition-colors"
+          className="flex items-center text-xs uppercase tracking-wider text-white/50 hover:text-white transition-colors"
         >
           Nome <SortIcon field="name" />
         </button>
       ) as unknown as string,
       render: (row: InventoryItem) => (
-        <span className="font-medium">{row.product_registry.name}</span>
+        <span className="font-semibold text-white/90">{row.product_registry.name}</span>
       ),
     },
     {
@@ -1131,13 +1123,13 @@ export default function InventoryPage() {
       header: (
         <button
           onClick={() => handleSort('brand')}
-          className="flex items-center gap-1 hover:text-brand transition-colors"
+          className="flex items-center text-xs uppercase tracking-wider text-white/50 hover:text-white transition-colors"
         >
           Brand <SortIcon field="brand" />
         </button>
       ) as unknown as string,
       render: (row: InventoryItem) => (
-        <span className="text-sm font-medium text-foreground/70">
+        <span className="text-sm font-medium text-white/50">
           {row.product_registry.brand || '\u2014'}
         </span>
       ),
@@ -1147,13 +1139,13 @@ export default function InventoryPage() {
       header: (
         <button
           onClick={() => handleSort('size')}
-          className="flex items-center gap-1 hover:text-brand transition-colors"
+          className="flex items-center text-xs uppercase tracking-wider text-white/50 hover:text-white transition-colors"
         >
           Taglia <SortIcon field="size" />
         </button>
       ) as unknown as string,
       render: (row: InventoryItem) => (
-        <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-surface/40 ring-1 ring-surface/60 text-xs font-semibold">
+        <span className="inline-flex items-center px-2 py-0.5 rounded-lg bg-white/5 ring-1 ring-white/10 text-xs font-semibold text-white/80">
           {row.product_registry.size}
         </span>
       ),
@@ -1163,13 +1155,13 @@ export default function InventoryPage() {
       header: (
         <button
           onClick={() => handleSort('color')}
-          className="flex items-center gap-1 hover:text-brand transition-colors"
+          className="flex items-center text-xs uppercase tracking-wider text-white/50 hover:text-white transition-colors"
         >
           Colore <SortIcon field="color" />
         </button>
       ) as unknown as string,
       render: (row: InventoryItem) => (
-        <span className="text-sm">{row.product_registry.color}</span>
+        <span className="text-sm text-white/70">{row.product_registry.color}</span>
       ),
     },
     {
@@ -1177,7 +1169,7 @@ export default function InventoryPage() {
       header: (
         <button
           onClick={() => handleSort('quantity')}
-          className="flex items-center gap-1 hover:text-brand transition-colors"
+          className="flex items-center text-xs uppercase tracking-wider text-white/50 hover:text-white transition-colors"
         >
           Quantità <SortIcon field="quantity" />
         </button>
@@ -1188,10 +1180,10 @@ export default function InventoryPage() {
         return (
           <span
             className={cn(
-              'inline-flex items-center gap-1 font-bold px-2.5 py-0.5 rounded-lg text-sm',
-              isOut && 'bg-red-50 text-danger ring-1 ring-red-200',
-              isLow && !isOut && 'bg-yellow-50 text-yellow-600 ring-1 ring-yellow-200',
-              !isOut && !isLow && 'text-foreground'
+              'inline-flex items-center gap-1.5 font-bold px-2.5 py-1 rounded-lg text-sm border',
+              isOut && 'bg-red-500/10 text-red-400 border-red-500/20',
+              isLow && !isOut && 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20',
+              !isOut && !isLow && 'text-white/90 border-transparent'
             )}
           >
             {isOut && <AlertTriangle className="w-3.5 h-3.5" />}
@@ -1206,13 +1198,13 @@ export default function InventoryPage() {
       header: (
         <button
           onClick={() => handleSort('purchase_price')}
-          className="flex items-center gap-1 hover:text-brand transition-colors"
+          className="flex items-center text-xs uppercase tracking-wider text-white/50 hover:text-white transition-colors"
         >
-          P. Acquisto <SortIcon field="purchase_price" />
+          P. Acq <SortIcon field="purchase_price" />
         </button>
       ) as unknown as string,
       render: (row: InventoryItem) => (
-        <span className="text-foreground/60">{formatCurrency(row.purchase_price)}</span>
+        <span className="text-white/40">{formatCurrency(row.purchase_price)}</span>
       ),
     },
     {
@@ -1220,13 +1212,13 @@ export default function InventoryPage() {
       header: (
         <button
           onClick={() => handleSort('sell_price')}
-          className="flex items-center gap-1 hover:text-brand transition-colors"
+          className="flex items-center text-xs uppercase tracking-wider text-white/50 hover:text-white transition-colors"
         >
-          P. Vendita <SortIcon field="sell_price" />
+          P. Ven <SortIcon field="sell_price" />
         </button>
       ) as unknown as string,
       render: (row: InventoryItem) => (
-        <span className="font-semibold text-brand">{formatCurrency(row.sell_price)}</span>
+        <span className="font-semibold text-[#7BB35F]">{formatCurrency(row.sell_price)}</span>
       ),
     },
     {
@@ -1234,16 +1226,16 @@ export default function InventoryPage() {
       header: (
         <button
           onClick={() => handleSort('location')}
-          className="flex items-center gap-1 hover:text-brand transition-colors"
+          className="flex items-center text-xs uppercase tracking-wider text-white/50 hover:text-white transition-colors"
         >
           Ubicazione <SortIcon field="location" />
         </button>
       ) as unknown as string,
       render: (row: InventoryItem) =>
         row.location ? (
-          <span className="text-sm text-foreground/50">{row.location}</span>
+          <span className="text-sm text-white/50">{row.location}</span>
         ) : (
-          <span className="text-sm text-foreground/20">\u2014</span>
+          <span className="text-sm text-white/20">\u2014</span>
         ),
     },
     {
@@ -1251,13 +1243,13 @@ export default function InventoryPage() {
       header: '',
       className: 'w-24',
       render: (row: InventoryItem) => (
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center justify-end gap-1.5 opacity-70 hover:opacity-100 transition-opacity">
           <button
             onClick={(e) => {
               e.stopPropagation()
               openEdit(row)
             }}
-            className="p-1.5 rounded-lg hover:bg-brand/[0.08] text-foreground/40 hover:text-brand transition-colors"
+            className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-colors"
             aria-label="Modifica"
           >
             <Pencil className="w-4 h-4" />
@@ -1267,7 +1259,7 @@ export default function InventoryPage() {
               e.stopPropagation()
               setDeleteItem(row)
             }}
-            className="p-1.5 rounded-lg hover:bg-danger/[0.08] text-foreground/40 hover:text-danger transition-colors"
+            className="p-2 rounded-xl bg-white/5 hover:bg-red-500/20 text-white/60 hover:text-red-400 transition-colors"
             aria-label="Elimina"
           >
             <Trash2 className="w-4 h-4" />
@@ -1308,28 +1300,40 @@ export default function InventoryPage() {
         ))}
       </div>
 
-      <div className="space-y-6 max-w-7xl mx-auto animate-fade-in">
+      {/* ---------------- Sfondo Globale Glassmorphism Aurora ---------------- */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-[-1] bg-[#0c1222]">
+        <div className="absolute top-[-15%] right-[-5%] w-[800px] h-[800px] bg-[#7BB35F]/10 rounded-full blur-[160px] opacity-70" />
+        <div className="absolute bottom-[-20%] left-[-10%] w-[600px] h-[600px] bg-[#7BB35F]/5 rounded-full blur-[140px] opacity-50" />
+      </div>
+
+      <div className="space-y-8 max-w-[1400px] mx-auto animate-fade-in relative z-10 pt-2 lg:pt-6">
         {/* ------------------------------------------------------------------ */}
         {/* Indicator Scanner                                                  */}
         {/* ------------------------------------------------------------------ */}
         {isReceivingScan && (
-          <div className="fixed bottom-6 right-6 z-[100] flex items-center gap-3 bg-brand text-white px-5 py-3 rounded-full shadow-2xl animate-pulse">
+          <div className="fixed bottom-6 right-6 z-[100] flex items-center gap-3 bg-[#7BB35F] text-white px-5 py-3 rounded-full shadow-2xl animate-pulse">
             <Scan className="w-6 h-6" />
             <span className="font-bold">Scanner in ascolto...</span>
           </div>
         )}
 
-        {/* ---------------------------------------------------------------- */}
-        {/* Barcode scanner section                                           */}
-        {/* ---------------------------------------------------------------- */}
-        <div className="bg-card/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 dark:border-white/[0.06] p-5">
-          <form onSubmit={handleBarcodeScan}>
-            <div className="flex flex-col sm:flex-row gap-3 items-end">
-              <div className="flex-1 relative">
-                {/* Scan icon inside input */}
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none text-brand">
-                  <Scan className="w-5 h-5" />
-                </div>
+        {/* ------------------------------------------------------------------ */}
+        {/* Header / Top Bar Premium                                           */}
+        {/* ------------------------------------------------------------------ */}
+        <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 mb-2">
+          {/* Logo & Subtitle */}
+          <div>
+            <h1 className="text-3xl font-bold text-white tracking-wide">Flip&amp;Co</h1>
+            <p className="text-[13px] text-white/40 tracking-widest uppercase mt-1">Premium Inventory Management</p>
+          </div>
+
+          {/* Search Bar Center */}
+          <form onSubmit={handleBarcodeScan} className="flex-1 max-w-2xl mx-auto xl:mx-0 w-full">
+            <div className="relative group">
+              <div className="absolute inset-0 bg-white/[0.03] rounded-full border border-white/10 backdrop-blur-md shadow-[0_8px_30px_rgb(0,0,0,0.12)] transition-colors group-hover:bg-white/[0.05]" />
+              
+              <div className="relative flex items-center p-1.5 pl-6">
+                <Scan className="w-5 h-5 text-[#7BB35F] mr-3 shrink-0" />
                 <input
                   ref={barcodeInputRef}
                   type="text"
@@ -1339,364 +1343,295 @@ export default function InventoryPage() {
                     setScanError(null)
                   }}
                   placeholder="Spara il barcode o digita..."
-                  className={cn(
-                    'w-full pl-12 pr-4 py-4 text-xl font-mono rounded-xl border bg-card',
-                    'focus:outline-none focus:ring-4 transition-all duration-200',
-                    'placeholder:text-gray-300 placeholder:font-sans placeholder:text-base',
-                    scanError
-                      ? 'border-danger focus:border-danger focus:ring-danger/15'
-                      : 'border-surface/80 focus:border-brand focus:ring-brand/15 focus:shadow-md'
-                  )}
+                  className="w-full bg-transparent border-none text-white focus:outline-none focus:ring-0 placeholder:text-white/30 text-[15px]"
                   autoComplete="off"
                   spellCheck={false}
-                  aria-label="Campo barcode scanner"
                 />
+                <button
+                  type="submit"
+                  disabled={scanLoading}
+                  className="flex items-center gap-2 bg-[#7BB35F] hover:bg-[#6CAE4A] hover:scale-[1.02] active:scale-95 transition-all text-white px-6 py-2.5 rounded-full font-medium shadow-[0_0_15px_rgba(123,179,95,0.4)] ml-3 shrink-0"
+                >
+                  <Search className="w-4 h-4" />
+                  Cerca
+                </button>
               </div>
-              <Button
-                type="submit"
-                variant="primary"
-                size="md"
-                loading={scanLoading}
-                className="whitespace-nowrap shrink-0"
-              >
-                <Scan className="w-4 h-4 mr-2" />
-                Cerca
-              </Button>
-              <Button
-                type="button"
-                variant="secondary"
-                size="md"
-                onClick={() => setManualAddOpen(true)}
-                className="whitespace-nowrap shrink-0"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Aggiungi Manualmente
-              </Button>
             </div>
           </form>
 
-          {/* Scan error: product not found */}
-          {scanError && (
-            <div className="mt-4 flex items-start gap-3 p-4 rounded-xl bg-yellow-50 border border-yellow-200/60 ring-1 ring-yellow-200">
-              <AlertTriangle className="w-5 h-5 text-yellow-600 shrink-0 mt-0.5" />
-              <div className="text-sm">
-                <p className="font-semibold text-yellow-800">
-                  Prodotto non trovato in anagrafica
-                </p>
-                <p className="text-yellow-700 mt-0.5">
-                  Barcode:{' '}
-                  <span className="font-mono font-bold">{scanError}</span>
-                </p>
-                <a
-                  href="/import"
-                  className="inline-block mt-2 text-brand font-semibold hover:underline"
-                >
-                  Vai alla pagina di importazione &rarr;
-                </a>
-              </div>
-            </div>
-          )}
-
-          {/* Add-to-inventory form, shown after successful scan */}
-          {scannedProduct && (
-            <div className="mt-5 pt-5 border-t border-surface/20">
-              <div className="flex items-center gap-2 mb-4">
-                <CheckCircle2 className="w-5 h-5 text-success" />
-                <h3 className="text-base font-bold text-foreground">
-                  Prodotto trovato &mdash; aggiungi al magazzino
-                </h3>
-              </div>
-
-              {/* Read-only product info strip */}
-              <div className="flex flex-wrap gap-3 mb-5">
-                <div className="flex-1 min-w-[160px] p-3 rounded-xl bg-surface-light/30 border border-surface/20">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50 mb-0.5">
-                    Nome
-                  </p>
-                  <p className="font-bold text-foreground">{scannedProduct.name}</p>
-                </div>
-                {scannedProduct.sku && (
-                  <div className="p-3 rounded-xl bg-surface-light/30 border border-surface/20 min-w-[80px]">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50 mb-0.5">
-                      SKU
-                    </p>
-                    <p className="font-mono text-sm text-foreground">{scannedProduct.sku}</p>
-                  </div>
-                )}
-                {scannedProduct.brand && (
-                  <div className="p-3 rounded-xl bg-surface-light/30 border border-surface/20 min-w-[80px]">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50 mb-0.5">
-                      Brand
-                    </p>
-                    <p className="font-bold text-foreground">{scannedProduct.brand}</p>
-                  </div>
-                )}
-                <div className="p-3 rounded-xl bg-surface-light/30 border border-surface/20 min-w-[80px]">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50 mb-0.5">
-                    Taglia
-                  </p>
-                  <p className="font-bold text-foreground">{scannedProduct.size || '\u2014'}</p>
-                </div>
-                <div className="p-3 rounded-xl bg-surface-light/30 border border-surface/20 min-w-[100px]">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50 mb-0.5">
-                    Colore
-                  </p>
-                  <p className="font-bold text-foreground">
-                    {scannedProduct.color
-                      ? <span className="inline-flex items-center gap-1.5">
-                          {scannedProduct.color_code && (
-                            <span className="inline-block w-3 h-3 rounded-full border border-foreground/20" style={{ backgroundColor: scannedProduct.color_code }} />
-                          )}
-                          {scannedProduct.color}
-                        </span>
-                      : '\u2014'}
-                  </p>
-                </div>
-                <div className="p-3 rounded-xl bg-surface-light/30 border border-surface/20 min-w-[120px]">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50 mb-0.5">
-                    Barcode
-                  </p>
-                  <p className="font-mono text-sm text-foreground/60">
-                    {scannedProduct.barcode}
-                  </p>
-                </div>
-              </div>
-
-              {/* Editable fields */}
-              <form onSubmit={handleAddToInventory}>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
-                  <Input
-                    ref={firstFormFieldRef}
-                    label="Prezzo Acquisto (&euro;)"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    placeholder="0.00"
-                    value={addForm.purchase_price}
-                    onChange={(e) =>
-                      setAddForm((f) => ({ ...f, purchase_price: e.target.value }))
-                    }
-                  />
-                  <Input
-                    label="Prezzo Vendita (&euro;)"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    placeholder="0.00"
-                    value={addForm.sell_price}
-                    onChange={(e) =>
-                      setAddForm((f) => ({ ...f, sell_price: e.target.value }))
-                    }
-                  />
-                  <Input
-                    label="Quantità"
-                    type="number"
-                    min="1"
-                    step="1"
-                    value={addForm.quantity}
-                    onChange={(e) =>
-                      setAddForm((f) => ({ ...f, quantity: e.target.value }))
-                    }
-                    required
-                  />
-                  <Input
-                    label="Ubicazione (opz.)"
-                    type="text"
-                    placeholder="es. Scaffale A2"
-                    value={addForm.location}
-                    onChange={(e) =>
-                      setAddForm((f) => ({ ...f, location: e.target.value }))
-                    }
-                  />
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <Button
-                    type="submit"
-                    variant="primary"
-                    size="md"
-                    loading={addLoading}
-                    className="bg-success hover:bg-green-600"
-                  >
-                    <Package className="w-4 h-4 mr-2" />
-                    Aggiungi al Magazzino
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setScannedProduct(null)
-                      setBarcodeValue('')
-                      setScanError(null)
-                      focusBarcode()
-                    }}
-                  >
-                    Annulla
-                  </Button>
-                </div>
-              </form>
-            </div>
-          )}
+          {/* Add Manual Button */}
+          <button
+             type="button"
+             onClick={() => setManualAddOpen(true)}
+             className="flex items-center gap-2 px-6 py-3 rounded-full bg-white/[0.03] border border-white/10 backdrop-blur-md text-white/70 hover:bg-white/10 hover:text-white transition-all shadow-[0_8px_30px_rgb(0,0,0,0.12)] shrink-0"
+          >
+             <Plus className="w-4 h-4 text-[#7BB35F]" />
+             Aggiungi Manualmente
+          </button>
         </div>
-
-        {/* ---------------------------------------------------------------- */}
-        {/* Stats bar                                                          */}
-        {/* ---------------------------------------------------------------- */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
-          <div className="bg-card/80 backdrop-blur-sm rounded-2xl border border-white/60 dark:border-white/[0.06] p-4 flex items-center gap-3 shadow-sm shadow-black/[0.04]">
-            <div className="w-10 h-10 rounded-xl bg-brand/10 flex items-center justify-center shrink-0">
-              <Package className="w-5 h-5 text-brand" />
-            </div>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50">
-                Articoli
-              </p>
-              <p className="text-2xl font-bold text-foreground">{totalArticoli}</p>
+        
+        {/* Scan Feedback / Add Form */}
+        {scanError && (
+          <div className="flex items-start gap-3 p-5 rounded-2xl bg-yellow-500/10 border border-yellow-500/20 backdrop-blur-md shadow-xl mt-4">
+            <AlertTriangle className="w-5 h-5 text-yellow-500 shrink-0 mt-0.5" />
+            <div className="text-sm">
+              <p className="font-semibold text-yellow-400">Prodotto non trovato in anagrafica</p>
+              <p className="text-yellow-500 mt-0.5">Barcode: <span className="font-mono font-bold">{scanError}</span></p>
+              <a href="/import" className="inline-block mt-2 text-white font-semibold hover:underline">Vai alla pagina di importazione &rarr;</a>
             </div>
           </div>
+        )}
 
-          <div className="bg-card/80 backdrop-blur-sm rounded-2xl border border-white/60 dark:border-white/[0.06] p-4 flex items-center gap-3 shadow-sm shadow-black/[0.04]">
-            <div className="w-10 h-10 rounded-xl bg-brand/10 flex items-center justify-center shrink-0">
-              <TrendingUp className="w-5 h-5 text-brand" />
+        {scannedProduct && (
+          <div className="bg-white/[0.02] backdrop-blur-2xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.2)] border border-white/10 p-6 lg:p-8 mt-4">
+            <div className="flex items-center gap-2 mb-6">
+              <div className="w-8 h-8 rounded-full bg-[#7BB35F]/20 flex items-center justify-center">
+                <CheckCircle2 className="w-5 h-5 text-[#7BB35F]" />
+              </div>
+              <h3 className="text-lg font-bold text-white">Prodotto trovato &mdash; aggiungi al magazzino</h3>
             </div>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50">
-                Valore Magazzino
-              </p>
-              <p className="text-xl font-bold text-foreground">
-                {formatCurrency(valoreInventario)}
-              </p>
-            </div>
-          </div>
 
-          <div className="bg-card/80 backdrop-blur-sm rounded-2xl border border-white/60 dark:border-white/[0.06] p-4 flex items-center gap-3 shadow-sm shadow-black/[0.04]">
-            <div className="w-10 h-10 rounded-xl bg-yellow-50 flex items-center justify-center shrink-0">
-              <AlertTriangle className="w-5 h-5 text-yellow-600" />
-            </div>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50">
-                Scorte Basse
-              </p>
-              <p className="text-2xl font-bold text-yellow-600">{lowStockCount}</p>
-            </div>
-          </div>
-
-          <div className="bg-card/80 backdrop-blur-sm rounded-2xl border border-white/60 dark:border-white/[0.06] p-4 flex items-center gap-3 shadow-sm shadow-black/[0.04]">
-            <div className="w-10 h-10 rounded-xl bg-danger/10 flex items-center justify-center shrink-0">
-              <AlertTriangle className="w-5 h-5 text-danger" />
-            </div>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50">
-                Esauriti
-              </p>
-              <p className="text-2xl font-bold text-danger">{outOfStockCount}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* ---------------------------------------------------------------- */}
-        {/* Inventory table                                                    */}
-        {/* ---------------------------------------------------------------- */}
-        <div className="bg-card/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 dark:border-white/[0.06] p-5">
-          {/* Card header */}
-          <div className="flex items-center justify-between mb-5">
-            <h2 className="text-lg font-bold text-foreground">Inventario</h2>
-            <Button variant="secondary" size="sm" onClick={handleExportPDF}>
-              <FileDown className="w-4 h-4 mr-1.5" />
-              Esporta PDF
-            </Button>
-          </div>
-
-          {/* Search bar */}
-          <div className="relative mb-4">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/40 pointer-events-none" />
-            <input
-              type="text"
-              placeholder="Cerca per nome, barcode, SKU, colore..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className={cn(
-                'w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border border-surface/80 bg-card shadow-sm',
-                'focus:outline-none focus:border-brand focus:ring-4 focus:ring-brand/15 focus:shadow-md',
-                'placeholder:text-gray-400 transition-all duration-200'
+            <div className="flex flex-wrap gap-4 mb-6">
+              <div className="flex-1 min-w-[160px] p-4 rounded-2xl bg-white/5 border border-white/10">
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-white/50 mb-1">Nome</p>
+                <p className="font-bold text-white text-lg">{scannedProduct.name}</p>
+              </div>
+              {scannedProduct.sku && (
+                <div className="p-4 rounded-2xl bg-white/5 border border-white/10 min-w-[100px]">
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-white/50 mb-1">SKU</p>
+                  <p className="font-mono text-sm text-white/90">{scannedProduct.sku}</p>
+                </div>
               )}
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground/40 hover:text-foreground transition-colors"
-                aria-label="Cancella ricerca"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            )}
+              {scannedProduct.brand && (
+                <div className="p-4 rounded-2xl bg-white/5 border border-white/10 min-w-[100px]">
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-white/50 mb-1">Brand</p>
+                  <p className="font-bold text-white">{scannedProduct.brand}</p>
+                </div>
+              )}
+              <div className="p-4 rounded-2xl bg-white/5 border border-white/10 min-w-[100px]">
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-white/50 mb-1">Taglia</p>
+                <p className="font-bold text-white">{scannedProduct.size || '\u2014'}</p>
+              </div>
+              <div className="p-4 rounded-2xl bg-white/5 border border-white/10 min-w-[120px]">
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-white/50 mb-1">Colore</p>
+                <p className="font-bold text-white">
+                  {scannedProduct.color ? (
+                    <span className="inline-flex items-center gap-2">
+                       {scannedProduct.color_code && <span className="inline-block w-4 h-4 rounded-full border border-white/20 shadow-sm" style={{ backgroundColor: scannedProduct.color_code }} />}
+                       {scannedProduct.color}
+                    </span>
+                  ) : '\u2014'}
+                </p>
+              </div>
+              <div className="p-4 rounded-2xl bg-white/5 border border-white/10 min-w-[140px]">
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-white/50 mb-1">Barcode</p>
+                <p className="font-mono text-sm text-white/60">{scannedProduct.barcode}</p>
+              </div>
+            </div>
+
+            <form onSubmit={handleAddToInventory} className="bg-black/20 rounded-2xl p-6 border border-white/5">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+                <Input
+                  ref={firstFormFieldRef}
+                  label="Prezzo Acquisto (&euro;)"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  placeholder="0.00"
+                  value={addForm.purchase_price}
+                  onChange={(e) => setAddForm((f) => ({ ...f, purchase_price: e.target.value }))}
+                />
+                <Input
+                  label="Prezzo Vendita (&euro;)"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  placeholder="0.00"
+                  value={addForm.sell_price}
+                  onChange={(e) => setAddForm((f) => ({ ...f, sell_price: e.target.value }))}
+                />
+                <Input
+                  label="Quantità"
+                  type="number"
+                  min="1"
+                  step="1"
+                  value={addForm.quantity}
+                  onChange={(e) => setAddForm((f) => ({ ...f, quantity: e.target.value }))}
+                  required
+                />
+                <Input
+                  label="Ubicazione (opz.)"
+                  type="text"
+                  placeholder="es. Scaffale A2"
+                  value={addForm.location}
+                  onChange={(e) => setAddForm((f) => ({ ...f, location: e.target.value }))}
+                />
+              </div>
+
+              <div className="flex items-center gap-3">
+                <button
+                  type="submit"
+                  disabled={addLoading}
+                  className="flex items-center justify-center gap-2 bg-[#7BB35F] hover:bg-[#6CAE4A] transition-colors text-white px-6 py-3 rounded-xl font-medium shadow-lg"
+                >
+                  <Package className="w-5 h-5" />
+                  Aggiungi al Magazzino
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setScannedProduct(null)
+                    setBarcodeValue('')
+                    setScanError(null)
+                    focusBarcode()
+                  }}
+                  className="px-6 py-3 rounded-xl text-white/60 hover:text-white hover:bg-white/5 transition-colors font-medium"
+                >
+                  Annulla
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+
+        {/* ---------------------------------------------------------------- */}
+        {/* Stats bar Frosted Glass                                          */}
+        {/* ---------------------------------------------------------------- */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mt-4">
+          <div className="bg-white/[0.02] backdrop-blur-xl rounded-2xl border border-white/5 p-5 flex items-center gap-5 shadow-[0_8px_30px_rgb(0,0,0,0.12)] bg-gradient-to-br from-white/[0.04] to-transparent">
+            <div className="relative w-12 h-12 rounded-full bg-[#7BB35F]/10 flex items-center justify-center shrink-0">
+               <div className="absolute inset-0 bg-[#7BB35F] animate-pulse blur-md opacity-20 rounded-full" />
+               <Package className="w-6 h-6 text-[#7BB35F] relative z-10" />
+            </div>
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-white/50 mb-0.5">Articoli</p>
+              <p className="text-2xl font-bold text-white">{totalArticoli}</p>
+            </div>
           </div>
 
-          {/* Result count */}
-          {searchQuery && (
-            <p className="text-xs text-foreground/50 mb-3">
-              {filteredInventory.length}{' '}
-              {filteredInventory.length === 1 ? 'risultato' : 'risultati'} per &ldquo;
-              {searchQuery}&rdquo;
-            </p>
-          )}
+          <div className="bg-white/[0.02] backdrop-blur-xl rounded-2xl border border-white/5 p-5 flex items-center gap-5 shadow-[0_8px_30px_rgb(0,0,0,0.12)] bg-gradient-to-br from-white/[0.04] to-transparent">
+            <div className="relative w-12 h-12 rounded-full bg-white/5 flex items-center justify-center shrink-0">
+               <div className="absolute inset-0 bg-white animate-pulse blur-md opacity-10 rounded-full" />
+               <TrendingUp className="w-6 h-6 text-white/80 relative z-10" />
+            </div>
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-white/50 mb-0.5">Valore Magazzino</p>
+              <p className="text-2xl font-bold text-white">{formatCurrency(valoreInventario)}</p>
+            </div>
+          </div>
 
-          <div className="flex flex-wrap items-center gap-2 mb-4">
-            <Button variant="secondary" size="sm" onClick={toggleSelectAllVisible}>
-              {allVisibleSelected ? 'Deseleziona tutti' : 'Seleziona tutti'}
-            </Button>
-            <span className="text-xs text-foreground/50">
+          <div className="bg-white/[0.02] backdrop-blur-xl rounded-2xl border border-white/5 p-5 flex items-center gap-5 shadow-[0_8px_30px_rgb(0,0,0,0.12)] bg-gradient-to-br from-white/[0.04] to-transparent">
+            <div className="relative w-12 h-12 rounded-full bg-yellow-500/10 flex items-center justify-center shrink-0">
+               <div className="absolute inset-0 bg-yellow-500 animate-pulse blur-md opacity-20 rounded-full" />
+               <AlertTriangle className="w-6 h-6 text-yellow-500 relative z-10" />
+            </div>
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-white/50 mb-0.5">Scorte Basse</p>
+              <p className="text-2xl font-bold text-white">{lowStockCount}</p>
+            </div>
+          </div>
+
+          <div className="bg-white/[0.02] backdrop-blur-xl rounded-2xl border border-white/5 p-5 flex items-center gap-5 shadow-[0_8px_30px_rgb(0,0,0,0.12)] bg-gradient-to-br from-white/[0.04] to-transparent">
+            <div className="relative w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center shrink-0">
+               <div className="absolute inset-0 bg-red-500 animate-pulse blur-md opacity-20 rounded-full" />
+               <AlertTriangle className="w-6 h-6 text-red-500 relative z-10" />
+            </div>
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-white/50 mb-0.5">Esauriti</p>
+              <p className="text-2xl font-bold text-white">{outOfStockCount}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* ---------------------------------------------------------------- */}
+        {/* Inventory table Glass Container                                  */}
+        {/* ---------------------------------------------------------------- */}
+        <div className="mt-8 bg-white/[0.02] backdrop-blur-2xl rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.2)] border border-white/10 p-6 lg:p-8">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8 border-b border-white/5 pb-6">
+            <h2 className="text-2xl font-semibold text-white tracking-wide">Inventario</h2>
+            
+            <div className="relative flex-1 max-w-md mx-auto sm:mx-0 w-full">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+              <input
+                type="text"
+                placeholder="Cerca..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-11 pr-4 py-2.5 bg-white/[0.03] border border-white/10 rounded-full text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#7BB35F]/50 focus:ring-1 focus:ring-[#7BB35F]/50 transition-all"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+
+            <button onClick={handleExportPDF} className="flex items-center gap-2 bg-[#7BB35F]/10 hover:bg-[#7BB35F]/20 transition-colors border border-[#7BB35F]/20 text-[#7BB35F] px-4 py-2 rounded-xl text-sm font-semibold shadow-sm">
+              <FileDown className="w-4 h-4" />
+              Esporta PDF
+            </button>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3 mb-6">
+            <label className="flex items-center gap-2 text-sm text-white/60 cursor-pointer hover:text-white transition-colors">
+               <input 
+                 type="checkbox" 
+                 checked={allVisibleSelected} 
+                 onChange={toggleSelectAllVisible} 
+                 className="w-4 h-4 rounded border-white/20 bg-white/5 text-[#7BB35F] focus:ring-[#7BB35F]/30" 
+               />
+               Seleziona tutti
+            </label>
+            <span className="text-xs text-white/30 px-2">|</span>
+            <span className="text-sm font-medium text-white/50">
               {selectedVisibleCount} selezionati
             </span>
-            <Button
-              variant="secondary"
-              size="sm"
+            <button
               onClick={() => setBulkEditOpen(true)}
               disabled={selectedVisibleCount === 0 || bulkEditLoading}
-              className="ml-auto"
+              className="ml-auto bg-white/5 hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed transition-colors border border-white/10 text-white/80 px-4 py-2 rounded-lg text-sm font-medium"
             >
-              <Pencil className="w-4 h-4 mr-1.5" />
               Modifica selezionati
-            </Button>
-            <Button
-              variant="danger"
-              size="sm"
+            </button>
+            <button
               onClick={() => setBulkDeleteConfirmOpen(true)}
               disabled={selectedVisibleCount === 0 || bulkEditLoading}
+              className="bg-red-500/10 hover:bg-red-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors border border-red-500/20 text-red-400 px-4 py-2 rounded-lg text-sm font-medium"
             >
-              <Trash2 className="w-4 h-4 mr-1.5" />
               Elimina selezionati
-            </Button>
-          </div>
-
-          {/* Legend */}
-          <div className="flex flex-wrap gap-3 mb-4 text-xs">
-            <span className="flex items-center gap-1.5 text-yellow-600">
-              <span className="w-3 h-3 rounded-sm bg-yellow-50 ring-1 ring-yellow-200 inline-block" />
-              Scorta bassa (&le;5)
-            </span>
-            <span className="flex items-center gap-1.5 text-danger">
-              <span className="w-3 h-3 rounded-sm bg-red-50 ring-1 ring-red-200 inline-block" />
-              Esaurito (&le;0)
-            </span>
+            </button>
           </div>
 
           {tableLoading ? (
-            <div className="flex items-center justify-center py-16 text-foreground/40">
-              <div className="w-8 h-8 border-4 border-brand/20 border-t-brand rounded-full animate-spin mr-3" />
-              Caricamento magazzino...
-            </div>
+             <div className="flex items-center justify-center py-20 text-white/40">
+               <div className="w-8 h-8 border-4 border-[#7BB35F]/20 border-t-[#7BB35F] rounded-full animate-spin mr-3" />
+               Caricamento magazzino...
+             </div>
+          ) : sortedInventory.length === 0 ? (
+             <div className="flex flex-col items-center justify-center py-24 text-center">
+                <div className="relative mb-8">
+                   <div className="absolute inset-0 bg-[#7BB35F] blur-[60px] opacity-10 rounded-full animate-pulse" />
+                   <svg width="140" height="140" viewBox="0 0 200 200" fill="none" className="relative z-10 drop-shadow-[0_0_20px_rgba(123,179,95,0.4)]">
+                      <path d="M40 90 L100 50 L160 90 L160 160 L40 160 Z" stroke="#7BB35F" strokeWidth="2.5" fill="rgba(123,179,95,0.03)" strokeLinejoin="round" />
+                      <path d="M40 90 L100 50 L160 90" stroke="#7BB35F" strokeWidth="2.5" strokeLinejoin="round" />
+                      <path d="M80 160 L80 110 L120 110 L120 160" stroke="#7BB35F" strokeWidth="2.5" fill="none" />
+                      <path d="M80 120 L120 120 M80 130 L120 130 M80 140 L120 140 M80 150 L120 150" stroke="#7BB35F" strokeWidth="1.5" />
+                      <path d="M125 150 L145 140 L165 150 L165 170 L145 180 L125 170 Z" stroke="#fff" strokeWidth="1.5" fill="rgba(255,255,255,0.05)" strokeLinejoin="round"/>
+                      <path d="M145 140 L145 180 M125 150 L145 160 L165 150" stroke="#fff" strokeWidth="1.5" />
+                      <path d="M50 140 L65 132 L80 140 L80 155 L65 163 L50 155 Z" stroke="#fff" strokeWidth="1.5" fill="rgba(255,255,255,0.05)" strokeLinejoin="round"/>
+                      <path d="M65 132 L65 163 M50 140 L65 148 L80 140" stroke="#fff" strokeWidth="1.5" />
+                   </svg>
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">Il magazzino è vuoto.</h3>
+                <p className="text-white/40 text-sm max-w-sm mx-auto">Scansiona un barcode per aggiungere il primo articolo al tuo inventario.</p>
+             </div>
           ) : (
-            <Table
-              columns={columns}
-              data={sortedInventory}
-              emptyMessage={
-                searchQuery
-                  ? `Nessun articolo trovato per "${searchQuery}"`
-                  : 'Il magazzino è vuoto. Scansiona un barcode per aggiungere il primo articolo.'
-              }
-            />
+             <div className="overflow-x-auto rounded-xl border border-white/5 bg-black/10">
+               <Table columns={columns} data={sortedInventory} />
+             </div>
           )}
         </div>
       </div>
