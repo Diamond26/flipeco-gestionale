@@ -2,8 +2,8 @@
 
 import {
   ResponsiveContainer,
-  LineChart,
-  Line,
+  AreaChart,
+  Area,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -54,7 +54,13 @@ export function RevenueChart({ data, loading }: RevenueChartProps) {
   return (
     <div className="h-[280px] w-full">
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={data} margin={{ top: 8, right: 8, left: -10, bottom: 0 }}>
+        <AreaChart data={data} margin={{ top: 8, right: 8, left: -10, bottom: 0 }}>
+          <defs>
+            <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#7BB35F" stopOpacity={0.35} />
+              <stop offset="100%" stopColor="#7BB35F" stopOpacity={0.02} />
+            </linearGradient>
+          </defs>
           <CartesianGrid strokeDasharray="3 3" stroke={c.grid} strokeOpacity={0.5} vertical={false} />
           <XAxis
             dataKey="date"
@@ -69,15 +75,16 @@ export function RevenueChart({ data, loading }: RevenueChartProps) {
             tickFormatter={(v) => `€${v}`}
           />
           <Tooltip content={<CustomTooltip />} />
-          <Line
+          <Area
             type="monotone"
             dataKey="total"
             stroke="#7BB35F"
             strokeWidth={2.5}
+            fill="url(#revenueGradient)"
             dot={{ r: 4, fill: '#7BB35F', strokeWidth: 2, stroke: c.dotStroke }}
             activeDot={{ r: 6, fill: '#7BB35F', strokeWidth: 2, stroke: c.dotStroke }}
           />
-        </LineChart>
+        </AreaChart>
       </ResponsiveContainer>
     </div>
   )

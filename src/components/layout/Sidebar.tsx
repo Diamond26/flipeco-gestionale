@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
@@ -12,19 +11,44 @@ import {
   Truck,
   CreditCard,
   LogOut,
-  Menu,
   X,
-  History,
+  ChevronDown,
 } from 'lucide-react'
+import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
 
-const navItems = [
+interface NavItem {
+  label: string
+  icon: React.ElementType
+  href?: string
+  children?: { label: string; href: string }[]
+}
+
+const navItems: NavItem[] = [
   { label: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
-  { label: 'Import Fornitori', icon: Upload, href: '/import' },
-  { label: 'Storico Importazioni', icon: History, href: '/import-history' },
-  { label: 'Magazzino', icon: Package, href: '/inventory' },
-  { label: 'Ordini Clienti', icon: ShoppingBag, href: '/customer-orders' },
+  {
+    label: 'Import Fornitori',
+    icon: Upload,
+    children: [
+      { label: 'Importa', href: '/import' },
+      { label: 'Storico Importazioni', href: '/import-history' },
+    ],
+  },
+  {
+    label: 'Magazzino',
+    icon: Package,
+    children: [
+      { label: 'Inventario', href: '/inventory' },
+    ],
+  },
+  {
+    label: 'Ordini Clienti',
+    icon: ShoppingBag,
+    children: [
+      { label: 'Lista Ordini', href: '/customer-orders' },
+    ],
+  },
   { label: 'Ordini Acquisto', icon: Truck, href: '/purchase-orders' },
   { label: 'Cassa / POS', icon: CreditCard, href: '/pos' },
 ]
@@ -38,10 +62,31 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClient()
+  const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({})
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
     router.push('/login')
+  }
+
+  const toggleMenu = (label: string) => {
+    setOpenMenus((prev) => ({ ...prev, [label]: !prev[label] }))
+  }
+
+  const isItemActive = (item: NavItem): boolean => {
+    if (item.href) {
+      return pathname === item.href || pathname.startsWith(item.href + '/')
+    }
+    if (item.children) {
+      return item.children.some((c) => pathname === c.href || pathname.startsWith(c.href + '/'))
+    }
+    return false
+  }
+
+  // Auto-open menus with active children
+  const getIsOpen = (item: NavItem): boolean => {
+    if (openMenus[item.label] !== undefined) return openMenus[item.label]
+    return isItemActive(item)
   }
 
   return (
@@ -58,14 +103,21 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
       {/* Sidebar panel */}
       <aside
         className={cn(
-          'fixed top-0 left-0 z-30 flex h-full w-64 flex-col glass-dark transition-transform duration-300 ease-in-out',
+          'fixed top-0 left-0 z-30 flex h-full w-[260px] flex-col bg-[#0c1222] transition-transform duration-300 ease-in-out',
           mobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         )}
         aria-label="Navigazione principale"
       >
-        {/* Header: Brand name */}
-        <div className="flex items-center justify-center px-4 py-6 border-b border-white/[0.06] relative">
-          <span className="text-white font-bold text-3xl tracking-wide">
+        {/* Header: Logo + Brand */}
+        <div className="flex items-center gap-3 px-6 py-7 relative">
+          <Image
+            src="/logo.png"
+            alt="Flip&Co Logo"
+            width={40}
+            height={40}
+            className="rounded-lg"
+          />
+          <span className="text-white font-bold text-2xl tracking-tight">
             Flip<span className="text-brand-light">&amp;</span>Co
           </span>
 
@@ -80,35 +132,90 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto px-3 py-5 space-y-1" aria-label="Menu principale">
-          {navItems.map(({ label, icon: Icon, href }) => {
-            const isActive = pathname === href || pathname.startsWith(href + '/')
+        <nav className="flex-1 overflow-y-auto px-3 py-2 space-y-0.5" aria-label="Menu principale">
+          {navItems.map((item) => {
+            const isActive = isItemActive(item)
+            const hasChildren = !!item.children
+            const isOpen = hasChildren && getIsOpen(item)
+
+            if (hasChildren) {
+              return (
+                <div key={item.label}>
+                  <button
+                    onClick={() => toggleMenu(item.label)}
+                    className={cn(
+                      'group flex w-full items-center gap-3 rounded-xl py-2.5 px-4 text-[15px] font-medium relative',
+                      isActive
+                        ? 'bg-brand/15 text-white'
+                        : 'text-white/55 hover:bg-white/[0.05] hover:text-white/85'
+                    )}
+                  >
+                    {isActive && (
+                      <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-6 rounded-r-full bg-brand" />
+                    )}
+                    <item.icon
+                      size={20}
+                      className={cn('shrink-0', isActive ? 'text-brand' : 'text-white/35 group-hover:text-white/65')}
+                      aria-hidden="true"
+                    />
+                    <span className="flex-1 text-left">{item.label}</span>
+                    <ChevronDown
+                      size={16}
+                      className={cn(
+                        'shrink-0 transition-transform duration-200',
+                        isOpen ? 'rotate-180' : '',
+                        isActive ? 'text-white/60' : 'text-white/30'
+                      )}
+                    />
+                  </button>
+                  {isOpen && (
+                    <div className="ml-7 pl-4 border-l border-white/[0.08] mt-1 mb-1 space-y-0.5">
+                      {item.children!.map((child) => {
+                        const childActive = pathname === child.href || pathname.startsWith(child.href + '/')
+                        return (
+                          <Link
+                            key={child.href}
+                            href={child.href}
+                            onClick={onMobileClose}
+                            className={cn(
+                              'block rounded-lg py-2 px-3 text-sm font-medium',
+                              childActive
+                                ? 'text-brand bg-brand/10'
+                                : 'text-white/45 hover:text-white/75 hover:bg-white/[0.04]'
+                            )}
+                          >
+                            {child.label}
+                          </Link>
+                        )
+                      })}
+                    </div>
+                  )}
+                </div>
+              )
+            }
+
             return (
               <Link
-                key={href}
-                href={href}
+                key={item.href}
+                href={item.href!}
                 onClick={onMobileClose}
                 className={cn(
-                  'group flex items-center gap-3 rounded-xl py-3 px-4 text-[15px] font-medium relative overflow-hidden',
+                  'group flex items-center gap-3 rounded-xl py-2.5 px-4 text-[15px] font-medium relative',
                   isActive
-                    ? 'bg-brand/20 text-white'
-                    : 'text-white/60 hover:bg-white/[0.06] hover:text-white/90'
+                    ? 'bg-brand/15 text-white'
+                    : 'text-white/55 hover:bg-white/[0.05] hover:text-white/85'
                 )}
                 aria-current={isActive ? 'page' : undefined}
               >
-                {/* Active indicator bar */}
                 {isActive && (
-                  <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-7 rounded-r-full bg-brand-light" />
+                  <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-6 rounded-r-full bg-brand" />
                 )}
-                <Icon
+                <item.icon
                   size={20}
-                  className={cn(
-                    'shrink-0',
-                    isActive ? 'text-brand-light' : 'text-white/40 group-hover:text-white/70'
-                  )}
+                  className={cn('shrink-0', isActive ? 'text-brand' : 'text-white/35 group-hover:text-white/65')}
                   aria-hidden="true"
                 />
-                <span>{label}</span>
+                <span>{item.label}</span>
               </Link>
             )
           })}
@@ -118,9 +225,9 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
         <div className="px-3 py-4 border-t border-white/[0.06]">
           <button
             onClick={handleLogout}
-            className="group flex w-full items-center gap-3 rounded-xl py-3 px-4 text-[15px] font-medium text-white/50 hover:bg-white/[0.06] hover:text-white/80"
+            className="group flex w-full items-center gap-3 rounded-xl py-2.5 px-4 text-[15px] font-medium text-white/45 hover:bg-white/[0.05] hover:text-white/75"
           >
-            <LogOut size={20} className="text-white/30 group-hover:text-white/60" aria-hidden="true" />
+            <LogOut size={20} className="text-white/30 group-hover:text-white/55" aria-hidden="true" />
             <span>Esci</span>
           </button>
         </div>

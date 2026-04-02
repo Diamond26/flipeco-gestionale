@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
-import { Package, Archive, CreditCard, ShoppingBag, Calendar } from 'lucide-react'
+import { Package, Archive, CreditCard, ShoppingBag, Calendar, CheckCircle2, Clock } from 'lucide-react'
 import AppShell from '@/components/layout/AppShell'
 import { Card } from '@/components/ui/Card'
 import { RevenueChart } from '@/components/charts/RevenueChart'
@@ -26,6 +26,7 @@ interface RecentSale {
   created_at: string
   payment_method: string | null
   total: number
+  customer_orders?: { customer_name?: string; status?: string } | null
 }
 
 interface RevenueDataPoint {
@@ -41,14 +42,14 @@ interface TopProduct {
 type TimePeriod = '7d' | '30d'
 
 // ---------------------------------------------------------------------------
-// Stat card component
+// Stat card component — circular colored icon style
 // ---------------------------------------------------------------------------
 
-const STAT_COLORS = [
-  { bg: 'bg-brand/10', icon: 'text-brand', ring: 'ring-brand/20' },
-  { bg: 'bg-blue-500/10', icon: 'text-blue-500', ring: 'ring-blue-500/20' },
-  { bg: 'bg-violet-500/10', icon: 'text-violet-500', ring: 'ring-violet-500/20' },
-  { bg: 'bg-amber-500/10', icon: 'text-amber-500', ring: 'ring-amber-500/20' },
+const STAT_STYLES = [
+  { bg: 'bg-blue-100 dark:bg-blue-500/20', icon: 'text-blue-500' },
+  { bg: 'bg-emerald-100 dark:bg-emerald-500/20', icon: 'text-emerald-500' },
+  { bg: 'bg-violet-100 dark:bg-violet-500/20', icon: 'text-violet-500' },
+  { bg: 'bg-orange-100 dark:bg-orange-500/20', icon: 'text-orange-500' },
 ]
 
 interface StatCardProps {
@@ -61,21 +62,21 @@ interface StatCardProps {
 }
 
 function StatCard({ label, value, icon: Icon, loading = false, colorIndex, animDelay }: StatCardProps) {
-  const color = STAT_COLORS[colorIndex % STAT_COLORS.length]
+  const style = STAT_STYLES[colorIndex % STAT_STYLES.length]
   return (
     <div
-      className="bg-card/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 dark:border-white/[0.06] p-6 flex items-center gap-5 animate-fade-in"
+      className="bg-card rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 dark:border-white/[0.06] p-5 flex items-center gap-4 animate-fade-in"
       style={{ animationDelay: animDelay }}
     >
-      <div className={cn('flex items-center justify-center h-14 w-14 rounded-2xl ring-1 shrink-0', color.bg, color.ring)}>
-        <Icon size={26} className={color.icon} aria-hidden="true" />
+      <div className={cn('flex items-center justify-center h-14 w-14 rounded-full shrink-0', style.bg)}>
+        <Icon size={26} className={style.icon} aria-hidden="true" />
       </div>
       <div className="min-w-0">
-        <p className="text-sm text-foreground/50 font-medium truncate">{label}</p>
+        <p className="text-xs text-foreground/45 font-medium truncate uppercase tracking-wide">{label}</p>
         {loading ? (
-          <div className="mt-1.5 h-8 w-24 skeleton-shimmer" />
+          <div className="mt-1.5 h-9 w-20 skeleton-shimmer" />
         ) : (
-          <p className="text-3xl font-bold text-foreground leading-none mt-1">{value}</p>
+          <p className="text-3xl font-extrabold text-foreground leading-none mt-1">{value}</p>
         )}
       </div>
     </div>
@@ -83,29 +84,22 @@ function StatCard({ label, value, icon: Icon, loading = false, colorIndex, animD
 }
 
 // ---------------------------------------------------------------------------
-// Payment method badge
+// Status badge for sales
 // ---------------------------------------------------------------------------
 
-const PAYMENT_LABELS: Record<string, string> = {
-  cash: 'Contanti',
-  card: 'Carta',
-  transfer: 'Bonifico',
-  mixed: 'Misto',
-}
-
-const PAYMENT_COLORS: Record<string, string> = {
-  cash: 'bg-emerald-50 text-emerald-600 ring-1 ring-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-400 dark:ring-emerald-500/30',
-  card: 'bg-blue-50 text-blue-600 ring-1 ring-blue-200 dark:bg-blue-500/15 dark:text-blue-400 dark:ring-blue-500/30',
-  transfer: 'bg-violet-50 text-violet-600 ring-1 ring-violet-200 dark:bg-violet-500/15 dark:text-violet-400 dark:ring-violet-500/30',
-  mixed: 'bg-amber-50 text-amber-600 ring-1 ring-amber-200 dark:bg-amber-500/15 dark:text-amber-400 dark:ring-amber-500/30',
-}
-
-function PaymentBadge({ method }: { method: string | null }) {
-  const label = method ? (PAYMENT_LABELS[method] ?? method) : '—'
-  const color = method ? (PAYMENT_COLORS[method] ?? 'bg-surface-light text-foreground/60') : 'bg-surface-light text-foreground/40'
+function StatusBadge({ status }: { status?: string | null }) {
+  if (status === 'completed' || status === 'paid') {
+    return (
+      <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/15 px-3 py-1 rounded-full">
+        Completato
+        <CheckCircle2 size={14} />
+      </span>
+    )
+  }
   return (
-    <span className={cn('inline-block rounded-full px-3 py-0.5 text-xs font-semibold', color)}>
-      {label}
+    <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-500/15 px-3 py-1 rounded-full">
+      In attesa
+      <Clock size={14} />
     </span>
   )
 }
@@ -179,7 +173,7 @@ export default function DashboardPage() {
   const [stockTotal, setStockTotal] = useState(0)
   const [stockCritical, setStockCritical] = useState(0)
 
-  // --- Fetch base stats (unchanged) ---
+  // --- Fetch base stats ---
   useEffect(() => {
     async function fetchDashboardData() {
       try {
@@ -253,20 +247,15 @@ export default function DashboardPage() {
       const since = getDateNDaysAgo(days)
 
       const [salesRes, saleItemsRes, inventoryRes] = await Promise.all([
-        // All sales in the period for revenue chart
         supabase
           .from('sales')
           .select('total, created_at')
           .gte('created_at', since.toISOString())
           .order('created_at', { ascending: true }),
-
-        // Sale items with product name for top products
         supabase
           .from('sale_items')
           .select('quantity, sale_id, product_id, sales!inner(created_at), product_registry!inner(name)')
           .gte('sales.created_at', since.toISOString()),
-
-        // Inventory for stock alert
         supabase
           .from('inventory')
           .select('quantity'),
@@ -274,7 +263,6 @@ export default function DashboardPage() {
 
       // --- Revenue by day ---
       const revenueMap = new Map<string, number>()
-      // Pre-fill all days so chart has no gaps
       for (let i = days - 1; i >= 0; i--) {
         const d = new Date()
         d.setDate(d.getDate() - i)
@@ -423,8 +411,9 @@ export default function DashboardPage() {
                 <thead>
                   <tr className="border-b border-surface/30 text-left text-xs uppercase tracking-wider text-foreground/40 font-semibold">
                     <th className="py-3 px-3 whitespace-nowrap">Data</th>
-                    <th className="py-3 px-3 whitespace-nowrap">Metodo Pagamento</th>
+                    <th className="py-3 px-3 whitespace-nowrap">Cliente</th>
                     <th className="py-3 px-3 text-right whitespace-nowrap">Totale</th>
+                    <th className="py-3 px-3 text-right whitespace-nowrap">Stato</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -440,11 +429,14 @@ export default function DashboardPage() {
                       <td className="py-3.5 px-3 text-foreground/70 whitespace-nowrap">
                         {formatDate(sale.created_at)}
                       </td>
-                      <td className="py-3.5 px-3">
-                        <PaymentBadge method={sale.payment_method} />
+                      <td className="py-3.5 px-3 text-foreground font-medium whitespace-nowrap">
+                        {sale.customer_orders?.customer_name || 'Cliente'}
                       </td>
                       <td className="py-3.5 px-3 text-right font-bold text-foreground whitespace-nowrap">
                         {formatCurrency(sale.total)}
+                      </td>
+                      <td className="py-3.5 px-3 text-right">
+                        <StatusBadge status={sale.payment_method ? 'completed' : 'pending'} />
                       </td>
                     </tr>
                   ))}
