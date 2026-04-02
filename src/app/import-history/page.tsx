@@ -445,170 +445,163 @@ export default function ImportHistoryPage() {
         ))}
       </div>
 
-      <div className="max-w-7xl mx-auto space-y-6 animate-fade-in">
+      <div className="max-w-6xl mx-auto space-y-12 animate-fade-in pt-4 relative">
+        {/* Background ambient glow */}
+        <div className="absolute top-0 left-1/4 w-[600px] h-[300px] bg-[#7BB35F]/5 blur-[120px] pointer-events-none rounded-[100%] z-[-1]" />
+        
         {/* ---- Header ---- */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div>
-            <h1 className="text-3xl font-bold flex items-center gap-3 text-foreground">
-              <History className="w-8 h-8 text-brand" />
-              Storico Importazioni
-            </h1>
-            <p className="text-foreground/60 mt-1">
-              Controlla, modifica o elimina i caricamenti dai fornitori.
-            </p>
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+          <div className="flex items-center gap-5">
+            <div className="w-16 h-16 rounded-2xl flex items-center justify-center bg-surface/50 dark:bg-[#7BB35F]/10 border border-surface dark:border-[#7BB35F]/20 shadow-[0_0_25px_rgba(123,179,95,0.15)] text-[#7BB35F] shrink-0">
+              <History className="w-8 h-8" strokeWidth={2.5} />
+            </div>
+            <div>
+              <h1 className="text-[28px] font-bold text-foreground tracking-tight drop-shadow-sm mb-1">
+                Storico Importazioni
+              </h1>
+              <p className="text-foreground/50 text-[15px]">
+                Controlla, modifica o elimina i caricamenti dai fornitori.
+              </p>
+            </div>
           </div>
 
           {/* Search */}
-          <div className="relative w-full md:w-80">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/40 pointer-events-none" />
+          <div className="relative w-full md:w-[350px]">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/40 pointer-events-none" />
             <input
               type="text"
               placeholder="Cerca per file o fornitore..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className={cn(
-                'w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border border-surface/80 bg-card shadow-sm',
-                'focus:outline-none focus:border-brand focus:ring-4 focus:ring-brand/15 focus:shadow-md',
-                'placeholder:text-gray-400 transition-all duration-200'
-              )}
+              className="w-full pl-11 pr-5 py-3.5 text-[14px] rounded-full border border-surface dark:border-white/10 bg-surface/50 dark:bg-white/[0.03] text-foreground placeholder:text-foreground/40 focus:outline-none focus:ring-2 focus:ring-[#7BB35F]/50 focus:border-[#7BB35F]/50 transition-all shadow-inner backdrop-blur-md"
             />
           </div>
         </div>
 
-        {/* ---- Table ---- */}
-        <div className="bg-card/80 backdrop-blur-sm rounded-2xl shadow-sm shadow-black/[0.04] border border-white/60 dark:border-white/[0.06] overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm text-left">
+        {/* ---- Table Premium Glass ---- */}
+        <div className="bg-surface/50 dark:bg-white/[0.03] backdrop-blur-2xl rounded-3xl border border-surface dark:border-white/10 p-2 sm:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.15)] relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-full h-[150px] bg-gradient-to-b from-white/[0.02] to-transparent pointer-events-none" />
+          
+          <div className="overflow-x-auto relative z-10">
+            <table className="w-full text-[13px] text-left border-collapse">
               <thead>
-                <tr className="border-b border-surface/30">
-                  <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-foreground/50">Data</th>
-                  <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-foreground/50">Fornitore</th>
-                  <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-foreground/50">File</th>
-                  <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-foreground/50">Brand</th>
-                  <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-foreground/50 text-center">Articoli</th>
-                  <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-foreground/50 text-center">Stato</th>
-                  <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-foreground/50 text-right">Azioni</th>
+                <tr>
+                  <th className="px-4 pb-4 text-[11px] font-bold uppercase tracking-widest text-foreground/40 border-b border-surface dark:border-white/5 whitespace-nowrap">Data</th>
+                  <th className="px-4 pb-4 text-[11px] font-bold uppercase tracking-widest text-foreground/40 border-b border-surface dark:border-white/5 whitespace-nowrap">Fornitore</th>
+                  <th className="px-4 pb-4 text-[11px] font-bold uppercase tracking-widest text-foreground/40 border-b border-surface dark:border-white/5 w-[35%]">File</th>
+                  <th className="px-4 pb-4 text-[11px] font-bold uppercase tracking-widest text-foreground/40 border-b border-surface dark:border-white/5 whitespace-nowrap">Brand</th>
+                  <th className="px-4 pb-4 text-[11px] font-bold uppercase tracking-widest text-foreground/40 border-b border-surface dark:border-white/5 whitespace-nowrap text-center">Articoli</th>
+                  <th className="px-4 pb-4 text-[11px] font-bold uppercase tracking-widest text-foreground/40 border-b border-surface dark:border-white/5 whitespace-nowrap text-center">Stato</th>
+                  <th className="px-4 pb-4 text-[11px] font-bold uppercase tracking-widest text-foreground/40 border-b border-surface dark:border-white/5 whitespace-nowrap text-right">Azioni</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-surface dark:divide-white/5">
                 {loading ? (
                   <tr>
-                    <td colSpan={7} className="py-16 text-center text-foreground/40 text-base">
-                      <span className="inline-block animate-spin w-5 h-5 border-2 border-t-brand border-brand/20 rounded-full mr-3 align-middle" />
+                    <td colSpan={7} className="py-20 text-center text-foreground/40 text-[15px]">
+                      <span className="inline-block animate-spin w-5 h-5 border-2 border-t-[#7BB35F] border-[#7BB35F]/20 rounded-full mr-3 align-middle" />
                       Caricamento storico...
                     </td>
                   </tr>
                 ) : filtered.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="py-16 text-center text-foreground/40 text-base font-medium">
+                    <td colSpan={7} className="py-20 text-center text-foreground/40 text-[15px] font-medium tracking-wide">
                       {searchQuery ? 'Nessun risultato per la ricerca.' : 'Nessuna importazione trovata.'}
                     </td>
                   </tr>
                 ) : (
-                  filtered.map((log, index) => (
-                    <tr key={log.id} className={cn('hover:bg-brand/[0.03] transition-colors', index !== filtered.length - 1 && 'border-b border-surface/20')}>
-                      <td className="px-5 py-3.5 whitespace-nowrap font-mono text-xs">
+                  filtered.map((log) => (
+                    <tr key={log.id} className="hover:bg-surface/50 dark:hover:bg-white/[0.02] transition-all group">
+                      <td className="px-4 py-5 whitespace-nowrap text-foreground/60 font-medium">
                         {new Date(log.created_at).toLocaleString('it-IT', {
                           day: '2-digit', month: '2-digit', year: 'numeric',
                           hour: '2-digit', minute: '2-digit',
                         })}
                       </td>
-                      <td className="px-5 py-3.5 font-semibold text-brand">
-                        {log.suppliers?.name ?? <span className="text-foreground/30 italic">N/D</span>}
+                      <td className="px-4 py-5 font-bold text-[#7BB35F]">
+                        {log.suppliers?.name ?? <span className="text-foreground/30 italic font-medium">N/D</span>}
                       </td>
-                      <td className="px-5 py-3.5 text-foreground/80 break-all max-w-[220px]">
+                      <td className="px-4 py-5 text-foreground/90 font-medium break-all pr-8 leading-snug">
                         {log.filename}
                       </td>
-                      <td className="px-5 py-3.5">
+                      <td className="px-4 py-5 whitespace-nowrap">
                         {log.brand ? (
                           <button
                             onClick={() => openBrandModal(log)}
-                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-brand/10 text-brand font-semibold text-xs hover:bg-brand/20 transition-colors cursor-pointer"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#7BB35F]/30 bg-[#7BB35F]/10 text-[#7BB35F] shadow-[0_0_15px_rgba(123,179,95,0.15)] font-semibold text-[12px] hover:bg-[#7BB35F]/20 transition-all cursor-pointer"
                             title="Modifica Brand"
                           >
-                            <Tag className="w-3 h-3" />
+                            <Tag className="w-3.5 h-3.5" />
                             {log.brand}
                           </button>
                         ) : (
                           <button
                             onClick={() => openBrandModal(log)}
-                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-dashed border-foreground/20 text-foreground/40 text-xs hover:border-brand hover:text-brand transition-colors cursor-pointer"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-surface dark:border-white/10 bg-surface/50 dark:bg-white/5 text-foreground/40 font-semibold text-[12px] hover:border-[#7BB35F]/40 hover:text-[#7BB35F] hover:bg-[#7BB35F]/10 transition-all cursor-pointer"
                             title="Assegna Brand"
                           >
-                            <Tag className="w-3 h-3" />
+                            <Tag className="w-3.5 h-3.5" />
                             Assegna
                           </button>
                         )}
                       </td>
-                      <td className="px-5 py-3.5 text-center">
-                        <span className="inline-flex items-center justify-center min-w-[28px] px-2 py-0.5 rounded-full bg-brand/10 text-brand font-bold text-xs">
+                      <td className="px-4 py-5 text-center whitespace-nowrap">
+                        <span className="inline-flex items-center justify-center min-w-[34px] px-2.5 py-1 rounded-full border border-[#7BB35F]/20 bg-[#7BB35F]/10 text-[#7BB35F] shadow-[0_0_15px_rgba(123,179,95,0.15)] font-bold text-[12px]">
                           {log.items_count}
                         </span>
                       </td>
-                      <td className="px-5 py-3.5 text-center">
-                        <span
-                          className={cn(
-                            'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold',
-                            log.status === 'success'
-                              ? 'bg-success/15 text-success'
-                              : 'bg-danger/15 text-danger'
-                          )}
-                        >
-                          {log.status === 'success' ? 'OK' : 'Errore'}
-                        </span>
+                      <td className="px-4 py-5 text-center whitespace-nowrap">
+                        {log.status === 'success' ? (
+                          <span className="inline-block text-[#7BB35F] font-extrabold text-[12px] tracking-wide bg-[#7BB35F]/10 px-2.5 py-1 rounded-full border border-[#7BB35F]/20">OK</span>
+                        ) : (
+                          <span className="inline-block text-red-400 font-extrabold text-[12px] tracking-wide bg-red-400/10 px-2.5 py-1 rounded-full border border-red-400/20">ERR</span>
+                        )}
                       </td>
-                      <td className="px-5 py-3.5">
-                        <div className="flex items-center justify-end gap-1.5">
+                      <td className="px-4 py-5 whitespace-nowrap">
+                        <div className="flex items-center justify-end gap-2 pr-2 opacity-60 group-hover:opacity-100 transition-opacity">
+                          
                           <button
-                            title="Assegna Brand"
-                            onClick={() => openBrandModal(log)}
-                            className={cn(
-                              'p-2 rounded-lg transition-colors',
-                              log.brand
-                                ? 'text-brand hover:bg-brand/10'
-                                : 'text-foreground/40 hover:bg-surface-light hover:text-foreground'
-                            )}
+                            title="Esporta PDF"
+                            onClick={() => handleExportPdf(log)}
+                            className="p-2 rounded-lg text-[#7BB35F] hover:bg-[#7BB35F]/10 hover:text-[#8CE36B] transition-colors"
                           >
-                            <Tag className="w-4 h-4" />
+                            <FileDown className="w-4 h-4" />
                           </button>
+                          
                           <button
                             title="Sposta tutti in Magazzino"
                             onClick={() => setPendingMoveAllId(log.id)}
                             disabled={movingAll === log.id}
-                            className="p-2 rounded-lg text-success hover:bg-success/10 transition-colors disabled:opacity-40"
+                            className="p-2 rounded-lg text-[#7BB35F] hover:bg-[#7BB35F]/10 hover:text-[#8CE36B] transition-colors disabled:opacity-40"
                           >
                             {movingAll === log.id ? (
-                              <span className="inline-block w-4 h-4 animate-spin border-2 border-t-success border-success/20 rounded-full" />
+                              <span className="inline-block w-4 h-4 animate-spin border-2 border-t-[#7BB35F] border-[#7BB35F]/20 rounded-full" />
                             ) : (
                               <PackagePlus className="w-4 h-4" />
                             )}
                           </button>
-                          <button
-                            title="Esporta PDF"
-                            onClick={() => handleExportPdf(log)}
-                            className="p-2 rounded-lg text-foreground/40 hover:bg-surface-light hover:text-foreground transition-colors"
-                          >
-                            <FileDown className="w-4 h-4" />
-                          </button>
+                          
                           <button
                             title="Vedi e Modifica Prodotti"
                             onClick={() => openProducts(log)}
-                            className="p-2 rounded-lg text-brand hover:bg-brand/10 transition-colors"
+                            className="p-2 rounded-lg text-[#7BB35F] hover:bg-[#7BB35F]/10 hover:text-[#8CE36B] transition-colors"
                           >
                             <Eye className="w-4 h-4" />
                           </button>
+                          
                           <button
                             title="Elimina Import"
                             onClick={() => setPendingDeleteId(log.id)}
                             disabled={deleteLoading === log.id}
-                            className="p-2 rounded-lg text-danger hover:bg-danger/10 transition-colors disabled:opacity-40"
+                            className="p-2 rounded-lg text-red-500 hover:text-red-400 border border-transparent hover:border-red-500/20 hover:bg-red-500/10 transition-all hover:shadow-[0_0_15px_rgba(239,68,68,0.15)] disabled:opacity-40 ml-1"
                           >
                             {deleteLoading === log.id ? (
-                              <span className="inline-block w-4 h-4 animate-spin border-2 border-t-danger border-danger/20 rounded-full" />
+                              <span className="inline-block w-4 h-4 animate-spin border-2 border-t-red-500 border-red-500/20 rounded-full" />
                             ) : (
                               <Trash2 className="w-4 h-4" />
                             )}
                           </button>
+                          
                         </div>
                       </td>
                     </tr>
