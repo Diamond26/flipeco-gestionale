@@ -13,8 +13,6 @@ import {
   Scan,
   ShoppingCart,
   X,
-  Plus,
-  Minus,
   Banknote,
   CreditCard,
   CheckCircle2,
@@ -24,7 +22,6 @@ import {
   ChevronRight,
   ChevronDown,
   ChevronUp,
-  Trash2,
   ReceiptText,
   Clock,
   RotateCcw,
@@ -927,44 +924,43 @@ export default function POSPage() {
       </div>
 
       <div className={cn('max-w-[1500px] mx-auto space-y-8 animate-fade-in pos-theme-root pb-20 relative')}>
-        <div className="absolute top-0 right-1/2 translate-x-1/2 w-[800px] h-[300px] bg-[#7BB35F]/5 blur-[120px] pointer-events-none rounded-[100%] z-[-1]" />
+        <div className="absolute top-0 right-1/2 translate-x-1/2 w-[800px] h-[300px] bg-brand/[0.03] dark:bg-brand/5 blur-[120px] pointer-events-none rounded-[100%] z-[-1]" />
 
         {isReceivingScan && (
-          <div className="fixed bottom-6 right-6 z-[100] flex items-center gap-3 bg-[#7BB35F] text-white px-5 py-3 rounded-full shadow-[0_0_20px_rgba(123,179,95,0.4)] animate-pulse">
+          <div className="fixed bottom-6 right-6 z-[100] flex items-center gap-3 bg-brand text-white px-5 py-3 rounded-full shadow-lg shadow-brand/30 animate-pulse">
             <Scan className="w-6 h-6" />
             <span className="font-bold tracking-wide">Scanner in ascolto...</span>
           </div>
         )}
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-surface/50 dark:bg-white/[0.03] backdrop-blur-2xl rounded-2xl border border-surface dark:border-white/10 p-5 shadow-[0_8px_30px_rgb(0,0,0,0.1)] flex items-center justify-between">
+          <div className="bg-card rounded-2xl border border-black/[0.04] dark:border-white/[0.06] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] flex items-center justify-between">
             <div>
               <p className="text-[11px] font-bold uppercase tracking-wider text-foreground/40 mb-1">Disponibili</p>
               <p className="text-2xl font-extrabold text-foreground">{products.length}</p>
             </div>
-            <div className="w-12 h-12 rounded-full bg-surface dark:bg-white/5 flex items-center justify-center"><Search className="w-5 h-5 text-foreground/40" /></div>
+            <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-500/20 flex items-center justify-center"><Search className="w-5 h-5 text-blue-500" /></div>
           </div>
-          <div className="bg-surface/50 dark:bg-white/[0.03] backdrop-blur-2xl rounded-2xl border border-surface dark:border-white/10 p-5 shadow-[0_8px_30px_rgb(0,0,0,0.1)] flex items-center justify-between">
+          <div className="bg-card rounded-2xl border border-black/[0.04] dark:border-white/[0.06] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] flex items-center justify-between">
             <div>
               <p className="text-[11px] font-bold uppercase tracking-wider text-foreground/40 mb-1">Transazioni Oggi</p>
               <p className="text-2xl font-extrabold text-foreground">{todaySales.length}</p>
             </div>
-            <div className="w-12 h-12 rounded-full bg-surface dark:bg-white/5 flex items-center justify-center"><ReceiptText className="w-5 h-5 text-foreground/40" /></div>
+            <div className="w-12 h-12 rounded-full bg-violet-100 dark:bg-violet-500/20 flex items-center justify-center"><ReceiptText className="w-5 h-5 text-violet-500" /></div>
           </div>
-          <div className="bg-surface/50 dark:bg-white/[0.03] backdrop-blur-2xl rounded-2xl border border-surface dark:border-white/10 p-5 shadow-[0_8px_30px_rgb(0,0,0,0.1)] flex items-center justify-between">
+          <div className="bg-card rounded-2xl border border-black/[0.04] dark:border-white/[0.06] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] flex items-center justify-between">
             <div>
               <p className="text-[11px] font-bold uppercase tracking-wider text-foreground/40 mb-1">Articoli Venduti</p>
               <p className="text-2xl font-extrabold text-foreground">{soldItemsCount}</p>
             </div>
-             <div className="w-12 h-12 rounded-full bg-surface dark:bg-white/5 flex items-center justify-center"><ShoppingCart className="w-5 h-5 text-foreground/40" /></div>
+            <div className="w-12 h-12 rounded-full bg-orange-100 dark:bg-orange-500/20 flex items-center justify-center"><ShoppingCart className="w-5 h-5 text-orange-500" /></div>
           </div>
-          <div className="bg-[#7BB35F]/5 dark:bg-[#7BB35F]/[0.05] backdrop-blur-2xl rounded-2xl border border-[#7BB35F]/20 p-5 shadow-[0_0_30px_rgba(123,179,95,0.1)] flex items-center justify-between relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-[#7BB35F]/10 blur-3xl rounded-full" />
-            <div className="relative z-10">
-              <p className="text-[11px] font-bold uppercase tracking-wider text-foreground/60 mb-1 text-shadow-sm">Incasso Giorno</p>
-              <p className="text-2xl font-extrabold text-[#7BB35F] drop-shadow-md">{formatCurrency(dailyTotal)}</p>
+          <div className="bg-card rounded-2xl border border-brand/20 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] flex items-center justify-between relative overflow-hidden">
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-foreground/50 mb-1">Incasso Giorno</p>
+              <p className="text-2xl font-extrabold text-brand">{formatCurrency(dailyTotal)}</p>
             </div>
-             <div className="relative z-10 w-12 h-12 rounded-full bg-[#7BB35F]/20 flex items-center justify-center border border-[#7BB35F]/30 shadow-inner group-hover:scale-110 transition-transform"><Banknote className="w-5 h-5 text-[#7BB35F]" /></div>
+            <div className="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-500/20 flex items-center justify-center"><Banknote className="w-5 h-5 text-emerald-500" /></div>
           </div>
         </div>
 
@@ -997,22 +993,22 @@ export default function POSPage() {
           />
         </div>
 
-        <div className="bg-surface/50 dark:bg-white/[0.03] backdrop-blur-3xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.1)] border border-surface dark:border-white/10 overflow-hidden relative z-10 mt-6">
-          <div className="px-6 py-5 border-b border-surface/20 dark:border-white/5 bg-surface-light/30 dark:bg-black/20">
+        <div className="bg-card rounded-3xl shadow-[0_1px_3px_rgba(0,0,0,0.04)] border border-black/[0.04] dark:border-white/[0.06] overflow-hidden relative z-10 mt-6">
+          <div className="px-6 py-5 border-b border-black/[0.04] dark:border-white/[0.06]">
             <div className="flex items-center gap-3">
-              <ReceiptText className="w-5 h-5 text-[#7BB35F]" />
+              <ReceiptText className="w-5 h-5 text-brand" />
               <span className="font-bold text-lg text-foreground drop-shadow-sm">Storico Transazioni</span>
               {todaySales.length > 0 && (
                 <span className="text-sm text-foreground/50">
                   ({todaySales.length} {todaySales.length === 1 ? 'transazione' : 'transazioni'} &middot;{' '}
-                  <span className="font-bold text-[#7BB35F]">{formatCurrency(dailyTotal)}</span>)
+                  <span className="font-bold text-brand">{formatCurrency(dailyTotal)}</span>)
                 </span>
               )}
             </div>
           </div>
 
-<div className="border-t border-surface/20">
-              <div className="px-5 py-4 border-b border-surface/20 bg-surface-light/10 space-y-3">
+<div className="border-t border-black/[0.04] dark:border-white/[0.06]">
+              <div className="px-5 py-4 border-b border-black/[0.04] dark:border-white/[0.06] space-y-3">
                 <div className="flex items-center justify-between gap-3">
                   <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50">
                     Calendario transazioni
@@ -1110,7 +1106,7 @@ export default function POSPage() {
               ) : (
                 <>
                   {/* Summary bar */}
-                  <div className="grid grid-cols-3 divide-x divide-surface/20 border-b border-surface/20">
+                  <div className="grid grid-cols-3 divide-x divide-black/[0.04] dark:divide-white/[0.06] border-b border-black/[0.04] dark:border-white/[0.06]">
                     <div className="p-4 text-center">
                       <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50 mb-1">
                         Vendite
@@ -1137,7 +1133,7 @@ export default function POSPage() {
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead>
-                        <tr className="border-b border-surface/20 bg-surface-light/10">
+                        <tr className="border-b border-black/[0.04] dark:border-white/[0.06]">
                           <th className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider text-foreground/50">
                             Data / Ora
                           </th>
@@ -1158,7 +1154,7 @@ export default function POSPage() {
                           </th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-surface/20">
+                      <tbody className="divide-y divide-black/[0.04] dark:divide-white/[0.06]">
                         {todaySales.map((sale, index) => {
                           const itemCount = sale.sale_items.reduce(
                             (sum, i) => sum + i.quantity,
@@ -1170,7 +1166,7 @@ export default function POSPage() {
                               <tr
                                 className={cn(
                                   'hover:bg-brand/[0.04] transition-colors duration-200',
-                                  index % 2 === 0 ? 'bg-transparent' : 'bg-surface-light/20'
+                                  index % 2 === 0 ? 'bg-transparent' : 'bg-surface-light/30 dark:bg-white/[0.02]'
                                 )}
                               >
                                 <td className="px-5 py-3 font-mono text-foreground/70">
@@ -1181,8 +1177,8 @@ export default function POSPage() {
                                     className={cn(
                                       'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold ring-1',
                                       sale.payment_method === 'cash'
-                                        ? 'bg-emerald-50 text-emerald-600 ring-emerald-200'
-                                        : 'bg-blue-50 text-blue-600 ring-blue-200'
+                                        ? 'bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 ring-emerald-200 dark:ring-emerald-500/30'
+                                        : 'bg-blue-50 dark:bg-blue-500/15 text-blue-600 dark:text-blue-400 ring-blue-200 dark:ring-blue-500/30'
                                     )}
                                   >
                                     {sale.payment_method === 'cash' ? (
@@ -1516,8 +1512,8 @@ export default function POSPage() {
               className={cn(
                 'flex items-center justify-center gap-3 p-5 rounded-2xl',
                 paymentMethod === 'cash'
-                  ? 'bg-emerald-50 ring-1 ring-emerald-200'
-                  : 'bg-blue-50 ring-1 ring-blue-200'
+                  ? 'bg-emerald-50 dark:bg-emerald-500/15 ring-1 ring-emerald-200 dark:ring-emerald-500/30'
+                  : 'bg-blue-50 dark:bg-blue-500/15 ring-1 ring-blue-200 dark:ring-blue-500/30'
               )}
             >
               {paymentMethod === 'cash' ? (
@@ -1610,7 +1606,7 @@ export default function POSPage() {
           <div className="space-y-5 text-center">
             {/* Big success icon */}
             <div className="flex justify-center">
-              <div className="w-20 h-20 rounded-full bg-emerald-50 ring-1 ring-emerald-200 flex items-center justify-center">
+              <div className="w-20 h-20 rounded-full bg-emerald-50 dark:bg-emerald-500/15 ring-1 ring-emerald-200 dark:ring-emerald-500/30 flex items-center justify-center">
                 <CheckCircle2 className="w-12 h-12 text-emerald-500" />
               </div>
             </div>
@@ -1683,9 +1679,9 @@ export default function POSPage() {
         size="md"
       >
         <div className="space-y-5">
-          <div className="flex items-center justify-center gap-3 p-5 rounded-2xl bg-amber-50 ring-1 ring-amber-200">
-            <RotateCcw className="w-10 h-10 text-amber-600" />
-            <span className="text-2xl font-extrabold text-amber-700">RESO</span>
+          <div className="flex items-center justify-center gap-3 p-5 rounded-2xl bg-amber-50 dark:bg-amber-500/15 ring-1 ring-amber-200 dark:ring-amber-500/30">
+            <RotateCcw className="w-10 h-10 text-amber-600 dark:text-amber-400" />
+            <span className="text-2xl font-extrabold text-amber-700 dark:text-amber-300">RESO</span>
           </div>
 
           <p className="text-sm text-foreground/60 text-center">
@@ -1745,23 +1741,6 @@ export default function POSPage() {
           </form>
         </div>
       </Modal>
-      <style jsx global>{`
-        .pos-theme-dark {
-          color: #e5e7eb;
-        }
-        .pos-theme-dark .pos-surface {
-          background: rgba(15, 23, 42, 0.82) !important;
-          border-color: rgba(100, 116, 139, 0.45) !important;
-          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
-        }
-        .pos-theme-dark input,
-        .pos-theme-dark select,
-        .pos-theme-dark textarea {
-          background: rgba(30, 41, 59, 0.88) !important;
-          color: #e5e7eb !important;
-          border-color: rgba(100, 116, 139, 0.5) !important;
-        }
-      `}</style>
       <ConfirmBanner
         open={bulkDeleteConfirmOpen}
         onCancel={() => setBulkDeleteConfirmOpen(false)}

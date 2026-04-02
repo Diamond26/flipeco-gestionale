@@ -28,9 +28,9 @@ export function POSCart({
 }: POSCartProps) {
   return (
     <div className="w-full space-y-4 flex flex-col h-full relative z-10">
-      <div className="flex-[1_1_auto] bg-surface/50 dark:bg-white/[0.03] backdrop-blur-3xl rounded-3xl border border-surface dark:border-white/10 overflow-hidden shadow-[0_8px_40px_rgb(0,0,0,0.2)] flex flex-col min-h-[500px]">
+      <div className="flex-[1_1_auto] bg-card rounded-3xl border border-black/[0.04] dark:border-white/[0.06] overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.08)] dark:shadow-[0_1px_3px_rgba(0,0,0,0.3)] flex flex-col min-h-[500px]">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-surface/20 dark:border-white/5 bg-surface-light/30 dark:bg-black/20">
+        <div className="flex items-center justify-between px-6 py-5 border-b border-black/[0.04] dark:border-white/[0.06] bg-surface-light/40 dark:bg-white/[0.02]">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-brand/10 text-brand flex items-center justify-center shadow-inner">
               <ShoppingCart className="w-5 h-5" />
@@ -60,9 +60,9 @@ export function POSCart({
               <p className="text-lg font-medium">Carrello vuoto</p>
             </div>
           ) : (
-            <div className="divide-y divide-surface/20 dark:divide-white/5">
+            <div className="divide-y divide-black/[0.04] dark:divide-white/[0.06]">
               {cart.map((item) => (
-                <div key={item.inventoryId} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-6 py-4 hover:bg-surface/50 dark:hover:bg-white/[0.02] transition-colors group">
+                <div key={item.inventoryId} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-6 py-4 hover:bg-surface-light/50 dark:hover:bg-white/[0.02] transition-colors group">
                   <div className="flex-1 min-w-0 flex flex-col">
                     <p className="font-bold text-[15px] text-foreground truncate">{item.name}</p>
                     <div className="text-[12px] text-foreground/50 mt-1 flex flex-wrap gap-x-3 gap-y-1">
@@ -73,7 +73,7 @@ export function POSCart({
                   </div>
                   
                   <div className="flex items-center gap-6 sm:shrink-0 justify-between sm:justify-end w-full sm:w-auto">
-                    <div className="flex items-center gap-1.5 bg-surface/50 dark:bg-black/30 rounded-xl p-1 border border-surface dark:border-white/5">
+                    <div className="flex items-center gap-1.5 bg-surface-light/60 dark:bg-white/[0.04] rounded-xl p-1 border border-black/[0.04] dark:border-white/[0.06]">
                       <button onClick={() => decrementQty(item.inventoryId)} className="w-8 h-8 rounded-lg hover:bg-surface dark:hover:bg-white/10 flex items-center justify-center transition-colors"><Minus className="w-4 h-4 text-foreground/60" /></button>
                       <span className="w-8 text-center font-bold text-[15px]">{item.qty}</span>
                       <button disabled={item.qty >= item.maxQty} onClick={() => incrementQty(item.inventoryId)} className={cn('w-8 h-8 rounded-lg flex items-center justify-center transition-colors', item.qty >= item.maxQty ? 'opacity-30 cursor-not-allowed' : 'hover:bg-surface dark:hover:bg-white/10')}><Plus className="w-4 h-4 text-foreground/60" /></button>
@@ -94,7 +94,7 @@ export function POSCart({
         </div>
 
         {/* Footer */}
-        <div className="border-t border-surface/20 dark:border-white/5 bg-surface-light/40 dark:bg-black/30 p-6 flex flex-col gap-5">
+        <div className="border-t border-black/[0.04] dark:border-white/[0.06] bg-surface-light/40 dark:bg-white/[0.02] p-6 flex flex-col gap-5">
           <div className="flex items-center justify-between">
             <span className="text-sm font-bold uppercase tracking-widest text-foreground/50">Totale Cassa</span>
             <span className="text-4xl font-black text-foreground drop-shadow-md">{formatCurrency(cartTotal)}</span>
@@ -105,11 +105,11 @@ export function POSCart({
               onClick={() => cart.length > 0 && setPaymentMethod('cash')}
               disabled={cart.length === 0}
               className={cn(
-                'flex flex-col items-center justify-center gap-2 rounded-[1.25rem] py-6 shadow-lg transition-all duration-300 relative overflow-hidden',
-                cart.length === 0 ? 'bg-surface/50 text-foreground/30 cursor-not-allowed border border-surface dark:border-white/5' : 'bg-[#7BB35F] text-white hover:bg-[#8CE36B] hover:scale-[1.02] border border-[#8CE36B]/50 shadow-[0_10px_30px_rgba(123,179,95,0.3)]'
+                'flex flex-col items-center justify-center gap-2 rounded-[1.25rem] py-6 shadow-sm transition-colors duration-200 relative overflow-hidden',
+                cart.length === 0 ? 'bg-surface-light/50 dark:bg-white/[0.03] text-foreground/30 cursor-not-allowed border border-black/[0.04] dark:border-white/[0.06]' : 'bg-brand text-white hover:brightness-110 border border-brand-light/50 shadow-lg shadow-brand/20'
               )}
             >
-              {cart.length > 0 && <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 blur-2xl rounded-full" />}
+              {cart.length > 0 && <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 blur-xl rounded-full pointer-events-none" />}
               <Banknote className="w-7 h-7 relative z-10" strokeWidth={2.5} />
               <span className="font-bold tracking-wide relative z-10 text-[14px]">CHIUDI CASSA<br/>(CONTANTI)</span>
             </button>
@@ -117,8 +117,8 @@ export function POSCart({
               onClick={() => cart.length > 0 && setPaymentMethod('pos')}
               disabled={cart.length === 0}
               className={cn(
-                'flex flex-col items-center justify-center gap-2 rounded-[1.25rem] py-6 shadow-lg transition-all duration-300 relative overflow-hidden',
-                cart.length === 0 ? 'bg-surface/50 text-foreground/30 cursor-not-allowed border border-surface dark:border-white/5' : 'bg-blue-600 text-white hover:bg-blue-500 hover:scale-[1.02] border border-blue-400/50 shadow-[0_10px_30px_rgba(37,99,235,0.3)]'
+                'flex flex-col items-center justify-center gap-2 rounded-[1.25rem] py-6 shadow-sm transition-colors duration-200 relative overflow-hidden',
+                cart.length === 0 ? 'bg-surface-light/50 dark:bg-white/[0.03] text-foreground/30 cursor-not-allowed border border-black/[0.04] dark:border-white/[0.06]' : 'bg-blue-600 text-white hover:brightness-110 border border-blue-400/50 shadow-lg shadow-blue-600/20'
               )}
             >
               <CreditCard className="w-7 h-7 relative z-10" strokeWidth={2.5} />
@@ -128,7 +128,7 @@ export function POSCart({
           
           <button
             onClick={openReturnModal}
-            className="w-full flex items-center justify-center gap-2 rounded-2xl py-4 bg-transparent border-2 border-amber-500/30 text-amber-500 hover:bg-amber-500 hover:text-white transition-colors duration-300 font-bold tracking-wider text-[14px] shadow-sm"
+            className="w-full flex items-center justify-center gap-2 rounded-2xl py-4 bg-transparent border-2 border-amber-500/30 text-amber-600 dark:text-amber-400 hover:bg-amber-500 hover:text-white transition-colors duration-200 font-bold tracking-wider text-[14px]"
           >
             <RotateCcw className="w-5 h-5" strokeWidth={2.5} />
             EFFETTUA RESO ARTICOLO
