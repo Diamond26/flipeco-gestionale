@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import {
   LayoutDashboard,
@@ -72,14 +71,37 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarPr
       >
         {/* Logo Replicato dall'immagine */}
         <div className="flex items-center gap-3.5 px-7 py-8 relative">
-          <div className="relative flex items-center justify-center w-10 h-10">
-            <Image
-              src="/logo.png"
-              alt="Flip&Co Logo"
-              fill
-              className="object-contain drop-shadow-[0_0_10px_rgba(123,179,95,0.8)]"
-              priority
-            />
+          <div className="relative flex items-center justify-center w-11 h-11">
+            <svg
+              width="100%"
+              height="100%"
+              viewBox="0 0 100 100"
+              className="text-[#7BB35F] drop-shadow-[0_0_6px_rgba(123,179,95,0.7)] drop-shadow-[0_0_2px_rgba(123,179,95,0.9)]"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M 28 42
+                   C 38 25, 70 12, 85 15
+                   L 82 25
+                   C 65 25, 52 30, 48 38
+                   L 46 45
+                   C 65 42, 75 38, 80 40
+                   L 76 50
+                   C 62 50, 52 52, 48 60
+                   V 85
+                   C 48 89, 38 89, 38 85
+                   V 65
+                   C 22 62, 22 48, 38 45
+                   L 40 38
+                   C 34 38, 31 40, 28 42
+                   Z"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="4.5"
+                strokeLinejoin="round"
+                strokeLinecap="round"
+              />
+            </svg>
           </div>
           <span className="text-white font-bold text-[26px] tracking-wide ml-1">
             Flip&amp;Co
