@@ -94,6 +94,13 @@ export default function LoginPage() {
             </svg>
           </div>
 
+          {/* Accedi title */}
+          <div className="text-center mb-4">
+            <h1 className="text-[28px] font-bold text-white tracking-tight leading-none">
+              Accedi
+            </h1>
+          </div>
+
           {/* Divider */}
           <div className="border-t border-white/10 mb-4" />
 
