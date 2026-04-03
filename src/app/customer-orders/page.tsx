@@ -656,7 +656,7 @@ export default function CustomerOrdersPage() {
         {/* ---------------------------------------------------------------- */}
         <div className="flex flex-wrap gap-4">
           <div className="flex-1 min-w-[200px] bg-surface/50 dark:bg-white/[0.03] backdrop-blur-2xl rounded-2xl border border-surface dark:border-white/10 p-5 shadow-[0_8px_30px_rgb(0,0,0,0.15)] flex items-center gap-4 group">
-            <div className="w-14 h-14 rounded-[1.25rem] bg-white/5 border border-white/10 flex items-center justify-center shrink-0 shadow-inner group-hover:scale-105 transition-transform duration-300">
+            <div className="w-14 h-14 rounded-[1.25rem] bg-surface/40 dark:bg-white/5 border border-surface dark:border-white/10 flex items-center justify-center shrink-0 shadow-inner group-hover:scale-105 transition-transform duration-300">
               <ShoppingBag className="w-6 h-6 text-foreground/80 drop-shadow-md" strokeWidth={1.5} />
             </div>
             <div>
@@ -778,7 +778,7 @@ export default function CustomerOrdersPage() {
                </div>
             ) : filteredOrders.length === 0 ? (
                <div className="flex flex-col items-center justify-center py-24 gap-3 text-center">
-                 <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mb-2 shadow-[0_0_30px_rgba(255,255,255,0.05)]">
+                 <div className="w-16 h-16 rounded-2xl bg-surface/40 dark:bg-white/5 flex items-center justify-center mb-2 shadow-none dark:shadow-[0_0_30px_rgba(255,255,255,0.05)]">
                    <ShoppingBag className="w-8 h-8 text-foreground/20" />
                  </div>
                  <p className="text-foreground font-bold text-[16px]">Nessun ordine trovato.</p>

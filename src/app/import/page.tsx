@@ -538,7 +538,7 @@ export default function ImportPage() {
                   setSaveError('');
                   setMapping({ barcode: '', sku: '', name: '', size: '', color: '', color_code: '', brand: '', category: '' });
                 }}
-                className="px-7 py-3 rounded-full font-bold tracking-wide transition-all bg-[#7BB35F]/20 text-[#8CE36B] border border-[#7BB35F]/50 shadow-[0_0_25px_rgba(123,179,95,0.25)] hover:shadow-[0_0_35px_rgba(123,179,95,0.4)] hover:bg-[#7BB35F]/30 hover:border-[#7BB35F]/70"
+                className="px-7 py-3 rounded-full font-bold tracking-wide transition-all bg-[#7BB35F]/20 text-brand dark:text-[#8CE36B] border border-[#7BB35F]/50 shadow-[0_0_25px_rgba(123,179,95,0.25)] hover:shadow-[0_0_35px_rgba(123,179,95,0.4)] hover:bg-[#7BB35F]/30 hover:border-[#7BB35F]/70"
               >
                 Importa Altro File
               </button>
