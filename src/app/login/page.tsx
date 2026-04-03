@@ -77,30 +77,21 @@ export default function LoginPage() {
         <div className="login-glass rounded-3xl px-7 py-7">
 
           {/* Logo */}
-          <div className="flex flex-col items-center mb-2">
+          <div className="flex flex-col items-center justify-center gap-3 mb-5">
             <div className="transition-transform duration-500 hover:scale-105">
-              <svg width="180" height="48" viewBox="0 0 180 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Flip&Co logo">
-                {/* Icon: rounded square with geometric F& mark */}
-                <rect x="0" y="6" width="36" height="36" rx="8" fill="rgba(255,255,255,0.10)" stroke="rgba(255,255,255,0.18)" strokeWidth="1.2"/>
-                {/* Stylized F shape */}
-                <path d="M10 14h14M10 24h10M10 14v20" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
-                {/* & ampersand small accent */}
-                <text x="21" y="34" fontSize="11" fill="rgba(255,255,255,0.55)" fontFamily="serif" fontStyle="italic">&amp;</text>
-
-                {/* "Flip&Co" wordmark */}
-                <text x="46" y="31" fontSize="22" fontWeight="600" letterSpacing="0.5" fill="white" fontFamily="'Georgia', serif">Flip<tspan fill="rgba(255,255,255,0.55)">&amp;</tspan>Co</text>
+              {/* Icona F& */}
+              <svg width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <rect x="1" y="1" width="50" height="50" rx="12" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.18)" strokeWidth="1.2"/>
+                <path d="M15 14h18M15 26h13M15 14v26" stroke="white" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"/>
+                <text x="28" y="40" fontSize="13" fill="rgba(255,255,255,0.50)" fontFamily="Georgia, serif" fontStyle="italic">&amp;</text>
               </svg>
             </div>
-          </div>
-
-          {/* Title */}
-          <div className="text-center mb-4">
-            <h1 className="text-[28px] font-bold text-white tracking-tight leading-none">
-              Accedi
-            </h1>
-            <p className="text-xs font-semibold text-white/40 mt-1.5 uppercase tracking-[0.25em]">
-              Gestionale
-            </p>
+            {/* Wordmark */}
+            <svg width="120" height="28" viewBox="0 0 120 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Flip&Co">
+              <text x="60" y="22" textAnchor="middle" fontSize="22" fontWeight="600" letterSpacing="0.5" fill="white" fontFamily="Georgia, serif">
+                Flip<tspan fill="rgba(255,255,255,0.45)">&amp;</tspan>Co
+              </text>
+            </svg>
           </div>
 
           {/* Divider */}
