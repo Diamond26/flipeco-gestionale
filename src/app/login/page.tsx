@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { loginSchema } from '@/lib/validators/schemas'
-import { Loader2, Check, Mail, Lock } from 'lucide-react'
+import { Loader2, Check } from 'lucide-react'
 import type { ZodError } from 'zod'
 
 interface FormErrors {
@@ -135,7 +135,6 @@ export default function LoginPage() {
                   Email
                 </label>
                 <div className="relative">
-                  <Mail className="login-input-icon absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" />
                   <input
                     type="email"
                     name="email"
@@ -144,7 +143,7 @@ export default function LoginPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     disabled={loading}
-                    className="login-input pl-11"
+                    className="login-input"
                   />
                 </div>
                 {errors.email && (
@@ -158,7 +157,6 @@ export default function LoginPage() {
                   Password
                 </label>
                 <div className="relative">
-                  <Lock className="login-input-icon absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" />
                   <input
                     type="password"
                     name="password"
@@ -167,7 +165,7 @@ export default function LoginPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     disabled={loading}
-                    className="login-input pl-11"
+                    className="login-input"
                   />
                 </div>
                 {errors.password && (
