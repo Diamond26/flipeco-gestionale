@@ -13,8 +13,8 @@
   --th-background: #e8ecf4;
   --th-foreground: #1a1a1a;
   --th-card: #ffffff;
-  --th-sidebar: #0c1222;
-  --th-sidebar-hover: #1a2236;
+  --th-sidebar: #ffffff;
+  --th-sidebar-hover: #f1f5f9;
   --th-danger: #ef4444;
   --th-warning: #f59e0b;
   --th-success: #7BB35F;
@@ -193,6 +193,18 @@ button, a, input, select, textarea {
 
 .dark ::-webkit-scrollbar-thumb:hover {
   background: #555b66;
+}
+
+/* ------------------------------------------------------------------ */
+/* Light mode: explicit overrides for inputs/dropdowns                 */
+/* ------------------------------------------------------------------ */
+
+input,
+select,
+textarea {
+  background-color: var(--th-card);
+  color: var(--th-foreground);
+  border-color: var(--th-surface);
 }
 
 /* ------------------------------------------------------------------ */
