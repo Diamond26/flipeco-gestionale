@@ -71,21 +71,21 @@ export function RevenueChart({ data, loading }: RevenueChartProps) {
             </filter>
           </defs>
 
-          <CartesianGrid 
-            strokeDasharray="0" 
-            stroke="rgba(255,255,255,0.03)" 
-            vertical={false} 
+          <CartesianGrid
+            strokeDasharray="4 4"
+            stroke={c.grid}
+            vertical={false}
           />
-          
+
           <XAxis
             dataKey="date"
-            tick={{ fontSize: 10, fontWeight: 700, fill: 'rgba(255,255,255,0.3)' }}
+            tick={{ fontSize: 10, fontWeight: 700, fill: c.tick }}
             tickLine={false}
             axisLine={false}
             dy={15}
           />
           <YAxis
-            tick={{ fontSize: 10, fontWeight: 700, fill: 'rgba(255,255,255,0.3)' }}
+            tick={{ fontSize: 10, fontWeight: 700, fill: c.tick }}
             tickLine={false}
             axisLine={false}
             tickFormatter={(v) => `€${v}`}
@@ -106,12 +106,12 @@ export function RevenueChart({ data, loading }: RevenueChartProps) {
             filter="url(#glow)"
             animationDuration={2000}
             dot={false}
-            activeDot={{ 
-              r: 6, 
-              fill: '#7BB35F', 
-              stroke: '#fff', 
-              strokeWidth: 2, 
-              className: "shadow-2xl" 
+            activeDot={{
+              r: 6,
+              fill: '#7BB35F',
+              stroke: c.dotStroke,
+              strokeWidth: 2,
+              className: "shadow-2xl"
             }}
           />
         </AreaChart>
