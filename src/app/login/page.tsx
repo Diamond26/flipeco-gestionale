@@ -2,8 +2,6 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Image from 'next/image'
-import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { loginSchema } from '@/lib/validators/schemas'
 import { Loader2, Check } from 'lucide-react'
@@ -80,14 +78,18 @@ export default function LoginPage() {
 
           {/* Logo */}
           <div className="flex flex-col items-center mb-2">
-            <div className="relative w-72 h-28 transition-transform duration-500 hover:scale-105">
-              <Image
-                src="/logo.png"
-                alt="Flip&Co logo"
-                fill
-                className="object-contain drop-shadow-xl"
-                priority
-              />
+            <div className="transition-transform duration-500 hover:scale-105">
+              <svg width="180" height="48" viewBox="0 0 180 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Flip&Co logo">
+                {/* Icon: rounded square with geometric F& mark */}
+                <rect x="0" y="6" width="36" height="36" rx="8" fill="rgba(255,255,255,0.10)" stroke="rgba(255,255,255,0.18)" strokeWidth="1.2"/>
+                {/* Stylized F shape */}
+                <path d="M10 14h14M10 24h10M10 14v20" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+                {/* & ampersand small accent */}
+                <text x="21" y="34" fontSize="11" fill="rgba(255,255,255,0.55)" fontFamily="serif" fontStyle="italic">&amp;</text>
+
+                {/* "Flip&Co" wordmark */}
+                <text x="46" y="31" fontSize="22" fontWeight="600" letterSpacing="0.5" fill="white" fontFamily="'Georgia', serif">Flip<tspan fill="rgba(255,255,255,0.55)">&amp;</tspan>Co</text>
+              </svg>
             </div>
           </div>
 
