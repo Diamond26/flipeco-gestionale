@@ -75,12 +75,12 @@ export default function LoginPage() {
       </div>
 
       {/* Glass card */}
-      <div className="relative w-full max-w-[400px] animate-scale-in z-10">
-        <div className="login-glass rounded-3xl px-8 py-8">
+      <div className="relative w-full max-w-[360px] animate-scale-in z-10">
+        <div className="login-glass rounded-3xl px-7 py-7">
 
           {/* Logo */}
-          <div className="flex flex-col items-center mb-4">
-            <div className="relative w-56 h-56 transition-transform duration-500 hover:scale-105">
+          <div className="flex flex-col items-center mb-2">
+            <div className="relative w-72 h-28 transition-transform duration-500 hover:scale-105">
               <Image
                 src="/logo.png"
                 alt="Flip&Co logo"
@@ -92,17 +92,17 @@ export default function LoginPage() {
           </div>
 
           {/* Title */}
-          <div className="text-center mb-5">
-            <h1 className="text-[30px] font-bold text-white tracking-tight leading-none">
+          <div className="text-center mb-4">
+            <h1 className="text-[28px] font-bold text-white tracking-tight leading-none">
               Accedi
             </h1>
-            <p className="text-xs font-semibold text-white/40 mt-2 uppercase tracking-[0.25em]">
+            <p className="text-xs font-semibold text-white/40 mt-1.5 uppercase tracking-[0.25em]">
               Gestionale
             </p>
           </div>
 
           {/* Divider */}
-          <div className="border-t border-white/10 mb-5" />
+          <div className="border-t border-white/10 mb-4" />
 
           {/* Form / Success Animation */}
           {success ? (
