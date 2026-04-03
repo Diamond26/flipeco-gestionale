@@ -1,6 +1,14 @@
 @import "tailwindcss";
 
 /* ------------------------------------------------------------------ */
+/* Dark mode: tie Tailwind dark: variants to the .dark class           */
+/* (next-themes sets .dark on <html>; without this, Tailwind v4 would */
+/*  use @media prefers-color-scheme instead, ignoring the toggle)      */
+/* ------------------------------------------------------------------ */
+
+@custom-variant dark (&:is(.dark *));
+
+/* ------------------------------------------------------------------ */
 /* Theme tokens — light (default) and dark                             */
 /* ------------------------------------------------------------------ */
 
