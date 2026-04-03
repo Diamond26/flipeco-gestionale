@@ -246,64 +246,212 @@ textarea {
 }
 
 /* ------------------------------------------------------------------ */
-/* Login page — Premium Glassmorphism                                  */
+/* Login page — Premium Glassmorphism (Dark + Light)                  */
 /* ------------------------------------------------------------------ */
 
+/* ── Background ── */
 .login-bg {
-  background: radial-gradient(ellipse at 70% 20%, rgba(123, 179, 95, 0.12) 0%, transparent 50%),
-              radial-gradient(ellipse at 30% 80%, rgba(90, 138, 66, 0.08) 0%, transparent 50%),
-              linear-gradient(160deg, #0a0f18 0%, #111a12 30%, #0c1222 60%, #0a1010 100%);
+  background:
+    radial-gradient(ellipse at 70% 20%, rgba(123, 179, 95, 0.13) 0%, transparent 55%),
+    radial-gradient(ellipse at 30% 80%, rgba(90, 138, 66, 0.09) 0%, transparent 55%),
+    linear-gradient(160deg, #0a0f18 0%, #111a12 30%, #0c1222 60%, #0a1010 100%);
 }
 
+:root:not(.dark) .login-bg {
+  background:
+    radial-gradient(ellipse at 70% 15%, rgba(123, 179, 95, 0.18) 0%, transparent 55%),
+    radial-gradient(ellipse at 25% 85%, rgba(90, 138, 66, 0.12) 0%, transparent 55%),
+    linear-gradient(160deg, #e8f5e2 0%, #f0f7eb 40%, #e4f0f8 70%, #edf5f0 100%);
+}
+
+/* ── Aurora blobs ── */
+.login-blob-1 { background: rgba(123, 179, 95, 0.22); }
+.login-blob-2 { background: rgba(90, 138, 66, 0.16); }
+.login-blob-3 { background: rgba(142, 199, 117, 0.12); }
+
+:root:not(.dark) .login-blob-1 { background: rgba(123, 179, 95, 0.30); }
+:root:not(.dark) .login-blob-2 { background: rgba(90, 138, 66, 0.20); }
+:root:not(.dark) .login-blob-3 { background: rgba(142, 199, 117, 0.18); }
+
+/* ── Noise grain ── */
+.login-grain {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 180px 180px;
+}
+
+/* ── Glass card ── */
 .login-glass {
-  background: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.055);
+  backdrop-filter: blur(28px) saturate(160%);
+  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.13);
   box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.4),
+    0 8px 40px rgba(0, 0, 0, 0.45),
     0 0 0 1px rgba(255, 255, 255, 0.05) inset,
-    0 1px 0 rgba(255, 255, 255, 0.1) inset;
+    0 1px 0 rgba(255, 255, 255, 0.12) inset;
 }
 
+:root:not(.dark) .login-glass {
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  box-shadow:
+    0 8px 40px rgba(0, 0, 0, 0.10),
+    0 2px 12px rgba(123, 179, 95, 0.08),
+    0 0 0 1px rgba(255, 255, 255, 0.6) inset;
+}
+
+/* ── Logo icon SVG classes ── */
+.login-icon-bg {
+  fill: rgba(255, 255, 255, 0.08);
+  stroke: rgba(255, 255, 255, 0.18);
+}
+:root:not(.dark) .login-icon-bg {
+  fill: rgba(123, 179, 95, 0.10);
+  stroke: rgba(123, 179, 95, 0.35);
+}
+
+.login-icon-stroke {
+  stroke: rgba(255, 255, 255, 0.90);
+}
+:root:not(.dark) .login-icon-stroke {
+  stroke: #3d6e2a;
+}
+
+.login-icon-amp {
+  fill: rgba(255, 255, 255, 0.45);
+}
+:root:not(.dark) .login-icon-amp {
+  fill: rgba(90, 138, 66, 0.60);
+}
+
+/* ── Wordmark SVG classes ── */
+.login-wordmark-main {
+  fill: rgba(255, 255, 255, 0.92);
+}
+:root:not(.dark) .login-wordmark-main {
+  fill: #1a2f12;
+}
+
+.login-wordmark-amp {
+  fill: rgba(255, 255, 255, 0.40);
+}
+:root:not(.dark) .login-wordmark-amp {
+  fill: rgba(90, 138, 66, 0.55);
+}
+
+/* ── "Accedi" title ── */
+.login-title {
+  color: rgba(255, 255, 255, 0.55);
+  letter-spacing: 0.3em;
+}
+:root:not(.dark) .login-title {
+  color: rgba(30, 60, 15, 0.55);
+}
+
+.login-title-line {
+  background: linear-gradient(90deg, transparent, rgba(123,179,95,0.7), transparent);
+}
+
+/* ── Divider ── */
+.login-divider {
+  border-top: 1px solid rgba(255, 255, 255, 0.09);
+}
+:root:not(.dark) .login-divider {
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+/* ── Labels ── */
+.login-label {
+  color: rgba(255, 255, 255, 0.50);
+}
+:root:not(.dark) .login-label {
+  color: rgba(30, 60, 15, 0.55);
+}
+
+/* ── Input icon ── */
+.login-input-icon {
+  color: rgba(255, 255, 255, 0.30);
+}
+:root:not(.dark) .login-input-icon {
+  color: rgba(90, 138, 66, 0.55);
+}
+
+/* ── Input fields ── */
 .login-input {
   width: 100%;
-  padding: 14px 16px;
-  font-size: 15px;
+  padding: 13px 16px;
+  font-size: 14.5px;
   border-radius: 14px;
-  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  border: 1.5px solid rgba(255, 255, 255, 0.10);
   background: rgba(255, 255, 255, 0.06);
   color: #e8eaed;
   outline: none;
   transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
 }
 
+:root:not(.dark) .login-input {
+  background: rgba(255, 255, 255, 0.75);
+  border: 1.5px solid rgba(0, 0, 0, 0.10);
+  color: #1a2f12;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06) inset;
+}
+
 .login-input::placeholder {
-  color: rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.22);
+}
+:root:not(.dark) .login-input::placeholder {
+  color: rgba(30, 60, 15, 0.30);
 }
 
 .login-input:focus {
-  border-color: rgba(123, 179, 95, 0.6);
+  border-color: rgba(123, 179, 95, 0.65);
   box-shadow: 0 0 0 3px rgba(123, 179, 95, 0.15), 0 0 20px rgba(123, 179, 95, 0.08);
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.09);
+}
+:root:not(.dark) .login-input:focus {
+  border-color: rgba(123, 179, 95, 0.70);
+  box-shadow: 0 0 0 3px rgba(123, 179, 95, 0.18);
+  background: rgba(255, 255, 255, 0.95);
 }
 
 .login-input:disabled {
-  opacity: 0.5;
+  opacity: 0.45;
   cursor: not-allowed;
 }
 
+/* ── Submit button ── */
 .login-btn {
   background: linear-gradient(135deg, #7BB35F 0%, #5a8a42 100%);
-  box-shadow: 0 4px 16px rgba(123, 179, 95, 0.3), 0 1px 0 rgba(255, 255, 255, 0.15) inset;
+  box-shadow: 0 4px 18px rgba(123, 179, 95, 0.32), 0 1px 0 rgba(255, 255, 255, 0.18) inset;
   transition: transform 0.15s ease, box-shadow 0.25s ease, filter 0.25s ease;
 }
-
 .login-btn:hover:not(:disabled) {
-  filter: brightness(1.1);
-  box-shadow: 0 6px 24px rgba(123, 179, 95, 0.4), 0 1px 0 rgba(255, 255, 255, 0.15) inset;
+  filter: brightness(1.08);
+  box-shadow: 0 6px 28px rgba(123, 179, 95, 0.42), 0 1px 0 rgba(255, 255, 255, 0.18) inset;
 }
-
 .login-btn:active:not(:disabled) {
   transform: scale(0.97);
+}
+
+/* ── Success state ── */
+.login-success-title {
+  color: rgba(255, 255, 255, 0.92);
+}
+:root:not(.dark) .login-success-title {
+  color: #1a2f12;
+}
+.login-success-sub {
+  color: rgba(255, 255, 255, 0.45);
+}
+:root:not(.dark) .login-success-sub {
+  color: rgba(30, 60, 15, 0.50);
+}
+
+/* ── Footer ── */
+.login-footer {
+  color: rgba(255, 255, 255, 0.25);
+}
+:root:not(.dark) .login-footer {
+  color: rgba(30, 60, 15, 0.35);
 }
