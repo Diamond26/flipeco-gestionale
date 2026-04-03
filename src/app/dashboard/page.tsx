@@ -64,7 +64,7 @@ interface StatCardProps {
 function StatCard({ label, value, icon: Icon, loading = false, colorIndex, animDelay }: StatCardProps) {
   return (
     <div
-      className="bg-white/60 dark:bg-white/[0.02] backdrop-blur-2xl rounded-3xl shadow-2xl dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-black/[0.04] dark:border-white/[0.06] p-6 flex flex-col gap-4 relative overflow-hidden group transition-all duration-500 hover:scale-[1.02] animate-fade-in"
+      className="bg-white/80 dark:bg-white/[0.02] backdrop-blur-2xl rounded-3xl shadow-2xl dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-surface/50 dark:border-white/[0.06] p-6 flex flex-col gap-4 relative overflow-hidden group transition-all duration-500 hover:scale-[1.02] animate-fade-in"
       style={{ animationDelay: animDelay }}
     >
       <div className="absolute -right-4 -top-4 w-24 h-24 bg-brand/5 rounded-full blur-2xl group-hover:bg-brand/10 transition-colors" />
@@ -79,7 +79,7 @@ function StatCard({ label, value, icon: Icon, loading = false, colorIndex, animD
       </div>
 
       <div className="relative z-10">
-        <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-foreground/40 mb-1">{label}</p>
+        <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-foreground/60 dark:text-foreground/40 mb-1">{label}</p>
         {loading ? (
           <div className="h-10 w-24 skeleton-shimmer rounded-lg" />
         ) : (
@@ -128,7 +128,7 @@ function PeriodSelector({ value, onChange }: { value: TimePeriod; onChange: (v: 
             'px-6 py-2 text-[10px] font-bold uppercase tracking-widest rounded-xl transition-all duration-300',
             value === periodKey
               ? 'bg-[#7BB35F] text-white shadow-[0_5px_15px_rgba(123,179,95,0.3)]'
-              : 'text-foreground/40 hover:text-foreground/70'
+              : 'text-foreground/60 dark:text-foreground/40 hover:text-foreground'
           )}
         >
           {periodKey === '7d' ? '7 giorni' : '30 giorni'}
@@ -316,7 +316,7 @@ export default function DashboardPage() {
   return (
     <AppShell pageTitle="Dashboard">
       {/* Background Aurora Effects */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0 opacity-40 dark:opacity-100">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-brand/10 rounded-full blur-[160px] animate-pulse" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-brand/5 rounded-full blur-[160px] animate-pulse [animation-delay:2s]" />
       </div>
@@ -356,9 +356,9 @@ export default function DashboardPage() {
         {/* Charts grid */}
         <section aria-label="Grafici analitici" className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Revenue chart - larger span */}
-          <div className="lg:col-span-2 bg-white/60 dark:bg-white/[0.02] backdrop-blur-2xl rounded-3xl shadow-2xl dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-black/[0.04] dark:border-white/[0.06] overflow-hidden">
-            <div className="px-6 py-5 border-b border-black/[0.04] dark:border-white/[0.06] flex items-center justify-between">
-              <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-foreground/40">Andamento Incassi</h3>
+          <div className="lg:col-span-2 bg-white/80 dark:bg-white/[0.02] backdrop-blur-2xl rounded-3xl shadow-2xl dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-surface/50 dark:border-white/[0.06] overflow-hidden">
+            <div className="px-6 py-5 border-b border-surface/40 dark:border-white/[0.06] flex items-center justify-between">
+              <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-foreground/60 dark:text-foreground/40">Andamento Incassi</h3>
             </div>
             <div className="p-6">
               <RevenueChart data={revenueData} loading={chartsLoading} />
@@ -367,9 +367,9 @@ export default function DashboardPage() {
 
           <div className="space-y-6">
             {/* Top products */}
-            <div className="bg-white/60 dark:bg-white/[0.02] backdrop-blur-2xl rounded-3xl shadow-2xl dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-black/[0.04] dark:border-white/[0.06] overflow-hidden">
-              <div className="px-6 py-5 border-b border-black/[0.04] dark:border-white/[0.06]">
-                <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-foreground/40">Top 5 Prodotti</h3>
+            <div className="bg-white/90 dark:bg-white/[0.02] backdrop-blur-2xl rounded-3xl shadow-2xl dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-surface/50 dark:border-white/[0.06] overflow-hidden">
+              <div className="px-6 py-5 border-b border-surface/40 dark:border-white/[0.06]">
+                <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-foreground/60 dark:text-foreground/40">Top 5 Prodotti</h3>
               </div>
               <div className="p-6">
                 <TopProductsChart data={topProducts} loading={chartsLoading} />
@@ -377,9 +377,9 @@ export default function DashboardPage() {
             </div>
 
             {/* Stock alert */}
-            <div className="bg-white/60 dark:bg-white/[0.02] backdrop-blur-2xl rounded-3xl shadow-2xl dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-black/[0.04] dark:border-white/[0.06] overflow-hidden">
-              <div className="px-6 py-5 border-b border-black/[0.04] dark:border-white/[0.06]">
-                <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-foreground/40">Stato Magazzino</h3>
+            <div className="bg-white/90 dark:bg-white/[0.02] backdrop-blur-2xl rounded-3xl shadow-2xl dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-surface/50 dark:border-white/[0.06] overflow-hidden">
+              <div className="px-6 py-5 border-b border-surface/40 dark:border-white/[0.06]">
+                <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-foreground/60 dark:text-foreground/40">Stato Magazzino</h3>
               </div>
               <div className="p-6">
                 <StockAlertChart totalProducts={stockTotal} criticalCount={stockCritical} loading={chartsLoading} />
@@ -390,10 +390,10 @@ export default function DashboardPage() {
 
         {/* Recent sales table */}
         <section aria-label="Ultime vendite">
-          <div className="bg-white/60 dark:bg-white/[0.02] backdrop-blur-2xl rounded-3xl shadow-2xl dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-black/[0.04] dark:border-white/[0.06] overflow-hidden">
-            <div className="px-6 py-5 border-b border-black/[0.04] dark:border-white/[0.06] bg-surface-light/30 dark:bg-black/20 flex items-center gap-3">
+          <div className="bg-white/80 dark:bg-white/[0.02] backdrop-blur-2xl rounded-3xl shadow-2xl dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-surface/50 dark:border-white/[0.06] overflow-hidden">
+            <div className="px-6 py-5 border-b border-surface/40 dark:border-white/[0.06] bg-surface-light/40 dark:bg-black/20 flex items-center gap-3">
               <Clock className="w-5 h-5 text-brand" />
-              <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-foreground/40 text-left">Ultime Operazioni</h3>
+              <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-foreground/60 dark:text-foreground/40 text-left">Ultime Operazioni</h3>
             </div>
             
             <div className="p-6">
@@ -411,11 +411,11 @@ export default function DashboardPage() {
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b border-black/[0.04] dark:border-white/[0.06]">
-                        <th className="py-4 px-3 text-left text-[10px] font-black uppercase tracking-[0.2em] text-foreground/40">Data Operazione</th>
-                        <th className="py-4 px-3 text-left text-[10px] font-black uppercase tracking-[0.2em] text-foreground/40">Anagrafica Cliente</th>
-                        <th className="py-4 px-3 text-right text-[10px] font-black uppercase tracking-[0.2em] text-foreground/40">Importo Totale</th>
-                        <th className="py-4 px-3 text-right text-[10px] font-black uppercase tracking-[0.2em] text-foreground/40">Stato</th>
+                      <tr className="border-b border-surface/40 dark:border-white/[0.06]">
+                        <th className="py-4 px-3 text-left text-[10px] font-black uppercase tracking-[0.2em] text-foreground/60">Data Operazione</th>
+                        <th className="py-4 px-3 text-left text-[10px] font-black uppercase tracking-[0.2em] text-foreground/60">Anagrafica Cliente</th>
+                        <th className="py-4 px-3 text-right text-[10px] font-black uppercase tracking-[0.2em] text-foreground/60">Importo Totale</th>
+                        <th className="py-4 px-3 text-right text-[10px] font-black uppercase tracking-[0.2em] text-foreground/60">Stato</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-black/[0.04] dark:divide-white/[0.06]">

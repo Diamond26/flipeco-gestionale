@@ -575,13 +575,13 @@ export default function PurchaseOrdersPage() {
         {/* Stats bar                                                          */}
         {/* ---------------------------------------------------------------- */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
-          <div className="bg-white/60 dark:bg-white/[0.02] backdrop-blur-xl rounded-2xl border border-black/[0.04] dark:border-white/[0.06] p-5 flex items-center gap-5 shadow-xl dark:shadow-[0_8px_30px_rgb(0,0,0,0.12)] bg-gradient-to-br from-white/80 dark:from-white/[0.04] to-transparent group transition-all duration-300 hover:scale-[1.02]">
+          <div className="bg-white/90 dark:bg-white/[0.02] backdrop-blur-xl rounded-2xl border border-surface/50 dark:border-white/[0.06] p-5 flex items-center gap-5 shadow-xl dark:shadow-[0_8px_30px_rgb(0,0,0,0.12)] bg-gradient-to-br from-white/90 dark:from-white/[0.04] to-transparent group transition-all duration-300 hover:scale-[1.02]">
             <div className="relative w-12 h-12 rounded-full bg-brand/20 dark:bg-brand/10 flex items-center justify-center shrink-0">
                <div className="absolute inset-0 bg-brand animate-pulse blur-md opacity-20 group-hover:opacity-40 rounded-full" />
                <ClipboardList className="w-6 h-6 text-brand relative z-10" />
             </div>
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/50 mb-0.5">Totale Ordini</p>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/60 mb-0.5">Totale Ordini</p>
               <p className="text-2xl font-bold text-foreground">{totalOrders}</p>
             </div>
           </div>
@@ -626,8 +626,8 @@ export default function PurchaseOrdersPage() {
         {/* ---------------------------------------------------------------- */}
         {/* Orders table card                                                  */}
         {/* ---------------------------------------------------------------- */}
-        <div className="bg-white/60 dark:bg-white/[0.02] backdrop-blur-2xl rounded-3xl shadow-2xl dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-black/[0.04] dark:border-white/[0.06] overflow-hidden relative z-10 transition-all duration-500">
-          <div className="px-6 py-5 border-b border-black/[0.04] dark:border-white/[0.06] bg-surface-light/30 dark:bg-black/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="bg-white/90 dark:bg-white/[0.02] backdrop-blur-2xl rounded-3xl shadow-2xl dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-surface/50 dark:border-white/[0.06] overflow-hidden relative z-10 transition-all duration-500">
+          <div className="px-6 py-5 border-b border-surface/40 dark:border-white/[0.06] bg-surface-light/40 dark:bg-black/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
              <div className="flex items-center gap-3">
                <div className="relative">
                  <div className="absolute inset-0 bg-brand blur-md opacity-20 rounded-full animate-pulse" />
@@ -650,7 +650,7 @@ export default function PurchaseOrdersPage() {
                       placeholder="Cerca fornitore o ID ordine..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full bg-transparent border-none text-foreground focus:outline-none focus:ring-0 placeholder:text-foreground/30 text-[15px]"
+                      className="w-full bg-transparent border-none text-foreground focus:outline-none focus:ring-0 placeholder:text-foreground/40 text-[15px]"
                     />
                     {searchQuery && (
                       <button onClick={() => setSearchQuery('')} className="p-2 text-foreground/30 hover:text-foreground">
@@ -671,7 +671,7 @@ export default function PurchaseOrdersPage() {
                       'px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-300 border shadow-sm',
                       statusFilter === opt.value
                         ? 'bg-[#7BB35F] text-white border-[#7BB35F] shadow-[0_5px_15px_rgba(123,179,95,0.3)]'
-                        : 'bg-white/60 dark:bg-white/[0.03] text-foreground/50 border-surface hover:border-[#7BB35F]/40'
+                        : 'bg-white/90 dark:bg-white/[0.03] text-foreground/70 border-surface hover:border-[#7BB35F]/40'
                     )}
                   >
                     {opt.label}

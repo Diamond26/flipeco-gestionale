@@ -1093,7 +1093,7 @@ export default function InventoryPage() {
       header: (
         <button
           onClick={() => handleSort('barcode')}
-          className="flex items-center text-xs uppercase tracking-wider text-foreground/50 hover:text-foreground transition-colors"
+          className="flex items-center text-xs uppercase tracking-wider text-foreground/70 hover:text-foreground transition-colors"
         >
           Barcode <SortIcon field="barcode" />
         </button>
@@ -1109,7 +1109,7 @@ export default function InventoryPage() {
       header: (
         <button
           onClick={() => handleSort('name')}
-          className="flex items-center text-xs uppercase tracking-wider text-foreground/50 hover:text-foreground transition-colors"
+          className="flex items-center text-xs uppercase tracking-wider text-foreground/70 hover:text-foreground transition-colors"
         >
           Nome <SortIcon field="name" />
         </button>
@@ -1123,7 +1123,7 @@ export default function InventoryPage() {
       header: (
         <button
           onClick={() => handleSort('brand')}
-          className="flex items-center text-xs uppercase tracking-wider text-foreground/50 hover:text-foreground transition-colors"
+          className="flex items-center text-xs uppercase tracking-wider text-foreground/60 hover:text-foreground transition-colors"
         >
           Brand <SortIcon field="brand" />
         </button>
@@ -1139,7 +1139,7 @@ export default function InventoryPage() {
       header: (
         <button
           onClick={() => handleSort('size')}
-          className="flex items-center text-xs uppercase tracking-wider text-foreground/50 hover:text-foreground transition-colors"
+          className="flex items-center text-xs uppercase tracking-wider text-foreground/70 hover:text-foreground transition-colors"
         >
           Taglia <SortIcon field="size" />
         </button>
@@ -1155,7 +1155,7 @@ export default function InventoryPage() {
       header: (
         <button
           onClick={() => handleSort('color')}
-          className="flex items-center text-xs uppercase tracking-wider text-foreground/50 hover:text-foreground transition-colors"
+          className="flex items-center text-xs uppercase tracking-wider text-foreground/70 hover:text-foreground transition-colors"
         >
           Colore <SortIcon field="color" />
         </button>
@@ -1169,7 +1169,7 @@ export default function InventoryPage() {
       header: (
         <button
           onClick={() => handleSort('quantity')}
-          className="flex items-center text-xs uppercase tracking-wider text-foreground/50 hover:text-foreground transition-colors"
+          className="flex items-center text-xs uppercase tracking-wider text-foreground/70 hover:text-foreground transition-colors"
         >
           Quantità <SortIcon field="quantity" />
         </button>
@@ -1198,7 +1198,7 @@ export default function InventoryPage() {
       header: (
         <button
           onClick={() => handleSort('purchase_price')}
-          className="flex items-center text-xs uppercase tracking-wider text-foreground/50 hover:text-foreground transition-colors"
+          className="flex items-center text-xs uppercase tracking-wider text-foreground/70 hover:text-foreground transition-colors"
         >
           P. Acq <SortIcon field="purchase_price" />
         </button>
@@ -1212,7 +1212,7 @@ export default function InventoryPage() {
       header: (
         <button
           onClick={() => handleSort('sell_price')}
-          className="flex items-center text-xs uppercase tracking-wider text-foreground/50 hover:text-foreground transition-colors"
+          className="flex items-center text-xs uppercase tracking-wider text-foreground/70 hover:text-foreground transition-colors"
         >
           P. Ven <SortIcon field="sell_price" />
         </button>
@@ -1226,7 +1226,7 @@ export default function InventoryPage() {
       header: (
         <button
           onClick={() => handleSort('location')}
-          className="flex items-center text-xs uppercase tracking-wider text-foreground/50 hover:text-foreground transition-colors"
+          className="flex items-center text-xs uppercase tracking-wider text-foreground/70 hover:text-foreground transition-colors"
         >
           Ubicazione <SortIcon field="location" />
         </button>
@@ -1324,13 +1324,13 @@ export default function InventoryPage() {
           {/* Logo & Subtitle */}
           <div>
             <h1 className="text-3xl font-bold text-foreground tracking-wide">Flip&amp;Co</h1>
-            <p className="text-[13px] text-foreground/40 tracking-widest uppercase mt-1">Premium Inventory Management</p>
+            <p className="text-[13px] text-foreground/50 tracking-widest uppercase mt-1">Premium Inventory Management</p>
           </div>
 
           {/* Search Bar Center */}
           <form onSubmit={handleBarcodeScan} className="flex-1 max-w-2xl mx-auto xl:mx-0 w-full">
             <div className="relative group">
-              <div className="absolute inset-0 bg-white/60 dark:bg-white/[0.03] rounded-full border border-surface backdrop-blur-md shadow-sm dark:shadow-[0_8px_30px_rgb(0,0,0,0.12)] transition-colors group-hover:bg-white/80 dark:group-hover:bg-white/[0.05]" />
+              <div className="absolute inset-0 bg-white/90 dark:bg-white/[0.03] rounded-full border border-surface backdrop-blur-md shadow-sm dark:shadow-[0_8px_30px_rgb(0,0,0,0.12)] transition-colors group-hover:bg-white dark:group-hover:bg-white/[0.05]" />
               
               <div className="relative flex items-center p-1.5 pl-6">
                 <Scan className="w-5 h-5 text-[#7BB35F] mr-3 shrink-0" />
@@ -1343,7 +1343,7 @@ export default function InventoryPage() {
                     setScanError(null)
                   }}
                   placeholder="Spara il barcode o digita..."
-                  className="w-full bg-transparent border-none text-foreground focus:outline-none focus:ring-0 placeholder:text-foreground/40 text-[15px]"
+                  className="w-full bg-transparent border-none text-foreground focus:outline-none focus:ring-0 placeholder:text-foreground/50 text-[15px]"
                   autoComplete="off"
                   spellCheck={false}
                 />
@@ -1363,7 +1363,7 @@ export default function InventoryPage() {
           <button
              type="button"
              onClick={() => setManualAddOpen(true)}
-             className="flex items-center gap-2 px-6 py-3 rounded-full bg-white/60 dark:bg-white/[0.03] border border-surface backdrop-blur-md text-foreground/70 hover:bg-white/90 dark:hover:bg-white/10 hover:text-brand dark:hover:text-white transition-all shadow-sm dark:shadow-[0_8px_30px_rgb(0,0,0,0.12)] shrink-0"
+             className="flex items-center gap-2 px-6 py-3 rounded-full bg-white/90 dark:bg-white/[0.03] border border-surface backdrop-blur-md text-foreground/70 hover:bg-white dark:hover:bg-white/10 hover:text-brand dark:hover:text-white transition-all shadow-sm dark:shadow-[0_8px_30px_rgb(0,0,0,0.12)] shrink-0"
           >
              <Plus className="w-4 h-4 text-[#7BB35F]" />
              Aggiungi Manualmente
@@ -1383,7 +1383,7 @@ export default function InventoryPage() {
         )}
 
         {scannedProduct && (
-          <div className="bg-white/60 dark:bg-white/[0.02] backdrop-blur-2xl rounded-3xl shadow-xl dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] border border-surface p-6 lg:p-8 mt-4">
+          <div className="bg-white/90 dark:bg-white/[0.02] backdrop-blur-2xl rounded-3xl shadow-xl dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] border border-surface/50 p-6 lg:p-8 mt-4">
             <div className="flex items-center gap-2 mb-6">
               <div className="w-8 h-8 rounded-full bg-[#7BB35F]/10 dark:bg-[#7BB35F]/20 flex items-center justify-center">
                 <CheckCircle2 className="w-5 h-5 text-[#7BB35F]" />
@@ -1393,7 +1393,7 @@ export default function InventoryPage() {
 
             <div className="flex flex-wrap gap-4 mb-6">
               <div className="flex-1 min-w-[160px] p-4 rounded-2xl bg-white/80 dark:bg-white/5 border border-gray-200/60 dark:border-white/10">
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/50 mb-1">Nome</p>
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/60 mb-1">Nome</p>
                 <p className="font-bold text-foreground text-lg">{scannedProduct.name}</p>
               </div>
               {scannedProduct.sku && (
@@ -1498,18 +1498,18 @@ export default function InventoryPage() {
         {/* Stats bar Frosted Glass                                          */}
         {/* ---------------------------------------------------------------- */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mt-4">
-          <div className="bg-white/60 dark:bg-white/[0.02] backdrop-blur-xl rounded-2xl border border-surface/50 p-5 flex items-center gap-5 shadow-xl dark:shadow-[0_8px_30px_rgb(0,0,0,0.12)] bg-gradient-to-br from-white/80 dark:from-white/[0.04] to-transparent">
+          <div className="bg-white/90 dark:bg-white/[0.02] backdrop-blur-xl rounded-2xl border border-surface/50 p-5 flex items-center gap-5 shadow-xl dark:shadow-[0_8px_30px_rgb(0,0,0,0.12)]">
             <div className="relative w-12 h-12 rounded-full bg-[#7BB35F]/20 dark:bg-[#7BB35F]/10 flex items-center justify-center shrink-0">
                <div className="absolute inset-0 bg-[#7BB35F] animate-pulse blur-md opacity-20 rounded-full" />
                <Package className="w-6 h-6 text-[#7BB35F] relative z-10" />
             </div>
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/50 mb-0.5">Articoli</p>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/60 mb-0.5">Articoli</p>
               <p className="text-2xl font-bold text-foreground">{totalArticoli}</p>
             </div>
           </div>
 
-          <div className="bg-white/60 dark:bg-white/[0.02] backdrop-blur-xl rounded-2xl border border-surface/50 p-5 flex items-center gap-5 shadow-xl dark:shadow-[0_8px_30px_rgb(0,0,0,0.12)] bg-gradient-to-br from-white/80 dark:from-white/[0.04] to-transparent">
+          <div className="bg-white/90 dark:bg-white/[0.02] backdrop-blur-xl rounded-2xl border border-surface/50 p-5 flex items-center gap-5 shadow-xl dark:shadow-[0_8px_30px_rgb(0,0,0,0.12)]">
             <div className="relative w-12 h-12 rounded-full bg-[#7BB35F]/10 dark:bg-white/5 flex items-center justify-center shrink-0">
                <div className="absolute inset-0 bg-[#7BB35F] dark:bg-white animate-pulse blur-md opacity-20 dark:opacity-10 rounded-full" />
                <TrendingUp className="w-6 h-6 text-[#7BB35F] dark:text-white/80 relative z-10" />
@@ -1546,7 +1546,7 @@ export default function InventoryPage() {
         {/* ---------------------------------------------------------------- */}
         {/* Inventory table Glass Container                                  */}
         {/* ---------------------------------------------------------------- */}
-        <div className="mt-8 bg-white/60 dark:bg-white/[0.02] backdrop-blur-2xl rounded-[2rem] shadow-xl dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] border border-gray-200/60 dark:border-white/10 p-6 lg:p-8">
+        <div className="mt-8 bg-white/90 dark:bg-white/[0.02] backdrop-blur-2xl rounded-[2rem] shadow-xl dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] border border-surface/50 p-6 lg:p-8">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8 border-b border-surface/50 pb-6">
             <h2 className="text-2xl font-semibold text-foreground tracking-wide">Inventario</h2>
             

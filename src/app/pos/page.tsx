@@ -941,13 +941,13 @@ export default function POSPage() {
         )}
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
-          <div className="bg-white/60 dark:bg-white/[0.02] backdrop-blur-xl rounded-2xl border border-black/[0.04] dark:border-white/[0.06] p-5 flex items-center gap-5 shadow-xl dark:shadow-[0_8px_30px_rgb(0,0,0,0.12)] bg-gradient-to-br from-white/80 dark:from-white/[0.04] to-transparent group transition-all duration-300 hover:scale-[1.02]">
+          <div className="bg-white/90 dark:bg-white/[0.02] backdrop-blur-xl rounded-2xl border border-surface/50 dark:border-white/[0.06] p-5 flex items-center gap-5 shadow-xl dark:shadow-[0_8px_30px_rgb(0,0,0,0.12)] bg-gradient-to-br from-white/90 dark:from-white/[0.04] to-transparent group transition-all duration-300 hover:scale-[1.02]">
             <div className="relative w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-500/10 flex items-center justify-center shrink-0">
               <div className="absolute inset-0 bg-blue-500 animate-pulse blur-md opacity-20 group-hover:opacity-40 rounded-full" />
               <Search className="w-6 h-6 text-blue-500 relative z-10" />
             </div>
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/50 mb-0.5">Disponibili</p>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/60 mb-0.5">Disponibili</p>
               <p className="text-2xl font-bold text-foreground">{products.length}</p>
             </div>
           </div>
@@ -1012,8 +1012,8 @@ export default function POSPage() {
           />
         </div>
 
-        <div className="bg-white/60 dark:bg-white/[0.02] backdrop-blur-2xl rounded-3xl shadow-2xl dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-black/[0.04] dark:border-white/[0.06] overflow-hidden relative z-10 mt-6 transition-all duration-500">
-          <div className="px-6 py-5 border-b border-black/[0.04] dark:border-white/[0.06] bg-surface-light/30 dark:bg-black/20">
+        <div className="bg-white/90 dark:bg-white/[0.02] backdrop-blur-2xl rounded-3xl shadow-2xl dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-surface/50 dark:border-white/[0.06] overflow-hidden relative z-10 mt-6 transition-all duration-500">
+          <div className="px-6 py-5 border-b border-surface/40 dark:border-white/[0.06] bg-surface-light/40 dark:bg-black/20">
             <div className="flex items-center gap-3">
               <div className="relative">
                 <div className="absolute inset-0 bg-brand blur-md opacity-20 rounded-full animate-pulse" />
@@ -1156,13 +1156,13 @@ export default function POSPage() {
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="border-b border-black/[0.04] dark:border-white/[0.06]">
-                          <th className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider text-foreground/60">
+                          <th className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider text-foreground/70">
                             Data / Ora
                           </th>
-                          <th className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider text-foreground/60">
+                          <th className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider text-foreground/70">
                             Metodo
                           </th>
-                          <th className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider text-foreground/60">
+                          <th className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider text-foreground/70">
                             Articoli
                           </th>
                           <th className="text-right px-5 py-3 text-xs font-semibold uppercase tracking-wider text-foreground/60">

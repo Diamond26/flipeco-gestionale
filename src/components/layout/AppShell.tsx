@@ -42,10 +42,10 @@ export default function AppShell({ children, pageTitle }: AppShellProps) {
           {mounted && (
             <button
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              className="p-2 rounded-xl bg-card/80 shadow-sm border border-white/50 dark:border-white/[0.06] text-foreground/50 hover:text-foreground"
+              className="p-2 rounded-xl bg-white dark:bg-card shadow-sm border border-surface/60 dark:border-white/[0.06] text-foreground/60 hover:text-brand transition-all"
               aria-label={theme === 'dark' ? 'Passa al tema chiaro' : 'Passa al tema scuro'}
             >
-              {theme === 'dark' ? <Sun size={17} /> : <Moon size={17} />}
+              {mounted && (theme === 'dark' ? <Sun size={17} /> : <Moon size={17} />)}
             </button>
           )}
         </div>

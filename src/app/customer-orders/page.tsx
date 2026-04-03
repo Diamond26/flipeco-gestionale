@@ -655,12 +655,12 @@ export default function CustomerOrdersPage() {
         {/* Stats bar (Premium Glass)                                        */}
         {/* ---------------------------------------------------------------- */}
         <div className="flex flex-wrap gap-4">
-          <div className="flex-1 min-w-[200px] bg-surface/50 dark:bg-white/[0.03] backdrop-blur-2xl rounded-2xl border border-surface dark:border-white/10 p-5 shadow-[0_8px_30px_rgb(0,0,0,0.15)] flex items-center gap-4 group">
+          <div className="flex-1 min-w-[200px] bg-white/90 dark:bg-white/[0.03] backdrop-blur-2xl rounded-2xl border border-surface/50 dark:border-white/10 p-5 shadow-[0_8px_30px_rgb(0,0,0,0.15)] flex items-center gap-4 group">
             <div className="w-14 h-14 rounded-[1.25rem] bg-surface/40 dark:bg-white/5 border border-surface dark:border-white/10 flex items-center justify-center shrink-0 shadow-inner group-hover:scale-105 transition-transform duration-300">
               <ShoppingBag className="w-6 h-6 text-foreground/80 drop-shadow-md" strokeWidth={1.5} />
             </div>
             <div>
-              <p className="text-[12px] font-bold uppercase tracking-wider text-foreground/40 mb-1">
+              <p className="text-[12px] font-bold uppercase tracking-wider text-foreground/60 mb-1">
                 Totale Ordini
               </p>
               <p className="text-3xl font-extrabold text-foreground drop-shadow-sm">{totalOrders}</p>
@@ -708,7 +708,7 @@ export default function CustomerOrdersPage() {
         {/* ---------------------------------------------------------------- */}
         {/* Orders List Container                                            */}
         {/* ---------------------------------------------------------------- */}
-        <div className="bg-surface/50 dark:bg-white/[0.03] backdrop-blur-2xl rounded-[2rem] border border-surface dark:border-white/10 p-6 sm:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.2)] relative overflow-hidden">
+        <div className="bg-white/90 dark:bg-white/[0.03] backdrop-blur-2xl rounded-[2rem] border border-surface/50 dark:border-white/10 p-6 sm:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.2)] relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-white/[0.02] to-transparent pointer-events-none" />
           
           {/* Top Actions: Search and Buttons */}
@@ -720,7 +720,7 @@ export default function CustomerOrdersPage() {
                 placeholder="Cerca per nome o telefono..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-11 pr-10 py-3.5 text-[14px] rounded-full border border-surface dark:border-white/10 bg-surface/50 dark:bg-black/20 text-foreground placeholder:text-foreground/40 focus:outline-none focus:ring-2 focus:ring-[#7BB35F]/50 focus:border-[#7BB35F]/50 transition-all shadow-inner backdrop-blur-md"
+                className="w-full pl-11 pr-10 py-3.5 text-[14px] rounded-full border border-surface/60 dark:border-white/10 bg-surface-base/50 dark:bg-black/20 text-foreground placeholder:text-foreground/50 focus:outline-none focus:ring-2 focus:ring-[#7BB35F]/50 focus:border-[#7BB35F]/50 transition-all shadow-inner backdrop-blur-md"
               />
               {searchQuery && (
                 <button
@@ -788,13 +788,13 @@ export default function CustomerOrdersPage() {
                <table className="w-full text-left border-collapse">
                  <thead>
                    <tr>
-                     <th className="px-4 pb-4 text-[11px] font-bold uppercase tracking-widest text-foreground/40 border-b border-surface dark:border-white/5 whitespace-nowrap">ID</th>
-                     <th className="px-4 pb-4 text-[11px] font-bold uppercase tracking-widest text-foreground/40 border-b border-surface dark:border-white/5 whitespace-nowrap">Cliente</th>
-                     <th className="px-4 pb-4 text-[11px] font-bold uppercase tracking-widest text-foreground/40 border-b border-surface dark:border-white/5 whitespace-nowrap">Telefono</th>
-                     <th className="px-4 pb-4 text-[11px] font-bold uppercase tracking-widest text-foreground/40 border-b border-surface dark:border-white/5 whitespace-nowrap">Stato</th>
-                     <th className="px-4 pb-4 text-[11px] font-bold uppercase tracking-widest text-foreground/40 border-b border-surface dark:border-white/5 whitespace-nowrap">Totale</th>
-                     <th className="px-4 pb-4 text-[11px] font-bold uppercase tracking-widest text-foreground/40 border-b border-surface dark:border-white/5 whitespace-nowrap">Data</th>
-                     <th className="px-4 pb-4 text-[11px] font-bold uppercase tracking-widest text-foreground/40 border-b border-surface dark:border-white/5 whitespace-nowrap">Articoli</th>
+                     <th className="px-4 pb-4 text-[11px] font-bold uppercase tracking-widest text-foreground/60 border-b border-surface/40 dark:border-white/5 whitespace-nowrap">ID</th>
+                     <th className="px-4 pb-4 text-[11px] font-bold uppercase tracking-widest text-foreground/60 border-b border-surface/40 dark:border-white/5 whitespace-nowrap">Cliente</th>
+                     <th className="px-4 pb-4 text-[11px] font-bold uppercase tracking-widest text-foreground/60 border-b border-surface/40 dark:border-white/5 whitespace-nowrap">Telefono</th>
+                     <th className="px-4 pb-4 text-[11px] font-bold uppercase tracking-widest text-foreground/60 border-b border-surface/40 dark:border-white/5 whitespace-nowrap">Stato</th>
+                     <th className="px-4 pb-4 text-[11px] font-bold uppercase tracking-widest text-foreground/60 border-b border-surface/40 dark:border-white/5 whitespace-nowrap">Totale</th>
+                     <th className="px-4 pb-4 text-[11px] font-bold uppercase tracking-widest text-foreground/60 border-b border-surface/40 dark:border-white/5 whitespace-nowrap">Data</th>
+                     <th className="px-4 pb-4 text-[11px] font-bold uppercase tracking-widest text-foreground/60 border-b border-surface/40 dark:border-white/5 whitespace-nowrap">Articoli</th>
                    </tr>
                  </thead>
                  <tbody className="divide-y divide-surface dark:divide-white/5">

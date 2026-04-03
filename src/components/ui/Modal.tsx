@@ -39,16 +39,16 @@ export function Modal({ open, onClose, title, children, size = 'md' }: ModalProp
       />
       {/* Panel */}
       <div
-        className={`relative ${sizes[size]} w-full mx-4 bg-card/95 backdrop-blur-xl rounded-3xl shadow-2xl shadow-black/20 max-h-[90vh] flex flex-col border border-white/50 dark:border-white/[0.08] animate-slide-up`}
+        className={`relative ${sizes[size]} w-full mx-4 bg-white/95 dark:bg-card/95 backdrop-blur-xl rounded-3xl shadow-2xl shadow-black/20 max-h-[90vh] flex flex-col border border-surface/50 dark:border-white/[0.08] animate-slide-up`}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-7 py-5 border-b border-surface/30">
+        <div className="flex items-center justify-between px-7 py-5 border-b border-surface/50">
           <h3 className="text-xl font-bold text-foreground">{title}</h3>
           <button
             onClick={onClose}
             className="p-2 rounded-xl hover:bg-surface-light/80 cursor-pointer"
           >
-            <X className="w-5 h-5 text-foreground/50" />
+            <X className="w-5 h-5 text-foreground/60 dark:text-foreground/50" />
           </button>
         </div>
         {/* Body */}

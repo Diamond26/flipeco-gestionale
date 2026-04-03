@@ -28,9 +28,9 @@ export function POSCart({
 }: POSCartProps) {
   return (
     <div className="w-full space-y-4 flex flex-col h-full relative z-10">
-      <div className="flex-[1_1_auto] bg-white/60 dark:bg-white/[0.02] backdrop-blur-2xl rounded-3xl border border-black/[0.04] dark:border-white/[0.06] overflow-hidden shadow-2xl dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex flex-col min-h-[600px] transition-all duration-500">
+      <div className="flex-[1_1_auto] bg-white/90 dark:bg-white/[0.02] backdrop-blur-2xl rounded-3xl border border-surface/50 dark:border-white/[0.06] overflow-hidden shadow-2xl dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex flex-col min-h-[600px] transition-all duration-500">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-black/[0.04] dark:border-white/[0.06] bg-surface-light/30 dark:bg-black/20">
+        <div className="flex items-center justify-between px-6 py-5 border-b border-surface/40 dark:border-white/[0.06] bg-surface-light/40 dark:bg-black/20">
           <div className="flex items-center gap-3">
             <div className="relative w-10 h-10 rounded-full bg-brand/10 flex items-center justify-center">
               <div className="absolute inset-0 bg-brand animate-pulse blur-md opacity-20 rounded-full" />
@@ -61,7 +61,7 @@ export function POSCart({
               <p className="text-lg font-medium">Carrello vuoto</p>
             </div>
           ) : (
-            <div className="divide-y divide-black/[0.04] dark:divide-white/[0.06]">
+            <div className="divide-y border-surface/40 dark:divide-white/[0.06]">
               {cart.map((item) => (
                 <div key={item.inventoryId} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-6 py-4 hover:bg-surface-light/40 dark:hover:bg-white/[0.02] transition-colors group">
                   <div className="flex-1 min-w-0 flex flex-col">
@@ -74,7 +74,7 @@ export function POSCart({
                   </div>
                   
                   <div className="flex items-center gap-6 sm:shrink-0 justify-between sm:justify-end w-full sm:w-auto">
-                    <div className="flex items-center gap-1.5 bg-surface-light/60 dark:bg-black/30 rounded-xl p-1 border border-black/[0.04] dark:border-white/[0.06]">
+                    <div className="flex items-center gap-1.5 bg-surface-light/80 dark:bg-black/30 rounded-xl p-1 border border-surface/50 dark:border-white/[0.06]">
                       <button onClick={() => decrementQty(item.inventoryId)} className="w-8 h-8 rounded-lg hover:bg-surface-light dark:hover:bg-white/10 flex items-center justify-center transition-colors"><Minus className="w-4 h-4 text-foreground/60" /></button>
                       <span className="w-8 text-center font-bold text-[15px]">{item.qty}</span>
                       <button disabled={item.qty >= item.maxQty} onClick={() => incrementQty(item.inventoryId)} className={cn('w-8 h-8 rounded-lg flex items-center justify-center transition-colors', item.qty >= item.maxQty ? 'opacity-30 cursor-not-allowed' : 'hover:bg-surface-light dark:hover:bg-white/10')}><Plus className="w-4 h-4 text-foreground/60" /></button>
@@ -95,9 +95,9 @@ export function POSCart({
         </div>
 
         {/* Footer */}
-        <div className="border-t border-black/[0.04] dark:border-white/[0.06] bg-gradient-to-b from-surface-light/40 to-surface-light/60 dark:from-black/30 dark:to-black/50 p-6 flex flex-col gap-6">
+        <div className="border-t border-surface/50 dark:border-white/[0.06] bg-gradient-to-b from-surface-light/40 to-surface-light/60 dark:from-black/30 dark:to-black/50 p-6 flex flex-col gap-6">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-bold uppercase tracking-widest text-foreground/50">Totale Cassa</span>
+            <span className="text-sm font-bold uppercase tracking-widest text-foreground/60">Totale Cassa</span>
             <span className="text-4xl font-black text-foreground drop-shadow-md bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">{formatCurrency(cartTotal)}</span>
           </div>
 
@@ -108,7 +108,7 @@ export function POSCart({
               className={cn(
                 'flex flex-col items-center justify-center gap-2 rounded-2xl py-6 shadow-xl transition-all duration-500 relative overflow-hidden group',
                 cart.length === 0 
-                  ? 'bg-surface-light/50 text-foreground/30 cursor-not-allowed border border-black/[0.04] dark:border-white/[0.06]' 
+                  ? 'bg-surface-light/50 text-foreground/30 cursor-not-allowed border border-surface/40 dark:border-white/[0.06]' 
                   : 'bg-gradient-to-br from-[#7BB35F] to-[#6CAE4A] text-white hover:scale-[1.02] active:scale-95 border border-[#8CE36B]/30 shadow-[0_10px_40px_rgba(123,179,95,0.4)]'
               )}
             >
@@ -127,7 +127,7 @@ export function POSCart({
               className={cn(
                 'flex flex-col items-center justify-center gap-2 rounded-2xl py-6 shadow-xl transition-all duration-500 relative overflow-hidden group',
                 cart.length === 0 
-                  ? 'bg-surface-light/50 text-foreground/30 cursor-not-allowed border border-black/[0.04] dark:border-white/[0.06]' 
+                  ? 'bg-surface-light/50 text-foreground/30 cursor-not-allowed border border-surface/40 dark:border-white/[0.06]' 
                   : 'bg-gradient-to-br from-blue-600 to-blue-700 text-white hover:scale-[1.02] active:scale-95 border border-blue-400/30 shadow-[0_10px_40px_rgba(37,99,235,0.4)]'
               )}
             >

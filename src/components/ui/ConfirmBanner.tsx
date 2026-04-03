@@ -62,7 +62,7 @@ export function ConfirmBanner({
         onClick={onCancel}
       />
       {/* Banner */}
-      <div className="confirm-banner relative mt-6 mx-4 w-full max-w-lg bg-card/95 backdrop-blur-xl rounded-2xl shadow-2xl shadow-black/15 border border-white/50 dark:border-white/[0.08] overflow-hidden">
+      <div className="confirm-banner relative mt-6 mx-4 w-full max-w-lg bg-white/95 dark:bg-card/95 backdrop-blur-xl rounded-2xl shadow-2xl shadow-black/15 border border-surface/50 dark:border-white/[0.08] overflow-hidden">
         {/* Colored top accent */}
         <div
           className={`h-1 w-full ${
@@ -80,7 +80,7 @@ export function ConfirmBanner({
             onClick={onCancel}
             className="absolute top-3 right-3 p-1.5 rounded-xl hover:bg-surface-light/80 cursor-pointer"
           >
-            <X className="w-4 h-4 text-foreground/40" />
+            <X className="w-4 h-4 text-foreground/60 dark:text-foreground/40" />
           </button>
 
           {/* Content */}
@@ -104,7 +104,7 @@ export function ConfirmBanner({
               <h4 className="text-sm font-bold text-foreground tracking-wide uppercase mb-1">
                 Conferma azione
               </h4>
-              <p className="text-sm text-foreground/70 leading-relaxed whitespace-pre-line">
+              <p className="text-sm text-foreground/80 dark:text-foreground/70 leading-relaxed whitespace-pre-line">
                 {message}
               </p>
             </div>

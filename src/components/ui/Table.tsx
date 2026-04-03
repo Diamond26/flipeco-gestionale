@@ -27,12 +27,12 @@ export function Table<T extends Record<string, any>>({
     <div className="overflow-x-auto rounded-2xl border border-surface/30 bg-card dark:bg-card/60 dark:backdrop-blur-sm">
       <table className="w-full">
         <thead>
-          <tr className="border-b border-surface/30">
+          <tr className="border-b border-surface/40">
             {columns.map((col) => (
               <th
                 key={col.key}
                 className={cn(
-                  'px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-foreground/50 whitespace-nowrap',
+                  'px-5 py-4 text-left text-xs font-bold uppercase tracking-wider text-foreground/60 whitespace-nowrap',
                   col.className
                 )}
               >
