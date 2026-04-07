@@ -43,6 +43,7 @@ function autoDetectMapping(headers: string[]): MappingConfig {
     color_code: find([/cod\.?\s*col/, /color.?cod/, /codice.?col/, /cod\.?\s*var/]),
     brand: find([/brand/, /marca/, /marchio/, /griffe/]),
     category: find([/categ/, /category/, /tipo/, /reparto/, /classe/]),
+    material: find([/materiale/, /material/, /tessuto/, /fabric/]),
   };
 }
 
@@ -71,7 +72,7 @@ export default function ImportPage() {
 
   // --- mapping state ---
   const [mapping, setMapping] = useState<MappingConfig>({
-    barcode: '', sku: '', name: '', size: '', color: '', color_code: '', brand: '', category: '',
+    barcode: '', sku: '', name: '', size: '', color: '', color_code: '', brand: '', category: '', material: '',
   });
 
   // --- review state ---
@@ -192,6 +193,7 @@ export default function ImportPage() {
         color_code: mapping.color_code ? (raw[mapping.color_code] ?? '') : '',
         brand: mapping.brand ? (raw[mapping.brand] ?? '') : '',
         category: mapping.category ? (raw[mapping.category] ?? '') : '',
+        material: mapping.material ? (raw[mapping.material] ?? '') : '',
         hasError: !name.trim(),
       };
     });
@@ -343,6 +345,7 @@ export default function ImportPage() {
         color_code: row.color_code || undefined,
         brand: row.brand || undefined,
         category: row.category || undefined,
+        material: row.material || undefined,
         supplier_id: selectedSupplierId,
       });
       if (result.success) {
@@ -399,8 +402,8 @@ export default function ImportPage() {
   const handleExportPDF = () => {
     exportToPDF({
       title: 'Anagrafica Prodotti Importati',
-      headers: ['Barcode', 'SKU', 'Nome', 'Taglia', 'Colore', 'Cod. Colore', 'Brand', 'Categoria'],
-      rows: rows.map((r) => [r.barcode, r.sku, r.name, r.size, r.color, r.color_code, r.brand, r.category]),
+      headers: ['Barcode', 'SKU', 'Nome', 'Taglia', 'Colore', 'Cod. Colore', 'Brand', 'Categoria', 'Materiale'],
+      rows: rows.map((r) => [r.barcode, r.sku, r.name, r.size, r.color, r.color_code, r.brand, r.category, r.material]),
       filename: 'prodotti-importati.pdf',
     });
   };
@@ -434,6 +437,7 @@ export default function ImportPage() {
     { key: 'color_code', label: 'Codice Colore' },
     { key: 'brand', label: 'Brand / Marca' },
     { key: 'category', label: 'Categoria' },
+    { key: 'material', label: 'Materiale' },
   ];
 
   // ---------------------------------------------------------------------------
@@ -536,7 +540,7 @@ export default function ImportPage() {
                   setRows([]);
                   setSavedCount(0);
                   setSaveError('');
-                  setMapping({ barcode: '', sku: '', name: '', size: '', color: '', color_code: '', brand: '', category: '' });
+                  setMapping({ barcode: '', sku: '', name: '', size: '', color: '', color_code: '', brand: '', category: '', material: '' });
                 }}
                 className="px-7 py-3 rounded-full font-bold tracking-wide transition-all bg-[#7BB35F]/20 text-brand dark:text-[#8CE36B] border border-[#7BB35F]/50 shadow-[0_0_25px_rgba(123,179,95,0.25)] hover:shadow-[0_0_35px_rgba(123,179,95,0.4)] hover:bg-[#7BB35F]/30 hover:border-[#7BB35F]/70"
               >

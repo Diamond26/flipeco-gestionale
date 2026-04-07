@@ -39,6 +39,7 @@ interface ProductRegistry {
   size: string
   color: string
   sku?: string
+  material?: string
 }
 
 interface InventoryProduct {
@@ -57,6 +58,7 @@ interface CartItem {
   brand: string
   size: string
   color: string
+  material: string
   price: number
   qty: number
   maxQty: number
@@ -422,6 +424,7 @@ export default function POSPage() {
             brand: product.product_registry.brand,
             size: product.product_registry.size,
             color: product.product_registry.color,
+            material: product.product_registry.material ?? '',
             price: product.sell_price,
             qty: 1,
             maxQty: product.quantity,

@@ -31,6 +31,7 @@ export function MappingStep({
     { key: 'color_code', label: 'Codice Colore' },
     { key: 'brand', label: 'Brand / Marca' },
     { key: 'category', label: 'Categoria' },
+    { key: 'material', label: 'Materiale' },
   ];
 
   return (

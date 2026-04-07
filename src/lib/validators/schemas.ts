@@ -21,6 +21,7 @@ export const productRegistrySchema = z.object({
   color_code: z.string().optional(),
   brand: z.string().optional(),
   category: z.string().optional(),
+  material: z.string().optional(),
   supplier_id: z.string().uuid().optional().nullable(),
 })
 

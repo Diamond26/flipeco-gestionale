@@ -91,6 +91,7 @@ export function ReviewStep({
                 <th className="px-4 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-foreground/50 whitespace-nowrap border-b border-surface dark:border-white/5">Cod. Colore</th>
                 <th className="px-4 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-foreground/50 whitespace-nowrap border-b border-surface dark:border-white/5">Brand</th>
                 <th className="px-4 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-foreground/50 whitespace-nowrap border-b border-surface dark:border-white/5">Categoria</th>
+                <th className="px-4 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-foreground/50 whitespace-nowrap border-b border-surface dark:border-white/5">Materiale</th>
                 <th className="px-4 py-3 border-b border-surface dark:border-white/5 w-10"></th>
               </tr>
             </thead>
@@ -103,7 +104,7 @@ export function ReviewStep({
                   `}
                 >
                   <td className="px-3 py-2 text-foreground/30 text-[11px] font-mono">{idx + 1}</td>
-                  {(['barcode', 'sku', 'name', 'size', 'color', 'color_code', 'brand', 'category'] as const).map((field) => (
+                  {(['barcode', 'sku', 'name', 'size', 'color', 'color_code', 'brand', 'category', 'material'] as const).map((field) => (
                     <td key={field} className="px-1 py-1">
                       <div className={`relative rounded-lg overflow-hidden transition-all ${
                          !row[field].trim() 

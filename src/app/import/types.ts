@@ -17,6 +17,7 @@ export interface MappingConfig {
   color_code: string;
   brand: string;
   category: string;
+  material: string;
 }
 
 export interface ProductRow {
@@ -29,5 +30,6 @@ export interface ProductRow {
   color_code: string;
   brand: string;
   category: string;
+  material: string;
   hasError: boolean;
 }

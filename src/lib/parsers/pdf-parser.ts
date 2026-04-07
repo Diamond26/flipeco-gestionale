@@ -67,7 +67,7 @@ function extractFieldsWithScore(line: string): ParsedRow | null {
   if (lowerTrimmed.startsWith('tel') || lowerTrimmed.startsWith('fax') || lowerTrimmed.startsWith('email')) return null
   if (/^(p\.?\s*iva|c\.?\s*f\.?|cod\.?\s*fisc)/i.test(trimmed)) return null
 
-  const row: ParsedRow = { barcode: '', sku: '', name: '', size: '', color: '', color_code: '' }
+  const row: ParsedRow = { barcode: '', sku: '', name: '', size: '', color: '', color_code: '', material: '' }
   let score = 0
 
   // 1. Tabular Awareness: prova a splittare per multipli spazi o tab
@@ -223,7 +223,7 @@ export async function parsePDF(file: File): Promise<{ headers: string[]; rows: P
     )
   }
 
-  const headers = ['barcode', 'sku', 'name', 'size', 'color', 'color_code']
+  const headers = ['barcode', 'sku', 'name', 'size', 'color', 'color_code', 'material']
 
   return { headers, rows }
 }

@@ -9,6 +9,7 @@ export interface ProductRegistry {
   size: string
   color: string
   sku?: string
+  material?: string
 }
 
 export interface InventoryProduct {
@@ -27,6 +28,7 @@ export interface CartItem {
   brand: string
   size: string
   color: string
+  material: string
   price: number
   qty: number
   maxQty: number

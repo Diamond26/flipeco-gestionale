@@ -40,6 +40,7 @@ interface ProductRegistry {
   color: string
   sku?: string
   brand?: string | null
+  material?: string | null
 }
 
 interface InventoryItem {
@@ -65,6 +66,7 @@ interface ScannedProduct {
   color: string | null
   color_code: string | null
   brand: string | null
+  material: string | null
 }
 
 interface EditForm {
@@ -160,6 +162,7 @@ export default function InventoryPage() {
     color_code: '',
     brand: '',
     category: '',
+    material: '',
     purchase_price: '',
     sell_price: '',
     quantity: '1',
@@ -184,6 +187,7 @@ export default function InventoryPage() {
     color_code: string | null
     brand: string | null
     category: string | null
+    material: string | null
   }
   const [productSuggestions, setProductSuggestions] = useState<ProductSuggestion[]>([])
   const [suggestField, setSuggestField] = useState('')
@@ -309,7 +313,7 @@ export default function InventoryPage() {
       // Ricerca esatta prima
       const { data: exactData } = await supabase
         .from('product_registry')
-        .select('id, barcode, name, sku, size, color, color_code, brand')
+        .select('id, barcode, name, sku, size, color, color_code, brand, material')
         .eq('barcode', trimmed)
         .limit(1)
 
@@ -319,7 +323,7 @@ export default function InventoryPage() {
       if (!found) {
         const { data: partialData } = await supabase
           .from('product_registry')
-          .select('id, barcode, name, sku, size, color, color_code, brand')
+          .select('id, barcode, name, sku, size, color, color_code, brand, material')
           .ilike('barcode', `%${trimmed}%`)
           .limit(1)
 
@@ -583,7 +587,7 @@ export default function InventoryPage() {
     suggestTimerRef.current = setTimeout(async () => {
       const { data } = await supabase
         .from('product_registry')
-        .select('id, barcode, name, sku, size, color, color_code, brand, category')
+        .select('id, barcode, name, sku, size, color, color_code, brand, category, material')
         .ilike(dbColumn, `%${trimmed}%`)
         .limit(20)
 
@@ -624,6 +628,7 @@ export default function InventoryPage() {
       color_code: product.color_code ?? '',
       brand: product.brand ?? '',
       category: product.category ?? '',
+      material: product.material ?? '',
     }))
     setProductSuggestions([])
     setSuggestField('')
@@ -653,28 +658,28 @@ export default function InventoryPage() {
     setMatchedProductId(null)
 
     // Ricerca esatta prima, poi fallback ilike per barcode parziali
-    type LookupResult = { id: string; name: string; sku: string | null; size: string | null; color: string | null; color_code: string | null; brand: string | null; category: string | null; import_id: string | null }
+    type LookupResult = { id: string; name: string; sku: string | null; size: string | null; color: string | null; color_code: string | null; brand: string | null; category: string | null; material: string | null; import_id: string | null }
     let data: LookupResult | null = null
 
     // Usa .limit(1) invece di .maybeSingle() per evitare errori con barcode duplicati
     const { data: exactMatches } = await supabase
       .from('product_registry')
-      .select('id, name, sku, size, color, color_code, brand, category, import_id')
+      .select('id, name, sku, size, color, color_code, brand, category, material, import_id')
       .eq('barcode', trimmed)
       .limit(1)
 
     if (exactMatches && exactMatches.length > 0) {
-      data = exactMatches[0]
+      data = exactMatches[0] as unknown as LookupResult
     } else {
       // Fallback: ricerca parziale ilike
       const { data: partialMatches } = await supabase
         .from('product_registry')
-        .select('id, name, sku, size, color, color_code, brand, category, import_id')
+        .select('id, name, sku, size, color, color_code, brand, category, material, import_id')
         .ilike('barcode', `%${trimmed}%`)
         .limit(1)
 
       if (partialMatches && partialMatches.length > 0) {
-        data = partialMatches[0]
+        data = partialMatches[0] as unknown as LookupResult
       }
     }
 
@@ -698,6 +703,7 @@ export default function InventoryPage() {
       color_code: data!.color_code ?? '',
       brand: data!.brand ?? '',
       category: data!.category ?? '',
+      material: data!.material ?? '',
     }))
     setLookupMatch(true)
     // Chiudi suggerimenti se aperti
@@ -744,7 +750,7 @@ export default function InventoryPage() {
     suggestTimerRef.current = setTimeout(async () => {
       const { data } = await supabase
         .from('product_registry')
-        .select('id, barcode, name, sku, size, color, color_code, brand, category')
+        .select('id, barcode, name, sku, size, color, color_code, brand, category, material')
         .ilike('barcode', `%${trimmed}%`)
         .limit(10)
 
@@ -832,6 +838,7 @@ export default function InventoryPage() {
           color_code: manualForm.color_code.trim() || null,
           brand: manualForm.brand.trim() || null,
           category: manualForm.category.trim() || null,
+          material: manualForm.material.trim() || null,
         })
         .select('id')
         .single()
@@ -895,7 +902,7 @@ export default function InventoryPage() {
     setManualAddOpen(false)
     setManualForm({
       barcode: '', name: '', sku: '', size: '', color: '', color_code: '',
-      brand: '', category: '', purchase_price: '', sell_price: '',
+      brand: '', category: '', material: '', purchase_price: '', sell_price: '',
       quantity: '1', location: '',
     })
     setLookupMatch(null)
@@ -1036,6 +1043,7 @@ export default function InventoryPage() {
         'Brand',
         'Taglia',
         'Colore',
+        'Materiale',
         'Quantità',
         'P. Acquisto',
         'P. Vendita',
@@ -1047,6 +1055,7 @@ export default function InventoryPage() {
         item.product_registry.brand ?? '',
         item.product_registry.size ?? '',
         item.product_registry.color ?? '',
+        item.product_registry.material ?? '',
         item.quantity,
         formatCurrency(item.purchase_price),
         formatCurrency(item.sell_price),
@@ -1406,6 +1415,12 @@ export default function InventoryPage() {
                 <div className="p-4 rounded-2xl bg-white/80 dark:bg-white/5 border border-gray-200/60 dark:border-white/10 min-w-[100px]">
                   <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/50 mb-1">Brand</p>
                   <p className="font-bold text-foreground">{scannedProduct.brand}</p>
+                </div>
+              )}
+              {scannedProduct.material && (
+                <div className="p-4 rounded-2xl bg-white/80 dark:bg-white/5 border border-gray-200/60 dark:border-white/10 min-w-[100px]">
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/50 mb-1">Materiale</p>
+                  <p className="font-bold text-foreground">{scannedProduct.material}</p>
                 </div>
               )}
               <div className="p-4 rounded-2xl bg-white/80 dark:bg-white/5 border border-gray-200/60 dark:border-white/10 min-w-[100px]">
@@ -2102,6 +2117,13 @@ export default function InventoryPage() {
               placeholder="es. Magliette"
               value={manualForm.category}
               onChange={(e) => setManualForm((f) => ({ ...f, category: e.target.value }))}
+            />
+            <Input
+              label="Materiale"
+              type="text"
+              placeholder="es. Cotone, Pelle, Poliestere"
+              value={manualForm.material}
+              onChange={(e) => setManualForm((f) => ({ ...f, material: e.target.value }))}
             />
           </div>
 

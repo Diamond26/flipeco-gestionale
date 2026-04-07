@@ -70,6 +70,7 @@ export function POSCart({
                       <span>Brand: <strong className="text-foreground/80">{item.brand || 'N/D'}</strong></span>
                       <span>Taglia: <strong className="text-foreground/80">{item.size || '-'}</strong></span>
                       <span>Colore: <strong className="text-foreground/80">{item.color || '-'}</strong></span>
+                      {item.material && <span>Materiale: <strong className="text-foreground/80">{item.material}</strong></span>}
                     </div>
                   </div>
                   
