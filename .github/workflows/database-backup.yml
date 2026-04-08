@@ -1,0 +1,157 @@
+name: Supabase Database Backup
+
+on:
+  schedule:
+    - cron: "0 */12 * * *"
+  workflow_dispatch:
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+
+    env:
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+      GDRIVE_CREDENTIALS_DATA: ${{ secrets.GDRIVE_CREDENTIALS_DATA }}
+      GDRIVE_FOLDER_ID: "13qIuDqOpOh5N4hWHZLWtnBHuDoNCBUnL"
+
+    steps:
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client zip
+
+      - name: Create database backup
+        run: |
+          set -euo pipefail
+
+          TIMESTAMP=$(date -u +"%Y%m%d_%H%M")
+          BACKUP_DIR="backup_flipeco_${TIMESTAMP}"
+          mkdir -p "${BACKUP_DIR}/csv"
+
+          echo "::group::Full SQL dump"
+          pg_dump "${SUPABASE_DB_URL}" \
+            --no-owner --no-acl --clean --if-exists \
+            -f "${BACKUP_DIR}/dump.sql"
+          echo "SQL dump completato"
+          echo "::endgroup::"
+
+          echo "::group::CSV export per tabella"
+          TABLES=$(psql "${SUPABASE_DB_URL}" -t -A -c \
+            "SELECT tablename FROM pg_tables WHERE schemaname = 'public';")
+
+          for TABLE in ${TABLES}; do
+            echo "Esportazione: ${TABLE}"
+            psql "${SUPABASE_DB_URL}" -c \
+              "\\COPY \"${TABLE}\" TO STDOUT WITH CSV HEADER" \
+              > "${BACKUP_DIR}/csv/${TABLE}.csv"
+          done
+          echo "::endgroup::"
+
+          echo "::group::Creazione archivio ZIP"
+          ZIP_NAME="backup_flipeco_${TIMESTAMP}.zip"
+          zip -r "${ZIP_NAME}" "${BACKUP_DIR}"
+          echo "Archivio creato: ${ZIP_NAME} ($(du -h "${ZIP_NAME}" | cut -f1))"
+          echo "::endgroup::"
+
+          echo "ZIP_NAME=${ZIP_NAME}" >> "$GITHUB_ENV"
+
+      - name: Upload to Google Drive and rotate backups
+        run: |
+          set -euo pipefail
+
+          # --- Autenticazione Google ---
+          echo "${GDRIVE_CREDENTIALS_DATA}" > /tmp/gsa.json
+
+          ACCESS_TOKEN=$(curl -s -X POST "https://oauth2.googleapis.com/token" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"grant_type\": \"urn:ietf:params:oauth:grant-type:jwt-bearer\",
+              \"assertion\": \"$(python3 - <<'PYEOF'
+          import json, time, base64, hashlib
+          from urllib.request import urlopen
+
+          sa = json.load(open("/tmp/gsa.json"))
+          header = base64.urlsafe_b64encode(json.dumps({"alg":"RS256","typ":"JWT"}).encode()).rstrip(b"=").decode()
+          now = int(time.time())
+          payload = base64.urlsafe_b64encode(json.dumps({
+              "iss": sa["client_email"],
+              "scope": "https://www.googleapis.com/auth/drive",
+              "aud": "https://oauth2.googleapis.com/token",
+              "iat": now,
+              "exp": now + 3600
+          }).encode()).rstrip(b"=").decode()
+
+          signing_input = f"{header}.{payload}".encode()
+
+          from cryptography.hazmat.primitives import hashes, serialization
+          from cryptography.hazmat.primitives.asymmetric import padding
+
+          private_key = serialization.load_pem_private_key(sa["private_key"].encode(), password=None)
+          signature = private_key.sign(signing_input, padding.PKCS1v15(), hashes.SHA256())
+          sig = base64.urlsafe_b64encode(signature).rstrip(b"=").decode()
+
+          print(f"{header}.{payload}.{sig}", end="")
+          PYEOF
+          )\"
+            }" | python3 -c "import sys,json; print(json.load(sys.stdin)['access_token'])")
+
+          echo "Token ottenuto"
+
+          # --- Upload del backup ---
+          METADATA=$(cat <<METAEOF
+          {
+            "name": "${ZIP_NAME}",
+            "parents": ["${GDRIVE_FOLDER_ID}"]
+          }
+          METAEOF
+          )
+
+          echo "Upload di ${ZIP_NAME} in corso..."
+          UPLOAD_RESPONSE=$(curl -s -X POST \
+            "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart" \
+            -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+            -F "metadata=${METADATA};type=application/json" \
+            -F "file=@${ZIP_NAME};type=application/zip")
+
+          UPLOADED_ID=$(echo "${UPLOAD_RESPONSE}" | python3 -c "import sys,json; print(json.load(sys.stdin).get('id',''))")
+
+          if [ -z "${UPLOADED_ID}" ]; then
+            echo "::error::Upload fallito: ${UPLOAD_RESPONSE}"
+            exit 1
+          fi
+          echo "Upload completato: file ID ${UPLOADED_ID}"
+
+          # --- Rotazione: mantieni solo gli ultimi 2 backup ---
+          echo "Controllo rotazione backup..."
+          FILES_JSON=$(curl -s -G \
+            "https://www.googleapis.com/drive/v3/files" \
+            -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+            --data-urlencode "q='${GDRIVE_FOLDER_ID}' in parents and trashed=false" \
+            --data-urlencode "orderBy=createdTime desc" \
+            --data-urlencode "fields=files(id,name,createdTime)" \
+            --data-urlencode "pageSize=100")
+
+          DELETE_IDS=$(echo "${FILES_JSON}" | python3 -c "
+          import sys, json
+          data = json.load(sys.stdin)
+          files = data.get('files', [])
+          # Tieni i primi 2 (più recenti), elimina il resto
+          for f in files[2:]:
+              print(f['id'], f['name'])
+          ")
+
+          if [ -z "${DELETE_IDS}" ]; then
+            echo "Nessun backup da eliminare (<=2 presenti)"
+          else
+            echo "${DELETE_IDS}" | while read -r FILE_ID FILE_NAME; do
+              echo "Eliminazione vecchio backup: ${FILE_NAME} (${FILE_ID})"
+              curl -s -X DELETE \
+                "https://www.googleapis.com/drive/v3/files/${FILE_ID}" \
+                -H "Authorization: Bearer ${ACCESS_TOKEN}"
+            done
+            echo "Rotazione completata"
+          fi
+
+          # Pulizia
+          rm -f /tmp/gsa.json
+          echo "Backup completato con successo"
